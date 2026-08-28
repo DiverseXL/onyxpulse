@@ -1,5 +1,5 @@
-import Hero from '@/components/Hero';
+import PulseLanding from '@/components/PulseLanding';
 
 export default function Home() {
-  return <Hero />;
+  return <PulseLanding />;
 }

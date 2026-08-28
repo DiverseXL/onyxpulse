@@ -1,0 +1,433 @@
+/* ─────────────────────────────────────────────
+   ReceiptBody.module.css
+   Receipt tab body — verified settlement card
+   Typography and spacing mapped to design tokens
+   from globals.css (--text-*, --space-*)
+───────────────────────────────────────────── */
+
+.container {
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ── Header ──────────────────────────────── */
+.header {
+  margin-bottom: var(--space-4);
+}
+
+.headerLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.headerIcon {
+  color: rgba(242, 237, 225, var(--opacity-muted));
+  flex-shrink: 0;
+}
+
+/* Header title: --text-micro / Mono 400 / all-caps */
+.headerTitle {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(242, 237, 225, var(--opacity-muted));
+}
+
+/* Header sub: --text-small / Inter 400 */
+.headerSub {
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  font-weight: 400;
+  color: rgba(242, 237, 225, var(--opacity-secondary));
+  line-height: 1.5;
+}
+
+/* ── Honesty Strip ──────────────────────── */
+.honestyStrip {
+  padding: var(--space-2) var(--space-4);
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  letter-spacing: 0.07em;
+  color: rgba(242, 237, 225, var(--opacity-muted));
+  text-align: center;
+  text-transform: uppercase;
+  margin-bottom: var(--space-5);
+}
+
+/* ── Card Wrapper ────────────────────────── */
+.cardWrapper {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-2) 0;
+}
+
+/* ── Receipt Card ────────────────────────── */
+.receiptCard {
+  width: 100%;
+  max-width: 600px;
+  background: rgba(14, 14, 18, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  position: relative;
+}
+
+.receiptCardSample {
+  opacity: 0.6;
+  border-style: dashed;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* ── Sample Badge ────────────────────────── */
+.sampleBadge {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  padding: var(--space-1) var(--space-2);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: rgba(242, 237, 225, var(--opacity-muted));
+  text-transform: uppercase;
+}
+
+/* ── Card Header ─────────────────────────── */
+.cardHeader {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* Question: --text-body / Inter 600 */
+.cardQuestion {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--color-paper);
+  margin: 0;
+}
+
+.badgeRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* ── Asset Badge (matches Markets tab) ──── */
+.assetBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 22px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.assetBadgeBtc {
+  background: rgba(247, 147, 26, 0.18);
+  color: #f7931a;
+  border: 1px solid rgba(247, 147, 26, 0.3);
+}
+
+.assetBadgeEth {
+  background: rgba(98, 126, 234, 0.18);
+  color: #627eea;
+  border: 1px solid rgba(98, 126, 234, 0.3);
+}
+
+/* ── Status Badge ────────────────────────── */
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-1) var(--space-2);
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+.statusResolved {
+  background: rgba(34, 197, 94, 0.15);
+  color: #4ade80;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.statusVoided {
+  background: rgba(217, 162, 56, 0.15);
+  color: #d9a238;
+  border: 1px solid rgba(217, 162, 56, 0.3);
+}
+
+/* ── Voided Note ─────────────────────────── */
+.voidedNote {
+  padding: var(--space-3);
+  background: rgba(217, 162, 56, 0.08);
+  border: 1px solid rgba(217, 162, 56, 0.15);
+  border-radius: 6px;
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  font-weight: 400;
+  color: rgba(242, 237, 225, var(--opacity-secondary));
+  line-height: 1.5;
+}
+
+/* ── Winning Outcome ─────────────────────── */
+.winningOutcome {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.winningLabel {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: rgba(242, 237, 225, var(--opacity-muted));
+}
+
+.winnerYes {
+  font-family: var(--font-body);
+  font-size: var(--text-label);
+  font-weight: 600;
+  color: #4ade80;
+  padding: var(--space-1) var(--space-2);
+  border-radius: 4px;
+  background: rgba(34, 197, 94, 0.12);
+}
+
+.winnerNo {
+  font-family: var(--font-body);
+  font-size: var(--text-label);
+  font-weight: 600;
+  color: #f87171;
+  padding: var(--space-1) var(--space-2);
+  border-radius: 4px;
+  background: rgba(239, 68, 68, 0.12);
+}
+
+/* ── Expiry Row ──────────────────────────── */
+.expiryRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.expiryIcon {
+  color: rgba(242, 237, 225, var(--opacity-muted));
+  flex-shrink: 0;
+}
+
+.expiryText {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  color: rgba(242, 237, 225, var(--opacity-secondary));
+}
+
+/* ── Divider ─────────────────────────────── */
+.divider {
+  width: 100%;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* ── On-Chain Proof Section ──────────────── */
+.proofSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.proofLabel {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(242, 237, 225, var(--opacity-muted));
+  margin-bottom: var(--space-1);
+}
+
+/* Explorer/oracle link: --text-small / Inter 500 */
+.proofLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  font-weight: 500;
+  color: var(--color-rust);
+  text-decoration: none;
+  transition: color var(--transition-fast), filter var(--transition-fast);
+}
+
+.proofLink:hover {
+  color: #e06040;
+  filter: brightness(1.15);
+}
+
+.proofLink:focus-visible {
+  outline: 2px solid var(--color-paper);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.proofPending {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  color: rgba(242, 237, 225, var(--opacity-muted));
+  font-style: italic;
+}
+
+/* ── Card Footer ─────────────────────────── */
+.cardFooter {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  color: rgba(242, 237, 225, var(--opacity-muted));
+  text-align: center;
+  padding-top: var(--space-2);
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+/* ── Empty State ─────────────────────────── */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-5);
+  padding: var(--space-2) 0 var(--space-4);
+}
+
+.emptyMessage {
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  font-weight: 400;
+  color: rgba(242, 237, 225, var(--opacity-secondary));
+  line-height: 1.6;
+  text-align: center;
+  max-width: 520px;
+}
+
+.sampleSection {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.sampleLabel {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(242, 237, 225, var(--opacity-muted));
+}
+
+/* ── Loading State ───────────────────────── */
+.loadingState {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-6) 0;
+}
+
+.skeletonCard {
+  width: 100%;
+  max-width: 600px;
+  background: rgba(14, 14, 18, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+}
+
+.skeletonPulse {
+  background: rgba(255, 255, 255, 0.06);
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes skeletonPulse {
+  0%, 100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeletonPulse {
+    animation: none;
+    opacity: 0.5;
+  }
+}
+
+/* ── Card entrance animation ─────────────── */
+.receiptCard {
+  animation: cardEntrance 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes cardEntrance {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.receiptCardSample {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .receiptCard {
+    animation: none;
+  }
+}
+
+/* ── Responsive ──────────────────────────── */
+@media (max-width: 520px) {
+  .container {
+    padding: var(--space-4);
+  }
+
+  .receiptCard {
+    padding: var(--space-4);
+  }
+}

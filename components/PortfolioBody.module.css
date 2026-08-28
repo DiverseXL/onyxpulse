@@ -1,0 +1,576 @@
+/* ─────────────────────────────────────────────
+   PortfolioBody.module.css
+   Portfolio tab body — Landing page sample preview
+   Typography and spacing mapped to design tokens
+   from globals.css (--text-*, --space-*)
+   NO EMOJIS in code, comments, or styling.
+───────────────────────────────────────────── */
+
+.container {
+  padding: var(--space-5) var(--space-5) var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+/* ── Top Section (240px | 1fr) ───────────── */
+.topSection {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: var(--space-4);
+  align-items: stretch;
+}
+
+/* ── Left Column ─────────────────────────── */
+.leftColumn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* ── Card 1: Portfolio Value Card ───────── */
+.portfolioCard {
+  background: linear-gradient(135deg, #0c2b18 0%, #0f4d26 100%);
+  border: 1px solid rgba(74, 222, 128, 0.28);
+  box-shadow: 0 6px 20px rgba(12, 43, 24, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.12);
+  border-radius: 13px;
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-2);
+  transition: border-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.portfolioCard:hover {
+  border-color: rgba(74, 222, 128, 0.45);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Card label: --text-micro / Mono 400 / all-caps */
+.cardLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(242, 237, 225, var(--opacity-secondary));
+}
+
+.labelIconGreen {
+  color: #4ade80;
+}
+
+.labelIconBlue {
+  color: #38bdf8;
+}
+
+.cardValueRow {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+/* Card main value: large Mono 500, -0.01em tracking */
+.cardMainValue {
+  font-family: var(--font-mono);
+  font-size: 1.75rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--color-paper);
+  line-height: 1.1;
+}
+
+/* Unit tag: --text-micro / Mono 400 */
+.cardUnitTag {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  color: rgba(242, 237, 225, var(--opacity-secondary));
+  letter-spacing: 0.01em;
+}
+
+.cardSparklineSvg {
+  width: 52px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* ── Card 2: Balance Card ────────────────── */
+.balanceCard {
+  background: linear-gradient(135deg, #0d1f3c 0%, #1a3f80 100%);
+  border: 1px solid rgba(56, 189, 248, 0.26);
+  box-shadow: 0 6px 20px rgba(13, 31, 60, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.12);
+  border-radius: 13px;
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-2);
+  transition: border-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.balanceCard:hover {
+  border-color: rgba(56, 189, 248, 0.45);
+}
+
+/* Balance subtext: --text-micro / Mono 400 / all-caps */
+.balanceSubtext {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  color: rgba(242, 237, 225, var(--opacity-muted));
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+/* ── Action Buttons Row ──────────────────── */
+.actionsRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+  position: relative;
+}
+
+/* Deposit button: --text-small / Inter 600 */
+.depositBtn {
+  background: var(--color-paper);
+  color: #0c150c;
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  font-weight: 600;
+  border-radius: 8px;
+  padding: var(--space-2) var(--space-2);
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  transition: transform var(--transition-fast), filter var(--transition-fast);
+  cursor: pointer;
+}
+
+.depositBtn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+.depositBtn:focus-visible {
+  outline: 2px solid #4ade80;
+  outline-offset: 2px;
+}
+
+/* Withdraw button: --text-small / Inter 500 */
+.withdrawBtn {
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--color-paper);
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  font-weight: 500;
+  border-radius: 8px;
+  padding: var(--space-2) var(--space-2);
+  border: 1px solid rgba(242, 237, 225, 0.25);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  transition: background-color var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
+  cursor: pointer;
+}
+
+.withdrawBtn:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(242, 237, 225, 0.4);
+  transform: translateY(-1px);
+}
+
+.withdrawBtn:focus-visible {
+  outline: 2px solid var(--color-paper);
+  outline-offset: 2px;
+}
+
+/* Toast notice: --text-micro / Mono 400 */
+.toastNotice {
+  position: absolute;
+  bottom: -2.35rem;
+  left: 0;
+  right: 0;
+  background: rgba(18, 18, 22, 0.94);
+  border: 1px solid rgba(242, 237, 225, 0.18);
+  backdrop-filter: blur(8px);
+  padding: var(--space-1) var(--space-3);
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  color: rgba(242, 237, 225, var(--opacity-secondary));
+  text-align: center;
+  animation: fadeIn 0.2s ease-out;
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* ── Right Column: P/L Card ──────────────── */
+.pnlCard {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.06);
+  border-radius: 13px;
+  padding: var(--space-4) var(--space-5) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-3);
+  position: relative;
+  overflow: hidden;
+}
+
+.pnlTopHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.pnlTitleGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+/* P/L label: --text-micro / Mono 400 / all-caps */
+.pnlLabel {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(242, 237, 225, var(--opacity-muted));
+}
+
+/* P/L sub-label: --text-micro / Mono 400 */
+.pnlSubLabel {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  color: rgba(242, 237, 225, var(--opacity-muted));
+  letter-spacing: 0.02em;
+}
+
+.pnlValueGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* P/L main value: large Mono 500, -0.01em tracking */
+.pnlMainValue {
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: #4ade80;
+  line-height: 1;
+}
+
+/* P/L badge: --text-small / Mono 500 */
+.pnlBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  background: rgba(74, 222, 128, 0.14);
+  border: 1px solid rgba(74, 222, 128, 0.3);
+  color: #4ade80;
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  font-weight: 500;
+  padding: var(--space-1) var(--space-2);
+  border-radius: 6px;
+}
+
+/* ── P/L Chart Container ─────────────────── */
+.pnlChartWrapper {
+  width: 100%;
+  height: 85px;
+  position: relative;
+  margin-top: var(--space-1);
+}
+
+.pnlChartSvg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* ── Positions Table Section ─────────────── */
+.positionsSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.positionsHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-1);
+}
+
+/* Positions label: --text-micro / Mono 400 / all-caps */
+.positionsLabel {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(242, 237, 225, var(--opacity-muted));
+}
+
+/* Positions count tag: --text-micro / Mono 400 / all-caps */
+.positionsCountTag {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  color: rgba(242, 237, 225, var(--opacity-muted));
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.tableWrapper {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.015);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+/* Table headers: --text-micro / Mono 400 / all-caps */
+.th {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(242, 237, 225, var(--opacity-muted));
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.thRight {
+  text-align: right;
+}
+
+.tr {
+  transition: background-color var(--transition-fast);
+}
+
+.tr:hover {
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.tr:not(:last-child) {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.td {
+  padding: var(--space-3) var(--space-4);
+  vertical-align: middle;
+}
+
+.tdRight {
+  text-align: right;
+}
+
+.positionCell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+/* Position title: --text-small / Inter 600 */
+.positionTitle {
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  font-weight: 600;
+  color: var(--color-paper);
+  line-height: 1.3;
+}
+
+.positionMeta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+/* Yes/No chips: --text-micro / Mono 400 */
+.chipYes {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--space-1);
+  border-radius: 4px;
+  background: rgba(74, 222, 128, 0.14);
+  border: 1px solid rgba(74, 222, 128, 0.28);
+  color: #4ade80;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.chipNo {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--space-1);
+  border-radius: 4px;
+  background: rgba(248, 113, 113, 0.14);
+  border: 1px solid rgba(248, 113, 113, 0.28);
+  color: #f87171;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+/* Meta shares: --text-micro / Mono 400 */
+.metaShares {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  color: rgba(242, 237, 225, var(--opacity-secondary));
+}
+
+.metaDot {
+  color: rgba(242, 237, 225, var(--opacity-muted));
+  font-size: var(--text-micro);
+}
+
+/* Meta time: --text-micro / Mono 400 */
+.metaTime {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  color: rgba(242, 237, 225, var(--opacity-muted));
+}
+
+/* Current cents: --text-body / Mono 500, -0.01em tracking */
+.currentCents {
+  font-family: var(--font-mono);
+  font-size: var(--text-body);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--color-paper);
+}
+
+.valueCell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-1);
+}
+
+/* Position value: --text-small / Mono 500 */
+.posValue {
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--color-paper);
+}
+
+/* P/L: --text-micro / Mono 400 */
+.posPnlPositive {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  color: #4ade80;
+}
+
+.posPnlNegative {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  color: #f87171;
+}
+
+/* ── Footer Honesty Strip ────────────────── */
+/* Distinct from Trade/Markets honesty strip:
+   dashed border signals sample-only state */
+.footerHonesty {
+  margin-top: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px dashed rgba(255, 255, 255, 0.08);
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: rgba(242, 237, 225, var(--opacity-muted));
+  text-align: center;
+  text-transform: uppercase;
+}
+
+/* ── Animations & Media Queries ──────────── */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .portfolioCard,
+  .balanceCard,
+  .depositBtn,
+  .withdrawBtn,
+  .tr,
+  .toastNotice {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* 720px — tablet, stack top section */
+@media (max-width: 720px) {
+  .topSection {
+    grid-template-columns: 1fr;
+  }
+
+  .pnlCard {
+    min-height: 160px;
+  }
+}
+
+/* 540px — mobile */
+@media (max-width: 540px) {
+  .container {
+    padding: var(--space-4) var(--space-3) var(--space-5);
+  }
+
+  .th, .td {
+    padding: var(--space-2) var(--space-3);
+  }
+}
