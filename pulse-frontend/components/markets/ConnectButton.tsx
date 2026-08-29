@@ -9,12 +9,14 @@
  * NO EMOJI in code, comments, or UI copy.
  */
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useConnect, useAccount, useBalance } from 'wagmi';
 import { formatEther } from 'viem';
 import { Loader2, Wallet } from 'lucide-react';
 
 export default function ConnectButton() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const { isConnected, address } = useAccount();
   const { connect, connectors, isPending } = useConnect();
   const [error, setError] = useState<string | null>(null);
@@ -35,6 +37,31 @@ export default function ConnectButton() {
     }
     connect({ connector });
   }, [connect, connectors]);
+
+  /* -- Waiting for client hydration --------------------------------------- */
+  if (!mounted) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.25rem' }}>
+        <div
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.4rem',
+            padding: '0.4rem 0.9rem',
+            borderRadius: '9999px',
+            background: 'var(--color-rust)',
+            color: 'var(--color-paper)',
+            fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
+            fontSize: 'var(--text-small)',
+            fontWeight: 600,
+            border: 'none',
+            visibility: 'hidden',
+            height: '100%',
+          }}
+        />
+      </div>
+    );
+  }
 
   /* -- Connected state: truncated address pill + STT balance ---------------- */
   if (isConnected && address) {
