@@ -8,7 +8,13 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, TrendingUp, TrendingDown, AlertCircle, RefreshCw, CheckCircle, Loader2 } from 'lucide-react';
 import styles from './MarketDetail.module.css';
 import AppChromeNav from '@/components/markets/AppChromeNav';
+import ChainMismatchBanner from '@/components/markets/ChainMismatchBanner';
 import type { TradePreviewData } from '@/app/api/trade-preview/route';
+import { usePulseWallet } from '@/lib/wallet/PulseWalletContext';
+import { placeClientOrder } from '@/lib/wallet/placeOrder';
+import { getWalletClient } from '@wagmi/core';
+import { wagmiConfig } from '@/lib/wallet/wagmiConfig';
+import { useAccount } from 'wagmi';
 import {
   useReducedMotionSafe,
   safeVariants,
@@ -27,6 +33,8 @@ export default function MarketDetailPage() {
   const marketId = params?.id as string;
 
   const reducedMotion = useReducedMotionSafe();
+  const wallet = usePulseWallet();
+  const { address: wagmiAddress } = useAccount();
 
   const [data, setData] = useState<TradePreviewData | null>(null);
 
@@ -218,15 +226,21 @@ export default function MarketDetailPage() {
     );
   };
 
-  /* ── Place order handler ── */
+  /* ── Place order handler (client-side via wagmi walletClient) ── */
   const handlePlaceOrder = useCallback(async () => {
     if (!data || orderStatus === 'submitting') return;
+
+    if (wallet.connectionStatus !== 'connected' || !wallet.address) {
+      setOrderError('Please connect your wallet first.');
+      setOrderStatus('error');
+      setTimeout(() => { setOrderStatus('idle'); setOrderError(null); }, 3000);
+      return;
+    }
 
     setOrderStatus('submitting');
     setOrderError(null);
     setOrderResult(null);
 
-    // Determine the engine-side string from UI state
     const side = orderType === 'buy'
       ? (selectedSide === 'yes' ? 'BUY_YES' : 'BUY_NO')
       : (selectedSide === 'yes' ? 'SELL_YES' : 'SELL_NO');
@@ -234,39 +248,37 @@ export default function MarketDetailPage() {
     const priceCents = selectedSide === 'yes' ? data.yesAskCents : data.noAskCents;
 
     try {
-      const res = await fetch('/api/trade', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          marketAddress: data.marketAddress,
-          side,
-          amount,
-          priceCents,
-          decimals: data.quoteDecimals,
-        }),
-      });
-
-      const json = await res.json();
-
-      if (!res.ok) {
-        throw new Error(json.error || 'Order failed');
+      const walletClient = await getWalletClient(wagmiConfig);
+      if (!walletClient || !walletClient.account) {
+        throw new Error('Wallet client not available. Please reconnect.');
       }
 
-      setOrderResult({ hash: json.hash, orderId: json.orderId });
+      const result = await placeClientOrder(walletClient, walletClient.account, {
+        poolAddress: data.marketAddress,
+        side,
+        priceCents,
+        amount,
+        decimals: data.quoteDecimals,
+      });
+
+      setOrderResult({ hash: result.hash, orderId: null });
       setOrderStatus('success');
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Unknown error';
+      const raw = err instanceof Error ? err.message : 'Unknown error';
+      // Detect chain mismatch and show a clearer message
+      const message = raw.includes('does not match the target chain')
+        ? 'Wrong network -- switch MetaMask to Somnia Testnet (chain 50312) and try again.'
+        : raw;
       setOrderError(message);
       setOrderStatus('error');
     } finally {
-      // Auto-reset status after a delay
       setTimeout(() => {
         setOrderStatus('idle');
         setOrderResult(null);
         setOrderError(null);
       }, 5000);
     }
-  }, [data, orderType, selectedSide, amount, orderStatus]);
+  }, [data, orderType, selectedSide, amount, orderStatus, wallet, wagmiAddress]);
 
   /* ── Loading state ── */
   if (isLoading && !data) {
@@ -337,6 +349,9 @@ export default function MarketDetailPage() {
             Markets
           </Link>
         </motion.div>
+
+        {/* Chain mismatch warning */}
+        <ChainMismatchBanner />
 
         {/* Glass Panel */}
         <motion.div
@@ -596,10 +611,12 @@ export default function MarketDetailPage() {
                 className={`${styles.ticketCta} ${
                   selectedSide === 'yes' ? styles.ticketCtaYes : styles.ticketCtaNo
                 } ${orderStatus === 'submitting' ? styles.ticketCtaDisabled : ''}`}
-                onClick={handlePlaceOrder}
+                onClick={wallet.connectionStatus !== 'connected' ? wallet.connect : handlePlaceOrder}
                 disabled={orderStatus === 'submitting'}
               >
-                {orderStatus === 'submitting' ? (
+                {wallet.connectionStatus !== 'connected' ? (
+                  <span>Connect Wallet</span>
+                ) : orderStatus === 'submitting' ? (
                   <span className={styles.ctaLoading}>
                     <Loader2 size={16} className={styles.spinnerIcon} aria-hidden="true" />
                     Placing order...

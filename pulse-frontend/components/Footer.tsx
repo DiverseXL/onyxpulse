@@ -74,8 +74,8 @@ const COLUMNS: FooterColumn[] = [
         external: true,
       },
       {
-        label: 'Powered by Thirdweb',
-        href: 'https://thirdweb.com',
+        label: 'Somnia Docs',
+        href: 'https://docs.somnia.network',
         external: true,
       },
     ],

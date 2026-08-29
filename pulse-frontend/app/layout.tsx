@@ -32,12 +32,12 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "Pulse — Up or Down. That's It.",
   description:
-    'The fastest way to trade crypto direction — powered by DreamDEX Event Contracts on Somnia testnet. Gasless trading, transparent settlement, verifiable on-chain.',
+    'The fastest way to trade crypto direction — powered by DreamDEX Event Contracts on Somnia testnet. Simple wallet connect, transparent settlement, verifiable on-chain.',
   keywords: ['crypto', 'trading', 'DreamDEX', 'Somnia', 'event contracts', 'direction trading', 'BTC', 'ETH'],
   openGraph: {
     title: "Pulse — Up or Down. That's It.",
     description:
-      'Gasless BTC/ETH direction trading on DreamDEX Event Contracts. Zero fees, capped risk, verifiable on-chain.',
+      'BTC/ETH direction trading on DreamDEX Event Contracts. Capped risk, verifiable on-chain settlement.',
     type: 'website',
   },
 };

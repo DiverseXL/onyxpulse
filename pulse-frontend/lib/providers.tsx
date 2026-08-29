@@ -2,16 +2,16 @@
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
-import { ThirdwebWalletProvider } from '@/lib/wallet/thirdwebProvider';
+import { WagmiProvider } from 'wagmi';
+import { wagmiConfig } from '@/lib/wallet/wagmiConfig';
+import { PulseWalletProvider } from '@/lib/wallet/PulseWalletContext';
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  // Each request gets its own QueryClient so data is never shared between users
   const [queryClient] = useState(
     () =>
       new QueryClient({
         defaultOptions: {
           queries: {
-            // With SSR, we usually want to avoid refetching on mount by default
             staleTime: 60 * 1000,
           },
         },
@@ -19,8 +19,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThirdwebWalletProvider>{children}</ThirdwebWalletProvider>
-    </QueryClientProvider>
+    <WagmiProvider config={wagmiConfig}>
+      <QueryClientProvider client={queryClient}>
+        <PulseWalletProvider>{children}</PulseWalletProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
   );
 }

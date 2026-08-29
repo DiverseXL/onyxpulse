@@ -276,8 +276,8 @@ export default function HeroV2({ activeTab, onTabChange }: HeroV2Props) {
 
         {/* 6. Subheadline */}
         <motion.p className={styles.subheadline} variants={itemVariants}>
-          Gasless BTC/ETH direction trading on DreamDEX Event Contracts.
-          Zero fees, capped risk, verifiable on-chain.
+          BTC/ETH direction trading on DreamDEX Event Contracts.
+          Capped risk, transparent on-chain settlement.
         </motion.p>
 
         {/* 7. CTA button — arrow nudge on hover */}

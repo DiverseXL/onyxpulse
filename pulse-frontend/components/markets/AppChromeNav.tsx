@@ -3,21 +3,12 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Wallet, Sparkles, ExternalLink, Loader2 } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 import styles from './AppChromeNav.module.css';
-import { usePulseWallet } from '@/lib/wallet/usePulseWallet';
+import ConnectButton from './ConnectButton';
 
 export default function AppChromeNav() {
   const pathname = usePathname();
-  const { shortAddress, isConnected, isConnecting, connect, disconnect, error } = usePulseWallet();
-
-  const handleConnect = () => {
-    if (isConnected) {
-      disconnect();
-    } else {
-      connect();
-    }
-  };
 
   return (
     <header className={styles.header} role="banner">
@@ -82,27 +73,9 @@ export default function AppChromeNav() {
           </a>
         </nav>
 
-        {/* Right: Thirdweb Smart Wallet Guest Status */}
+        {/* Right: Wallet Connect */}
         <div className={styles.rightGroup}>
-          <div className={styles.gasSponsoredChip} title="Gas fees sponsored on Somnia testnet">
-            <Sparkles size={11} className={styles.sparkleIcon} aria-hidden="true" />
-            <span>Gasless</span>
-          </div>
-
-          <button
-            type="button"
-            className={isConnected ? styles.connectedButton : styles.connectButton}
-            onClick={handleConnect}
-            disabled={isConnecting}
-            aria-label={isConnected ? `Connected as ${shortAddress}` : 'Connect smart wallet'}
-            title={error ?? undefined}
-          >
-            {isConnecting ? (
-              <><Loader2 size={13} className={styles.connectSpinner} aria-hidden="true" /><span>Connecting...</span></>
-            ) : (
-              <><Wallet size={13} aria-hidden="true" /><span>{isConnected ? shortAddress : 'Connect'}</span></>
-            )}
-          </button>
+          <ConnectButton />
         </div>
       </div>
     </header>

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Zap, ShieldCheck, Wallet } from 'lucide-react';
+import { Zap, ShieldCheck, Link } from 'lucide-react';
 import styles from './WhyPulseSection.module.css';
 import {
   useReducedMotionSafe,
@@ -32,9 +32,9 @@ const FEATURES: FeatureCard[] = [
     body: 'Every market resolves through DreamDEX\'s on-chain oracle \u2014 never an admin decision. Every payout is independently verifiable: check the settlement transaction and oracle reference yourself, no trust required.',
   },
   {
-    icon: <Wallet size={20} aria-hidden="true" />,
-    title: 'Gasless Trading',
-    body: 'Trade without holding STT. Pulse sponsors gas through smart wallet infrastructure \u2014 connect with email or social login and trade immediately, no token top-up needed.',
+    icon: <Link size={20} aria-hidden="true" />,
+    title: 'Simple Wallet Connect',
+    body: 'Connect MetaMask or any browser extension wallet in one click. No account creation, no email, no custodial lock-in -- your keys, your trade.',
   },
 ];
 
