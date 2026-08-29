@@ -1,0 +1,151 @@
+/* ─────────────────────────────────────────────
+   WhyPulseSection.module.css
+   Full-width feature section — 3-column glassmorphism cards
+   Typography and spacing mapped to design tokens
+   from globals.css (--text-*, --space-*)
+   NO EMOJIS in code, comments, or styling.
+───────────────────────────────────────────── */
+
+/* ── Section Container ───────────────────── */
+.section {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  background: radial-gradient(
+    circle at 50% 10%,
+    rgba(13, 43, 82, 0.22) 0%,
+    rgba(5, 10, 5, 0.8) 60%,
+    var(--color-shadow-mountain) 100%
+  );
+  padding: var(--space-8) var(--space-5) var(--space-8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-6);
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+/* ── Section Eyebrow ─────────────────────── */
+/* JetBrains Mono, small caps, letter-spaced, muted */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: rgba(242, 237, 225, var(--opacity-muted));
+  text-align: center;
+}
+
+/* ── Feature Grid ────────────────────────── */
+/* 3-column grid on desktop, single column on mobile */
+.grid {
+  width: 100%;
+  max-width: 1160px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-5);
+}
+
+/* ── Feature Card: Glassmorphism ─────────── */
+.card {
+  background: rgba(6, 20, 40, 0.45);
+  backdrop-filter: blur(20px) saturate(170%);
+  -webkit-backdrop-filter: blur(20px) saturate(170%);
+  border: 1px solid rgba(242, 237, 225, 0.12);
+  border-radius: 16px;
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  box-shadow:
+    0 16px 40px rgba(0, 0, 0, 0.4),
+    inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  transition:
+    border-color var(--transition-fast),
+    background-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.card:hover {
+  background: rgba(6, 20, 40, 0.62);
+  border-color: rgba(242, 237, 225, 0.24);
+  box-shadow:
+    0 22px 52px rgba(0, 0, 0, 0.52),
+    inset 0 1px 2px rgba(255, 255, 255, 0.15);
+  transform: translateY(-3px);
+}
+
+/* ── Card Icon ───────────────────────────── */
+.cardIcon {
+  width: 42px;
+  height: 42px;
+  border-radius: 11px;
+  background: rgba(193, 80, 46, 0.18);
+  border: 1px solid rgba(193, 80, 46, 0.35);
+  box-shadow: 0 4px 14px rgba(193, 80, 46, 0.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-paper);
+  flex-shrink: 0;
+}
+
+/* ── Card Title ──────────────────── */
+.cardTitle {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--color-paper);
+  margin: 0;
+}
+
+/* ── Card Body ───────────────────── */
+.cardBody {
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  font-weight: 400;
+  line-height: 1.65;
+  color: rgba(242, 237, 225, var(--opacity-secondary));
+  margin: 0;
+}
+
+/* ── Responsive ──────────────────────────── */
+/* 768px — single column */
+@media (max-width: 768px) {
+  .section {
+    padding: var(--space-7) var(--space-4);
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+    max-width: 540px;
+  }
+
+  .card {
+    padding: var(--space-5);
+  }
+}
+
+/* 430px — mobile */
+@media (max-width: 430px) {
+  .section {
+    padding: var(--space-6) var(--space-4);
+  }
+
+  .grid {
+    gap: var(--space-4);
+  }
+
+  .card {
+    padding: var(--space-4);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    transition: none;
+  }
+}

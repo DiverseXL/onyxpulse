@@ -1,0 +1,20 @@
+{
+  "name": "spike-privy-pimlico",
+  "version": "0.0.1",
+  "private": true,
+  "description": "THROWAWAY SPIKE — Privy (wallet) + Pimlico (bundler/paymaster) gas sponsorship for arbitrary DreamDEX contract calls on Somnia Shannon testnet. Do NOT integrate into pulse/src.",
+  "type": "module",
+  "scripts": {
+    "spike": "node --experimental-strip-types --no-warnings src/spike.ts"
+  },
+  "dependencies": {
+    "@privy-io/server-auth": "^1",
+    "@somnia-chain/markets-sdk": "^0.28.1",
+    "permissionless": "^0.2.24",
+    "viem": "^2.28.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.3.0",
+    "typescript": "^7.0.2"
+  }
+}

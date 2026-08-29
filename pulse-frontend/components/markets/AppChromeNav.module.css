@@ -1,0 +1,219 @@
+/* ─────────────────────────────────────────────
+   AppChromeNav.module.css
+   Pulse App Chrome Header for /markets and app pages
+   NO EMOJIS in code, comments, or styling.
+───────────────────────────────────────────── */
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+  background: rgba(8, 10, 14, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.headerInner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: var(--space-3) var(--space-5);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+/* ── Left Group ───────────────────────────── */
+.leftGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.brandLink {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  text-decoration: none;
+}
+
+.brandBadge {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(13, 43, 82, 0.8);
+  border: 1px solid rgba(242, 237, 225, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.brandIcon {
+  width: 15px;
+  height: 15px;
+  color: var(--color-paper);
+}
+
+.brandName {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--text-label);
+  letter-spacing: 0.14em;
+  color: var(--color-paper);
+  line-height: 1;
+}
+
+.networkBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0.2rem var(--space-2);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: rgba(242, 237, 225, var(--opacity-muted));
+}
+
+.networkDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #4ade80;
+  box-shadow: 0 0 8px #4ade80;
+}
+
+/* ── Nav Links ────────────────────────────── */
+.nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.navLink {
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  font-weight: 500;
+  color: rgba(242, 237, 225, var(--opacity-secondary));
+  text-decoration: none;
+  padding: var(--space-1) var(--space-2);
+  border-radius: 6px;
+  transition: color var(--transition-fast), background-color var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.navLink:hover {
+  color: var(--color-paper);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.navLinkActive {
+  color: var(--color-paper);
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.externalIcon {
+  opacity: var(--opacity-muted);
+}
+
+/* ── Right Group ──────────────────────────── */
+.rightGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.gasSponsoredChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 9999px;
+  background: rgba(193, 80, 46, 0.15);
+  border: 1px solid rgba(193, 80, 46, 0.3);
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 500;
+  color: #ff8a65;
+}
+
+.sparkleIcon {
+  color: #ff8a65;
+}
+
+.connectButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0.4rem 0.9rem;
+  border-radius: 8px;
+  background: var(--color-paper);
+  color: #0c150c;
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: transform var(--transition-fast), filter var(--transition-fast);
+}
+
+.connectButton:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+.connectedButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0.4rem 0.9rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--color-paper);
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.connectedButton:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.connectSpinner {
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .connectSpinner { animation: none; }
+}
+
+/* ── Mobile ───────────────────────────────── */
+@media (max-width: 640px) {
+  .networkBadge {
+    display: none;
+  }
+
+  .gasSponsoredChip {
+    display: none;
+  }
+
+  .headerInner {
+    padding: var(--space-3) var(--space-4);
+  }
+}

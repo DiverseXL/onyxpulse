@@ -1,0 +1,15 @@
+{
+  "name": "spike-thirdweb-aa",
+  "version": "0.0.1",
+  "private": true,
+  "description": "THROWAWAY SPIKE — does Thirdweb AA gas sponsorship survive converting a smart account to a raw viem WalletClient for arbitrary contract calls? Do NOT integrate into pulse/src.",
+  "type": "module",
+  "scripts": {
+    "spike": "node --experimental-strip-types --no-warnings src/spike.ts"
+  },
+  "dependencies": {
+    "@somnia-chain/markets-sdk": "^0.28.1",
+    "thirdweb": "^5",
+    "viem": "^2.55.19"
+  }
+}

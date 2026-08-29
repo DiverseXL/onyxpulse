@@ -1,0 +1,369 @@
+/* ─────────────────────────────────────────────
+   MarketsBody.module.css
+   Markets tab body — scannable market list
+   Typography and spacing mapped to design tokens
+   from globals.css (--text-*, --space-*)
+───────────────────────────────────────────── */
+
+.container {
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ── Filter Header ────────────────────────── */
+.filterHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+}
+
+/* Filter label: --text-micro / Mono 400 / all-caps */
+.filterLabel {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(242, 237, 225, var(--opacity-muted));
+}
+
+.filterTabs {
+  display: flex;
+  gap: var(--space-1);
+  background: rgba(255, 255, 255, 0.04);
+  padding: var(--space-1);
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Filter tab: --text-micro / Mono 400 */
+.filterTab {
+  padding: var(--space-1) var(--space-3);
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  border-radius: 4px;
+  color: rgba(242, 237, 225, var(--opacity-muted));
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.filterTabActive {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--color-paper);
+  font-weight: 500;
+}
+
+.filterTab:hover:not(.filterTabActive) {
+  color: var(--color-paper);
+}
+
+.filterTab:focus-visible {
+  outline: 2px solid var(--color-rust);
+  outline-offset: 2px;
+}
+
+/* ── Market List ──────────────────────────── */
+.listContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+/* ── Market Row ───────────────────────────── */
+/* 7-column grid with consistent align-items center */
+.marketRow {
+  display: grid;
+  grid-template-columns: 42px 1fr 90px 50px 100px 84px 70px;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-3);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  transition: background-color var(--transition-fast);
+}
+
+.marketRow:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.marketRow:focus-within {
+  outline: 1px solid rgba(193, 80, 46, 0.4);
+}
+
+.marketRowUpcoming {
+  opacity: 0.7;
+  border-style: dashed;
+}
+
+.marketRowUpcoming:hover {
+  opacity: 1;
+}
+
+/* ── Asset Badge ──────────────────────────── */
+/* --text-micro / Mono 400 / all-caps / LS 0.06em */
+.assetBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 22px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.assetBadgeBtc {
+  background: rgba(247, 147, 26, 0.18);
+  color: #f7931a;
+  border: 1px solid rgba(247, 147, 26, 0.3);
+}
+
+.assetBadgeEth {
+  background: rgba(98, 126, 234, 0.18);
+  color: #627eea;
+  border: 1px solid rgba(98, 126, 234, 0.3);
+}
+
+/* ── Market Info ──────────────────────────── */
+.marketInfo {
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* Market label: --text-small / Inter 500 */
+.marketLabel {
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  font-weight: 500;
+  color: var(--color-paper);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+/* ── Countdown ────────────────────────────── */
+.countdownCol {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.countdownIcon {
+  color: rgba(242, 237, 225, var(--opacity-muted));
+  flex-shrink: 0;
+}
+
+/* Countdown: --text-micro / Mono 400
+   Transition on color for smooth urgency shift at 60s threshold */
+.countdownText {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  color: rgba(242, 237, 225, var(--opacity-secondary));
+  transition: color 400ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.countdownUrgent {
+  color: var(--color-rust);
+}
+
+/* ── YES Price ────────────────────────────── */
+.priceCol {
+  text-align: right;
+}
+
+/* Price: --text-body / Mono 500, letter-spacing -0.01em */
+.priceText {
+  font-family: var(--font-mono);
+  font-size: var(--text-body);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--color-paper);
+}
+
+/* ── Volume ───────────────────────────────── */
+.volCol {
+  text-align: right;
+}
+
+/* Volume: --text-micro / Mono 400 */
+.volText {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  color: rgba(242, 237, 225, var(--opacity-muted));
+  white-space: nowrap;
+}
+
+/* ── Sparkline ────────────────────────────── */
+.sparkCol {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sparkline {
+  display: block;
+}
+
+/* ── Trade Button ─────────────────────────── */
+.tradeCol {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Trade button: --text-micro / Inter 600 */
+.tradeBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-3);
+  border-radius: 6px;
+  font-family: var(--font-body);
+  font-size: var(--text-micro);
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--color-paper);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.tradeBtn:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-1px);
+}
+
+.tradeBtn:active {
+  transform: translateY(0);
+}
+
+.tradeBtn:focus-visible {
+  outline: 2px solid var(--color-rust);
+  outline-offset: 2px;
+}
+
+/* ── Upcoming Section ─────────────────────── */
+.upcomingSection {
+  margin-top: var(--space-5);
+}
+
+.upcomingHeader {
+  padding: var(--space-2) 0;
+  border-top: 1px dashed rgba(255, 255, 255, 0.08);
+  margin-bottom: var(--space-2);
+}
+
+/* Upcoming label: --text-micro / Mono 400 / all-caps */
+.upcomingLabel {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(242, 237, 225, var(--opacity-muted));
+}
+
+/* ── Empty State ──────────────────────────── */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-7) var(--space-4);
+  text-align: center;
+}
+
+/* Empty title: --text-body / Inter 600 */
+.emptyTitle {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  font-weight: 600;
+  color: var(--color-paper);
+  margin-bottom: var(--space-1);
+}
+
+/* Empty sub: --text-small / Mono 400 */
+.emptySub {
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  font-weight: 400;
+  color: rgba(242, 237, 225, var(--opacity-muted));
+  line-height: 1.5;
+}
+
+.emptyTime {
+  color: var(--color-rust);
+  font-weight: 500;
+}
+
+/* ── Loading Skeleton ─────────────────────── */
+.skeletonPulse {
+  background: rgba(255, 255, 255, 0.06);
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes skeletonPulse {
+  0%, 100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeletonPulse {
+    animation: none;
+    opacity: 0.5;
+  }
+}
+
+/* ── Responsive ───────────────────────────── */
+/* 860px — tablet, hide less critical columns */
+@media (max-width: 860px) {
+  .container {
+    padding: var(--space-4);
+  }
+
+  .marketRow {
+    grid-template-columns: 36px 1fr 70px 42px 70px;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .volCol {
+    display: none;
+  }
+
+  .sparkCol {
+    display: none;
+  }
+}
+
+/* 520px — mobile */
+@media (max-width: 520px) {
+  .marketRow {
+    grid-template-columns: 32px 1fr 56px 38px;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-2);
+  }
+
+  .countdownCol {
+    display: none;
+  }
+}

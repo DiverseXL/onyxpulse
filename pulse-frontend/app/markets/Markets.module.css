@@ -1,0 +1,465 @@
+/* ─────────────────────────────────────────────
+   Markets.module.css
+   Pulse Markets Lobby Page Styles
+   Typography and spacing mapped to design tokens
+   NO EMOJIS in code, comments, or styling.
+───────────────────────────────────────────── */
+
+.page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background-color: var(--color-shadow-mountain);
+  color: var(--color-paper);
+  display: flex;
+  flex-direction: column;
+}
+
+.main {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-5) var(--space-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+/* ── 1. Page Header ───────────────────────── */
+.headerSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.h1 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.85rem, 3.5vw, 2.6rem);
+  letter-spacing: -0.01em;
+  color: var(--color-paper);
+  line-height: 1.15;
+  margin: 0;
+}
+
+.subcopy {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  font-weight: 400;
+  color: rgba(242, 237, 225, var(--opacity-secondary));
+  max-width: 44rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ── 2. Stats Strip ───────────────────────── */
+.statsStrip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-4);
+  background: rgba(14, 18, 26, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.statsLeft {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.statItem {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.statLabel {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(242, 237, 225, var(--opacity-muted));
+}
+
+.statValue {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  font-weight: 600;
+  color: var(--color-paper);
+}
+
+.statDivider {
+  width: 1px;
+  height: 16px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.liveIndicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  color: #4ade80;
+  padding-left: var(--space-2);
+}
+
+.pulseDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #4ade80;
+  animation: livePulse 1.5s infinite;
+}
+
+@keyframes livePulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.6);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(74, 222, 128, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(74, 222, 128, 0);
+  }
+}
+
+.statsRight {
+  display: flex;
+  align-items: center;
+}
+
+.testnetNote {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  color: rgba(242, 237, 225, var(--opacity-muted));
+}
+
+/* ── 3. Toolbar ───────────────────────────── */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+/* Search Bar */
+.searchWrapper {
+  flex: 1;
+  min-width: 240px;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.searchIcon {
+  position: absolute;
+  left: var(--space-3);
+  color: rgba(242, 237, 225, var(--opacity-muted));
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 0.55rem var(--space-4) 0.55rem 2.2rem;
+  background: rgba(14, 18, 26, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  color: var(--color-paper);
+  outline: none;
+  transition: border-color var(--transition-fast);
+}
+
+.searchInput:focus {
+  border-color: var(--color-rust);
+  outline: 1px solid var(--color-rust);
+}
+
+.searchInput::placeholder {
+  color: rgba(242, 237, 225, var(--opacity-muted));
+  font-family: var(--font-body);
+}
+
+.clearSearch {
+  position: absolute;
+  right: var(--space-3);
+  background: none;
+  border: none;
+  color: rgba(242, 237, 225, var(--opacity-muted));
+  font-size: 1.1rem;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.clearSearch:hover {
+  color: var(--color-paper);
+}
+
+/* Segmented Control */
+.segmentedControl {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 3px;
+  background: rgba(10, 14, 20, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  user-select: none;
+}
+
+.slidingPill {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  border-radius: 6px;
+  background: rgba(242, 237, 225, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.segmentTab {
+  position: relative;
+  z-index: 1;
+  padding: 0.45rem 0.95rem;
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  font-weight: 500;
+  color: rgba(242, 237, 225, var(--opacity-secondary));
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color var(--transition-fast);
+  white-space: nowrap;
+}
+
+.segmentTab:hover {
+  color: var(--color-paper);
+}
+
+.segmentTabActive {
+  color: var(--color-paper);
+  font-weight: 600;
+}
+
+/* Sort Dropdown */
+.sortWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.sortSelect {
+  appearance: none;
+  padding: 0.55rem 2rem 0.55rem 0.85rem;
+  background: rgba(14, 18, 26, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  color: var(--color-paper);
+  cursor: pointer;
+  outline: none;
+  transition: border-color var(--transition-fast);
+}
+
+.sortSelect:focus {
+  border-color: var(--color-rust);
+}
+
+.sortSelect option {
+  background: #0d121c;
+  color: var(--color-paper);
+}
+
+.sortChevron {
+  position: absolute;
+  right: 0.75rem;
+  color: rgba(242, 237, 225, var(--opacity-muted));
+  pointer-events: none;
+}
+
+/* ── 4. Category Chips ────────────────────── */
+.categoryChips {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.chip {
+  padding: 0.35rem 0.8rem;
+  border-radius: 9999px;
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(242, 237, 225, var(--opacity-secondary));
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast),
+    border-color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.chip:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--color-paper);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.chipActive {
+  background: rgba(242, 237, 225, 0.14);
+  border-color: rgba(242, 237, 225, 0.28);
+  color: var(--color-paper);
+  font-weight: 600;
+}
+
+/* ── 5. Grid Container ────────────────────── */
+.gridContainer {
+  min-height: 400px;
+  width: 100%;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4);
+  width: 100%;
+}
+
+/* ── Empty State ──────────────────────────── */
+.emptyState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-8) var(--space-4);
+  background: rgba(14, 18, 26, 0.35);
+  border: 1px dashed rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  text-align: center;
+}
+
+.emptyText {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  color: rgba(242, 237, 225, var(--opacity-muted));
+  max-width: 32rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ── Error State ──────────────────────────── */
+.errorState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-8) var(--space-4);
+  background: rgba(26, 14, 14, 0.4);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 14px;
+  text-align: center;
+  gap: var(--space-3);
+}
+
+.errorIcon {
+  color: #f87171;
+}
+
+.errorTitle {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  font-weight: 600;
+  color: var(--color-paper);
+  margin: 0;
+}
+
+.errorText {
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  color: rgba(242, 237, 225, var(--opacity-secondary));
+  max-width: 28rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.retryButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0.45rem 1rem;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  font-weight: 600;
+  color: #f87171;
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.retryButton:hover {
+  background: rgba(239, 68, 68, 0.25);
+}
+
+/* ── Responsive Rules ─────────────────────── */
+@media (max-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .main {
+    padding: var(--space-5) var(--space-4) var(--space-7);
+  }
+
+  .statsStrip {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .searchWrapper {
+    width: 100%;
+  }
+
+  .segmentedControl {
+    width: 100%;
+    justify-content: space-around;
+  }
+
+  .segmentTab {
+    flex: 1;
+    text-align: center;
+  }
+
+  .sortWrapper {
+    width: 100%;
+  }
+
+  .sortSelect {
+    width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

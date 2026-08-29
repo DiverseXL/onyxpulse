@@ -1,0 +1,904 @@
+/* ─────────────────────────────────────────────
+   MarketDetail.module.css
+   Pulse Individual Market Trade Page
+   Typography and spacing mapped to design tokens
+   NO EMOJIS in code, comments, or styling
+───────────────────────────────────────────── */
+
+/* ── Page Shell ───────────────────────────── */
+.page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background-color: var(--color-shadow-mountain);
+  color: var(--color-paper);
+  display: flex;
+  flex-direction: column;
+}
+
+.main {
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: var(--space-5) var(--space-5) var(--space-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+/* ── Back Link ────────────────────────────── */
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  font-weight: 500;
+  color: rgba(242, 237, 225, var(--opacity-secondary));
+  text-decoration: none;
+  padding: var(--space-1) var(--space-2);
+  border-radius: 6px;
+  transition: color var(--transition-fast), background-color var(--transition-fast);
+  width: fit-content;
+}
+
+.backLink:hover {
+  color: var(--color-paper);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* ── Glass Panel ──────────────────────────── */
+.panel {
+  width: 100%;
+  background-color: #09090b;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 24px 64px -12px rgba(0, 0, 0, 0.8),
+    0 0 0 1px rgba(255, 255, 255, 0.04),
+    inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Honesty Strip ────────────────────────── */
+.honestyStrip {
+  padding: var(--space-2) var(--space-5);
+  background: rgba(0, 0, 0, 0.4);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  letter-spacing: 0.07em;
+  color: rgba(242, 237, 225, var(--opacity-muted));
+  text-align: center;
+  text-transform: uppercase;
+}
+
+/* ── Panel Body Grid ──────────────────────── */
+.panelBody {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 0;
+}
+
+/* ── Left Column: Market info + Chart ─────── */
+.chartColumn {
+  padding: var(--space-5);
+  border-right: 1px solid rgba(255, 255, 255, 0.07);
+  display: flex;
+  flex-direction: column;
+}
+
+.marketContextLine {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: rgba(242, 237, 225, var(--opacity-muted));
+  margin-bottom: var(--space-2);
+}
+
+.marketTitle {
+  font-family: var(--font-body);
+  font-size: var(--text-h2);
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--color-paper);
+  margin-bottom: var(--space-4);
+}
+
+/* ── Price Header ─────────────────────────── */
+.priceHeader {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+
+.heroPrice {
+  font-family: var(--font-mono);
+  font-size: 2.25rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--color-paper);
+  line-height: 1;
+  display: inline-block;
+}
+
+.heroPriceEnter {
+  animation: heroPriceFlash 0.3s ease-out;
+}
+
+@keyframes heroPriceFlash {
+  0% {
+    opacity: 0.3;
+    transform: translateY(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heroPriceEnter {
+    animation: none;
+  }
+}
+
+/* ── Delta Badge ──────────────────────────── */
+.deltaBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 500;
+  background: rgba(34, 197, 94, 0.15);
+  color: #4ade80;
+  border: 1px solid rgba(34, 197, 94, 0.25);
+}
+
+.deltaNegative {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.25);
+}
+
+/* ── Chart Controls ──────────────────────── */
+.chartHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+  gap: var(--space-3);
+}
+
+.chartLabel {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  color: rgba(242, 237, 225, var(--opacity-muted));
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+.timeframeSelector {
+  display: flex;
+  gap: var(--space-1);
+  background: rgba(255, 255, 255, 0.04);
+  padding: var(--space-1);
+  border-radius: 6px;
+}
+
+.tfButton {
+  padding: var(--space-1) var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  border-radius: 4px;
+  color: rgba(242, 237, 225, var(--opacity-muted));
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.tfButtonActive {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--color-paper);
+  font-weight: 500;
+}
+
+.tfButton:hover:not(.tfButtonActive) {
+  color: var(--color-paper);
+}
+
+/* ── SVG Chart Viewport ──────────────────── */
+.chartContainer {
+  position: relative;
+  width: 100%;
+  height: 220px;
+  margin-bottom: var(--space-3);
+  cursor: crosshair;
+  user-select: none;
+}
+
+.chartSvg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* ── Interactive Crosshair & Tooltip ─────── */
+.crosshairLine {
+  stroke: rgba(242, 237, 225, 0.35);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+
+.crosshairDot {
+  fill: var(--color-rust);
+  stroke: #ffffff;
+  stroke-width: 2;
+  filter: drop-shadow(0 0 6px rgba(193, 80, 46, 0.8));
+}
+
+.tooltip {
+  position: absolute;
+  top: 8px;
+  padding: var(--space-2) var(--space-3);
+  background: rgba(14, 14, 18, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  z-index: 20;
+  white-space: nowrap;
+}
+
+.tooltipPrice {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--color-paper);
+}
+
+.tooltipDate {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  color: rgba(242, 237, 225, var(--opacity-secondary));
+}
+
+.chartCaption {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  color: rgba(242, 237, 225, var(--opacity-muted));
+  margin-top: auto;
+  padding-top: var(--space-2);
+}
+
+/* ── Live Polling Indicator ──────────────── */
+.liveIndicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  color: #4ade80;
+  padding-left: var(--space-2);
+}
+
+.pulseDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #4ade80;
+  animation: livePulse 1.5s infinite;
+}
+
+@keyframes livePulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.6);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(74, 222, 128, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(74, 222, 128, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulseDot {
+    animation: none;
+  }
+}
+
+/* ── Right Column: Order Ticket ──────────── */
+.ticketColumn {
+  padding: var(--space-5) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  background: rgba(12, 12, 16, 0.4);
+}
+
+/* ── Side Toggle ──────────────────────────── */
+.sideToggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.sideButton {
+  padding: var(--space-2);
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: var(--text-label);
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(242, 237, 225, var(--opacity-secondary));
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.sideButtonYesActive {
+  background: rgba(34, 197, 94, 0.18);
+  color: #4ade80;
+  border-color: rgba(34, 197, 94, 0.4);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
+}
+
+.sideButtonNoActive {
+  background: rgba(239, 68, 68, 0.18);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.4);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
+}
+
+.sideButtonGlow {
+  animation: sideGlow 0.35s ease-out;
+}
+
+@keyframes sideGlow {
+  0% {
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1), 0 0 0 0 rgba(255, 255, 255, 0.3);
+  }
+  50% {
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1), 0 0 12px 2px rgba(255, 255, 255, 0.15);
+  }
+  100% {
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1), 0 0 0 0 rgba(255, 255, 255, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sideButtonGlow {
+    animation: none;
+  }
+}
+
+/* ── Order Type Tabs ──────────────────────── */
+.orderTypeTabs {
+  display: flex;
+  gap: var(--space-1);
+  background: rgba(255, 255, 255, 0.04);
+  padding: var(--space-1);
+  border-radius: 6px;
+  margin-bottom: var(--space-4);
+}
+
+.orderTypeTab {
+  flex: 1;
+  padding: var(--space-1) 0;
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  font-weight: 500;
+  border-radius: 4px;
+  color: rgba(242, 237, 225, var(--opacity-muted));
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: center;
+}
+
+.orderTypeTabActive {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--color-paper);
+  font-weight: 600;
+}
+
+/* ── Amount Input ─────────────────────────── */
+.amountContainer {
+  margin-bottom: var(--space-3);
+}
+
+.amountLabel {
+  font-family: var(--font-body);
+  font-size: var(--text-micro);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: rgba(242, 237, 225, var(--opacity-muted));
+  margin-bottom: var(--space-1);
+  display: block;
+  text-transform: uppercase;
+}
+
+.inputWrapper {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: var(--space-2) var(--space-3);
+  transition: border-color var(--transition-fast);
+}
+
+.inputWrapper:focus-within {
+  border-color: var(--color-rust);
+  outline: 1px solid var(--color-rust);
+}
+
+.amountInput {
+  flex: 1;
+  background: none;
+  border: none;
+  color: var(--color-paper);
+  font-family: var(--font-mono);
+  font-size: var(--text-h2);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  outline: none;
+  min-width: 0;
+}
+
+.unitTag {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  color: rgba(242, 237, 225, var(--opacity-muted));
+  white-space: nowrap;
+}
+
+/* ── Quick Chips ──────────────────────────── */
+.quickChips {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.chipButton {
+  flex: 1;
+  padding: var(--space-1) 0;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 5px;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  color: rgba(242, 237, 225, var(--opacity-secondary));
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.chipButton:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--color-paper);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* ── Order Breakdown ──────────────────────── */
+.breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+  padding: var(--space-3);
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.breakdownEnter {
+  animation: breakdownPulse 0.3s ease-out;
+}
+
+@keyframes breakdownPulse {
+  0% {
+    opacity: 0.4;
+    transform: translateY(3px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .breakdownEnter {
+    animation: none;
+  }
+}
+
+.breakdownRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--text-small);
+}
+
+.breakdownLabel {
+  color: rgba(242, 237, 225, var(--opacity-muted));
+  font-family: var(--font-body);
+  font-weight: 400;
+}
+
+.breakdownValue {
+  color: var(--color-paper);
+  font-family: var(--font-mono);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+.breakdownHighlight {
+  color: #4ade80;
+  font-weight: 500;
+}
+
+/* ── Ticket CTA ──────────────────────────── */
+.ticketCta {
+  width: 100%;
+  padding: var(--space-3);
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: var(--text-label);
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: transform var(--transition-fast), filter var(--transition-fast), background-color var(--transition-base), box-shadow var(--transition-base);
+  margin-bottom: var(--space-3);
+}
+
+.ticketCtaYes {
+  background: #16a34a;
+  color: #ffffff;
+  box-shadow: 0 4px 16px rgba(22, 163, 74, 0.35);
+}
+
+.ticketCtaNo {
+  background: #dc2626;
+  color: #ffffff;
+  box-shadow: 0 4px 16px rgba(220, 38, 38, 0.35);
+}
+
+.ticketCta:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.1);
+}
+
+.ticketCta:active {
+  transform: translateY(0);
+}
+
+.ticketCtaDisabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+  filter: none;
+}
+
+.ticketCtaDisabled:hover {
+  transform: none;
+  filter: none;
+}
+
+.ctaLoading {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.spinnerIcon {
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinnerIcon {
+    animation: none;
+  }
+}
+
+.ctaSuccess {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.ctaError {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.orderErrorText {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  color: #f87171;
+  text-align: center;
+  margin-top: calc(-1 * var(--space-2));
+  margin-bottom: var(--space-2);
+  line-height: 1.4;
+}
+
+.orderSuccessText {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  color: #4ade80;
+  text-align: center;
+  margin-top: calc(-1 * var(--space-2));
+  margin-bottom: var(--space-2);
+  line-height: 1.4;
+}
+
+/* ── Ticket Footnote ──────────────────────── */
+.ticketFootnote {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  color: rgba(242, 237, 225, var(--opacity-muted));
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* ── Outcome Footer Rows ──────────────────── */
+.footerRows {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(14, 14, 18, 0.6);
+  padding: var(--space-3) var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.outcomeRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-2) var(--space-3);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  transition: background-color var(--transition-fast);
+}
+
+.outcomeRow:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.outcomeInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.outcomeTagYes {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: var(--text-small);
+  color: #4ade80;
+  padding: var(--space-1) var(--space-2);
+  border-radius: 4px;
+  background: rgba(34, 197, 94, 0.12);
+}
+
+.outcomeTagNo {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: var(--text-small);
+  color: #f87171;
+  padding: var(--space-1) var(--space-2);
+  border-radius: 4px;
+  background: rgba(239, 68, 68, 0.12);
+}
+
+.outcomePrice {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: var(--text-body);
+  letter-spacing: -0.01em;
+  color: var(--color-paper);
+}
+
+.outcomeDelta {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  color: rgba(242, 237, 225, var(--opacity-muted));
+}
+
+.deltaPositiveText {
+  color: #4ade80;
+}
+
+.deltaNegativeText {
+  color: #f87171;
+}
+
+.outcomeAction {
+  padding: var(--space-1) var(--space-3);
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  font-weight: 600;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--color-paper);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.outcomeAction:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+/* ── Loading State ────────────────────────── */
+.loadingState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-8) var(--space-4);
+  gap: var(--space-4);
+}
+
+.loadingSpinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-top-color: var(--color-rust);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loadingSpinner {
+    animation: none;
+    border-top-color: var(--color-rust);
+  }
+}
+
+.loadingText {
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  color: rgba(242, 237, 225, var(--opacity-muted));
+}
+
+/* ── Error State ──────────────────────────── */
+.errorState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-8) var(--space-4);
+  background: rgba(26, 14, 14, 0.4);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 14px;
+  text-align: center;
+  gap: var(--space-3);
+}
+
+.errorIcon {
+  color: #f87171;
+}
+
+.errorTitle {
+  font-family: var(--font-body);
+  font-size: var(--text-h2);
+  font-weight: 600;
+  color: var(--color-paper);
+  margin: 0;
+}
+
+.errorText {
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  color: rgba(242, 237, 225, var(--opacity-secondary));
+  max-width: 28rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.errorActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.retryButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0.45rem 1rem;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  font-weight: 600;
+  color: #f87171;
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.retryButton:hover {
+  background: rgba(239, 68, 68, 0.25);
+}
+
+/* ── Responsive ───────────────────────────── */
+@media (max-width: 860px) {
+  .panelBody {
+    grid-template-columns: 1fr;
+  }
+
+  .chartColumn {
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    padding: var(--space-4);
+  }
+
+  .ticketColumn {
+    padding: var(--space-4);
+  }
+
+  .heroPrice {
+    font-size: 1.75rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .main {
+    padding: var(--space-4) var(--space-4) var(--space-7);
+  }
+
+  .footerRows {
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .honestyStrip {
+    padding: var(--space-2) var(--space-4);
+    font-size: 0.6rem;
+  }
+}

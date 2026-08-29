@@ -1,0 +1,47 @@
+npm warn ERESOLVE overriding peer dependency
+npm warn While resolving: use-sync-external-store@1.2.0
+npm warn Found: react@19.2.8
+npm warn node_modules/react
+npm warn   peer react@">=16.8.0" from @emotion/react@11.14.0
+npm warn   node_modules/@emotion/react
+npm warn     peer @emotion/react@"^11.0.0-rc.0" from @emotion/styled@11.14.1
+npm warn     node_modules/@emotion/styled
+npm warn     1 more (thirdweb)
+npm warn   41 more (@emotion/styled, ...)
+npm warn
+npm warn Could not resolve dependency:
+npm warn peer react@"^16.8.0 || ^17.0.0 || ^18.0.0" from use-sync-external-store@1.2.0
+npm warn node_modules/valtio/node_modules/use-sync-external-store
+npm warn   use-sync-external-store@"1.2.0" from valtio@1.13.2
+npm warn   node_modules/valtio
+npm warn
+npm warn Conflicting peer dependency: react@18.3.1
+npm warn node_modules/react
+npm warn   peer react@"^16.8.0 || ^17.0.0 || ^18.0.0" from use-sync-external-store@1.2.0
+npm warn   node_modules/valtio/node_modules/use-sync-external-store
+npm warn     use-sync-external-store@"1.2.0" from valtio@1.13.2
+npm warn     node_modules/valtio
+npm warn deprecated @metamask/sdk-analytics@0.0.5: No longer maintained, superseded by @metamask/connect-analytics
+npm warn deprecated @paulmillr/qr@0.2.1: Switch to "qr" (new package name) for security updates: npm install qr
+npm warn deprecated uuid@8.3.2: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
+npm warn deprecated uuid@9.0.1: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
+npm warn deprecated uuid@9.0.1: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
+npm warn deprecated uuid@9.0.1: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
+npm warn deprecated @metamask/sdk-install-modal-web@0.32.1: No longer maintained, superseded by https://docs.metamask.io/metamask-connect
+npm warn deprecated @metamask/sdk-communication-layer@0.33.1: No longer maintained, superseded by https://docs.metamask.io/metamask-connect
+npm warn deprecated @metamask/sdk@0.33.1: No longer maintained, superseded by https://docs.metamask.io/metamask-connect
+
+added 713 packages, and audited 714 packages in 12m
+
+137 packages are looking for funding
+  run `npm fund` for details
+
+29 vulnerabilities (23 moderate, 6 high)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.

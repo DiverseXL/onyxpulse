@@ -1,0 +1,19 @@
+{
+  "name": "pulse",
+  "version": "1.0.0",
+  "description": "DreamDEX Event Contracts engine — uses @somnia-chain/markets-sdk on Somnia Shannon testnet. The demo script waits for real market resolution (~15 min windows) rather than force-resolving, since force-resolve requires an undocumented dev-only oracle address not available to us.",
+  "main": "index.js",
+  "scripts": {
+    "test": "node --experimental-strip-types --no-warnings --test src/engine/__tests__/*.test.ts src/wallet/__tests__/*.test.ts",
+    "demo": "node --experimental-strip-types --no-warnings scripts/demo-lifecycle.ts",
+    "demo:session": "node --experimental-strip-types --no-warnings scripts/demo-session.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@somnia-chain/markets-sdk": "^0.28.1",
+    "viem": "^2.55.19"
+  }
+}
