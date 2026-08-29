@@ -98,6 +98,8 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
         <div
           style={{
             display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: 'center',
             gap: 'var(--space-3)',
             marginTop: 'var(--space-2)',
           }}

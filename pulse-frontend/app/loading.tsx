@@ -51,8 +51,8 @@ export default function Loading() {
 
       {/* Shimmer skeleton lines */}
       <div style={skeletonGroupStyle}>
-        <div style={{ ...skeletonLineStyle, width: '220px' }} className="pulse-shimmer" />
-        <div style={{ ...skeletonLineStyle, width: '140px', opacity: 0.5 }} className="pulse-shimmer" />
+        <div style={{ ...skeletonLineStyle, width: '220px', maxWidth: '70vw' }} className="pulse-shimmer" />
+        <div style={{ ...skeletonLineStyle, width: '140px', maxWidth: '50vw', opacity: 0.5 }} className="pulse-shimmer" />
       </div>
 
       <style>{`
