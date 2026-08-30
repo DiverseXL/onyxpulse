@@ -309,15 +309,6 @@
   outline-offset: 3px;
 }
 
-.ctaArrowWrapper {
-  display: inline-flex;
-  align-items: center;
-}
-
-.ctaArrow {
-  display: block;
-}
-
 /* ── Segmented Glass Tab-Bar with Sliding Pill ── */
 .tabBarContainer {
   position: relative;

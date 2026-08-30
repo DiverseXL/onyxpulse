@@ -20,6 +20,8 @@ import type { WalletClient, Account } from 'viem';
 import { createPulseClient } from '@/lib/engine/client';
 import { placeMarketOrder } from '@/lib/engine/trading';
 import { PulseErrorCode, PulseEngineError } from '@/lib/engine/errors';
+import { checkRiskLimits } from '@/lib/engine/riskEngine';
+import { loadSettings } from '@/lib/settings';
 
 // -- Constants ---------------------------------------------------------------
 
@@ -161,6 +163,25 @@ export async function placeClientOrder(
   // Convert params to the format expected by placeMarketOrder
   const humanPrice = centsToHumanString(priceCents);
   const humanQuantity = computeQuantityString(amount, priceCents);
+
+  // Check risk limits before submitting (if enabled)
+  const settings = loadSettings(account.address);
+  if (settings.riskLimitsEnabled && params.marketId) {
+    const riskCheck = await checkRiskLimits(
+      pulse.client,
+      account.address as `0x${string}`,
+      params.marketId,
+      String(amount),
+      settings.riskLimits,
+    );
+    if (!riskCheck.allowed) {
+      throw new PulseEngineError(
+        PulseErrorCode.UNKNOWN,
+        'placeClientOrder',
+        `Trade blocked by risk limits: ${riskCheck.reason}`,
+      );
+    }
+  }
 
   try {
     const result = await placeMarketOrder(pulse.client, trader, {

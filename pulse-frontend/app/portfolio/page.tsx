@@ -26,6 +26,7 @@ import {
   ExternalLink,
   ArrowRight,
   Inbox,
+  FileText,
 } from 'lucide-react';
 import styles from './Portfolio.module.css';
 import AppChromeNav from '@/components/markets/AppChromeNav';
@@ -915,32 +916,132 @@ export default function PortfolioPage() {
                           {valueFormatted}
                         </td>
                         <td className={styles.tableCell}>
-                          {position.isClaimable && (
-                            <button
-                              type="button"
-                              className={`${styles.claimButton} ${
-                                claimOneBusy === position.marketId
-                                  ? styles.claimButtonBusy
-                                  : ''
-                              }`}
-                              onClick={() => handleClaimOne(position)}
-                              disabled={claimOneBusy !== null}
-                              aria-busy={claimOneBusy === position.marketId}
-                              aria-label={`Claim position in ${position.question}`}
-                            >
-                              {claimOneBusy === position.marketId ? (
-                                <Loader2 size={12} className={styles.spinner} aria-hidden="true" />
-                              ) : (
-                                'Claim'
-                              )}
-                            </button>
-                          )}
+                          <div className={styles.actionCell}>
+                            {position.isClaimable && (
+                              <button
+                                type="button"
+                                className={`${styles.claimButton} ${
+                                  claimOneBusy === position.marketId
+                                    ? styles.claimButtonBusy
+                                    : ''
+                                }`}
+                                onClick={() => handleClaimOne(position)}
+                                disabled={claimOneBusy !== null}
+                                aria-busy={claimOneBusy === position.marketId}
+                                aria-label={`Claim position in ${position.question}`}
+                              >
+                                {claimOneBusy === position.marketId ? (
+                                  <Loader2 size={12} className={styles.spinner} aria-hidden="true" />
+                                ) : (
+                                  'Claim'
+                                )}
+                              </button>
+                            )}
+                            {(position.isClaimable || position.status === 'Voided' || position.status === 'Resolved' || position.status === 'Finalized') && (
+                              <Link
+                                href={`/receipt/${position.marketId}`}
+                                className={styles.receiptLink}
+                                aria-label={`View receipt for ${position.question}`}
+                              >
+                                <FileText size={11} aria-hidden="true" />
+                                Receipt
+                              </Link>
+                            )}
+                          </div>
                         </td>
                       </motion.tr>
                     );
                   })}
                 </motion.tbody>
               </table>
+            </div>
+
+            {/* Mobile Position Cards (hidden on desktop) */}
+            <div className={styles.mobileCards}>
+              {enrichedPositions.map((position) => {
+                const statusInfo = getStatusInfo(position);
+                const decimals = position.decimals;
+                const currentPriceRaw = position.lastPrice;
+                const currentPrice = currentPriceRaw
+                  ? (Number(currentPriceRaw) / 10 ** decimals) * 100
+                  : 0;
+                const oneCollateral = 10 ** decimals;
+                const valueFormatted =
+                  position.markValue > 0
+                    ? `$${position.markValue.toFixed(2)}`
+                    : position.status === 'Voided'
+                      ? `$${(Number(position.rawBalance) / oneCollateral * 0.5).toFixed(2)}`
+                      : '--';
+
+                return (
+                  <div
+                    key={`card-${position.marketId}-${position.outcomeIndex}`}
+                    className={styles.positionCard}
+                  >
+                    <div className={styles.positionCardHeader}>
+                      <Link
+                        href={`/market/${position.marketId}`}
+                        className={styles.positionCardTitle}
+                      >
+                        {position.question}
+                      </Link>
+                      <span className={`${styles.statusPill} ${statusInfo.className}`}>
+                        {statusInfo.label}
+                      </span>
+                    </div>
+
+                    <div className={styles.positionCardMetrics}>
+                      <div className={styles.positionCardMetric}>
+                        <span className={styles.positionCardMetricLabel}>Side</span>
+                        <span className={`${styles.sideChip} ${position.outcomeIndex === 0 ? styles.sideChipYes : styles.sideChipNo}`}>
+                          {position.outcomeIndex === 0 ? 'YES' : 'NO'}
+                        </span>
+                      </div>
+                      <div className={styles.positionCardMetric}>
+                        <span className={styles.positionCardMetricLabel}>Quantity</span>
+                        <span className={styles.positionCardMetricValue}>{position.humanBalance}</span>
+                      </div>
+                      <div className={styles.positionCardMetric}>
+                        <span className={styles.positionCardMetricLabel}>Current</span>
+                        <span className={styles.positionCardMetricValue}>{currentPrice > 0 ? `${currentPrice.toFixed(0)}%` : '--'}</span>
+                      </div>
+                      <div className={styles.positionCardMetric}>
+                        <span className={styles.positionCardMetricLabel}>Value</span>
+                        <span className={styles.positionCardMetricValue}>{valueFormatted}</span>
+                      </div>
+                    </div>
+
+                    <div className={styles.positionCardActions}>
+                      {position.isClaimable && (
+                        <button
+                          type="button"
+                          className={`${styles.claimButton} ${claimOneBusy === position.marketId ? styles.claimButtonBusy : ''}`}
+                          onClick={() => handleClaimOne(position)}
+                          disabled={claimOneBusy !== null}
+                          aria-busy={claimOneBusy === position.marketId}
+                          aria-label={`Claim position in ${position.question}`}
+                        >
+                          {claimOneBusy === position.marketId ? (
+                            <Loader2 size={12} className={styles.spinner} aria-hidden="true" />
+                          ) : (
+                            'Claim'
+                          )}
+                        </button>
+                      )}
+                      {(position.isClaimable || position.status === 'Voided' || position.status === 'Resolved' || position.status === 'Finalized') && (
+                        <Link
+                          href={`/receipt/${position.marketId}`}
+                          className={styles.receiptLink}
+                          aria-label={`View receipt for ${position.question}`}
+                        >
+                          <FileText size={11} aria-hidden="true" />
+                          Receipt
+                        </Link>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </motion.div>
         )}

@@ -2,7 +2,6 @@
 
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
 import styles from './HeroV2.module.css';
 import type { ActiveTab } from './PulseLanding';
 import {
@@ -294,16 +293,6 @@ export default function HeroV2({ activeTab, onTabChange }: HeroV2Props) {
             })}
           >
             <span>Enter App</span>
-            <motion.span
-              className={styles.ctaArrowWrapper}
-              whileHover={reducedMotion ? {} : { x: 3 }}
-              transition={safeTransition(reducedMotion, {
-                duration: MOTION_FAST,
-                ease: EASE_OUT,
-              })}
-            >
-              <ArrowRight className={styles.ctaArrow} size={17} aria-hidden="true" />
-            </motion.span>
           </motion.a>
         </motion.div>
 

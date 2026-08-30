@@ -22,6 +22,8 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-5);
+  position: relative;
+  z-index: 0;
 }
 
 /* ── 1. Page Header ───────────────────────── */
@@ -174,6 +176,7 @@
   color: var(--color-paper);
   outline: none;
   transition: border-color var(--transition-fast);
+  min-height: 44px;
 }
 
 .searchInput:focus {
@@ -195,6 +198,11 @@
   font-size: 1.1rem;
   cursor: pointer;
   line-height: 1;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .clearSearch:hover {
@@ -238,6 +246,8 @@
   cursor: pointer;
   transition: color var(--transition-fast);
   white-space: nowrap;
+  min-height: 44px;
+  min-width: 44px;
 }
 
 .segmentTab:hover {
@@ -268,6 +278,7 @@
   cursor: pointer;
   outline: none;
   transition: border-color var(--transition-fast);
+  min-height: 44px;
 }
 
 .sortSelect:focus {
@@ -291,7 +302,15 @@
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  flex-wrap: wrap;
+  overflow-x: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  padding-bottom: var(--space-1);
+  scroll-snap-type: x proximity;
+}
+
+.categoryChips::-webkit-scrollbar {
+  display: none;
 }
 
 .chip {
@@ -309,6 +328,13 @@
     color var(--transition-fast),
     border-color var(--transition-fast),
     transform var(--transition-fast);
+  white-space: nowrap;
+  flex-shrink: 0;
+  scroll-snap-align: start;
+  min-height: 44px;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
 }
 
 .chip:hover {
@@ -407,6 +433,7 @@
   color: #f87171;
   cursor: pointer;
   transition: background-color var(--transition-fast);
+  min-height: 44px;
 }
 
 .retryButton:hover {
@@ -422,7 +449,7 @@
 
 @media (max-width: 768px) {
   .main {
-    padding: var(--space-5) var(--space-4) var(--space-7);
+    padding: var(--space-5) var(--space-4) calc(var(--space-8) + 64px);
   }
 
   .statsStrip {
@@ -437,6 +464,7 @@
 
   .searchWrapper {
     width: 100%;
+    min-width: 0;
   }
 
   .segmentedControl {
@@ -456,10 +484,25 @@
   .sortSelect {
     width: 100%;
   }
+
+  .categoryChips {
+    margin-left: calc(-1 * var(--space-4));
+    margin-right: calc(-1 * var(--space-4));
+    padding-left: var(--space-4);
+    padding-right: var(--space-4);
+  }
 }
 
 @media (max-width: 640px) {
   .grid {
     grid-template-columns: 1fr;
+  }
+
+  .h1 {
+    font-size: clamp(1.5rem, 5vw, 2rem);
+  }
+
+  .subcopy {
+    font-size: var(--text-small);
   }
 }

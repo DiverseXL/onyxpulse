@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ArrowLeft, TrendingUp, TrendingDown, AlertCircle, RefreshCw, CheckCircle, Loader2 } from 'lucide-react';
+import { ArrowLeft, TrendingUp, TrendingDown, AlertCircle, RefreshCw, CheckCircle, Loader2, FileText } from 'lucide-react';
 import styles from './MarketDetail.module.css';
 import AppChromeNav from '@/components/markets/AppChromeNav';
 import ChainMismatchBanner from '@/components/markets/ChainMismatchBanner';
@@ -28,6 +28,36 @@ import {
 } from '@/lib/motion';
 
 type Timeframe = '1H' | '1D' | 'All';
+
+/* ── Resolved Receipt Link (small, context-matched) ── */
+
+function ResolvedReceiptLink({ marketId }: { marketId: string }) {
+  const { data: receiptStatus } = useQuery<{
+    status: string;
+    receipt: unknown;
+  }>({
+    queryKey: ['receipt-status', marketId],
+    queryFn: async () => {
+      const res = await fetch(`/api/receipt/${encodeURIComponent(marketId)}`);
+      if (!res.ok) return { status: 'not_found', receipt: null };
+      return res.json();
+    },
+    enabled: !!marketId,
+    staleTime: 60000,
+  });
+
+  if (!receiptStatus || receiptStatus.status !== 'resolved') return null;
+
+  return (
+    <Link
+      href={`/receipt/${marketId}`}
+      className={styles.receiptBanner}
+    >
+      <FileText size={14} aria-hidden="true" />
+      <span>View Settlement Receipt</span>
+    </Link>
+  );
+}
 
 export default function MarketDetailPage() {
   const params = useParams();
@@ -412,6 +442,11 @@ export default function MarketDetailPage() {
 
         {/* Chain mismatch warning */}
         <ChainMismatchBanner />
+
+        {/* View Receipt link — only shown for resolved/voided/finalized markets */}
+        {data && (
+          <ResolvedReceiptLink marketId={data.marketId} />
+        )}
 
         {/* Glass Panel */}
         <motion.div

@@ -35,15 +35,45 @@
   font-weight: 500;
   color: rgba(242, 237, 225, var(--opacity-secondary));
   text-decoration: none;
-  padding: var(--space-1) var(--space-2);
+  padding: var(--space-2) var(--space-2);
   border-radius: 6px;
   transition: color var(--transition-fast), background-color var(--transition-fast);
   width: fit-content;
+  min-height: 44px;
 }
 
 .backLink:hover {
   color: var(--color-paper);
   background: rgba(255, 255, 255, 0.04);
+}
+
+/* ── Receipt Banner (resolved markets) ───── */
+.receiptBanner {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: rgba(193, 80, 46, 0.08);
+  border: 1px solid rgba(193, 80, 46, 0.2);
+  border-radius: 8px;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 500;
+  color: var(--color-rust);
+  text-decoration: none;
+  width: fit-content;
+  transition: background-color var(--transition-fast), filter var(--transition-fast);
+  min-height: 44px;
+}
+
+.receiptBanner:hover {
+  background: rgba(193, 80, 46, 0.15);
+  filter: brightness(1.1);
+}
+
+.receiptBanner:focus-visible {
+  outline: 2px solid var(--color-paper);
+  outline-offset: 2px;
 }
 
 /* ── Glass Panel ──────────────────────────── */
@@ -206,6 +236,8 @@
   border: none;
   cursor: pointer;
   transition: background-color var(--transition-fast), color var(--transition-fast);
+  min-height: 44px;
+  min-width: 44px;
 }
 
 .tfButtonActive {
@@ -343,7 +375,7 @@
 }
 
 .sideButton {
-  padding: var(--space-2);
+  padding: var(--space-3);
   border-radius: 8px;
   font-family: var(--font-body);
   font-size: var(--text-label);
@@ -357,6 +389,7 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
+  min-height: 48px;
 }
 
 .sideButtonYesActive {
@@ -407,7 +440,7 @@
 
 .orderTypeTab {
   flex: 1;
-  padding: var(--space-1) 0;
+  padding: var(--space-2) 0;
   font-family: var(--font-body);
   font-size: var(--text-small);
   font-weight: 500;
@@ -417,6 +450,7 @@
   border: none;
   cursor: pointer;
   text-align: center;
+  min-height: 44px;
 }
 
 .orderTypeTabActive {
@@ -449,6 +483,7 @@
   border-radius: 8px;
   padding: var(--space-2) var(--space-3);
   transition: border-color var(--transition-fast);
+  min-height: 48px;
 }
 
 .inputWrapper:focus-within {
@@ -486,7 +521,7 @@
 
 .chipButton {
   flex: 1;
-  padding: var(--space-1) 0;
+  padding: var(--space-2) 0;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 5px;
@@ -496,6 +531,7 @@
   color: rgba(242, 237, 225, var(--opacity-secondary));
   cursor: pointer;
   transition: all var(--transition-fast);
+  min-height: 44px;
 }
 
 .chipButton:hover {
@@ -555,6 +591,7 @@
   font-family: var(--font-mono);
   font-weight: 400;
   letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
 }
 
 .breakdownHighlight {
@@ -574,6 +611,7 @@
   cursor: pointer;
   transition: transform var(--transition-fast), filter var(--transition-fast), background-color var(--transition-base), box-shadow var(--transition-base);
   margin-bottom: var(--space-3);
+  min-height: 48px;
 }
 
 .ticketCtaYes {
@@ -766,6 +804,7 @@
   padding: 8px 24px;
   cursor: pointer;
   transition: background 0.15s;
+  min-height: 44px;
 }
 
 .rejectedDismiss:hover {
@@ -839,6 +878,7 @@
   font-size: var(--text-body);
   letter-spacing: -0.01em;
   color: var(--color-paper);
+  font-variant-numeric: tabular-nums;
 }
 
 .outcomeDelta {
@@ -857,7 +897,7 @@
 }
 
 .outcomeAction {
-  padding: var(--space-1) var(--space-3);
+  padding: var(--space-2) var(--space-3);
   font-family: var(--font-body);
   font-size: var(--text-small);
   font-weight: 600;
@@ -867,6 +907,7 @@
   color: var(--color-paper);
   cursor: pointer;
   transition: all var(--transition-fast);
+  min-height: 44px;
 }
 
 .outcomeAction:hover {
@@ -968,6 +1009,7 @@
   color: #f87171;
   cursor: pointer;
   transition: background-color var(--transition-fast);
+  min-height: 44px;
 }
 
 .retryButton:hover {
@@ -997,7 +1039,7 @@
 
 @media (max-width: 640px) {
   .main {
-    padding: var(--space-4) var(--space-4) var(--space-7);
+    padding: var(--space-4) var(--space-4) calc(var(--space-7) + 64px);
   }
 
   .footerRows {
@@ -1007,6 +1049,24 @@
   .honestyStrip {
     padding: var(--space-2) var(--space-4);
     font-size: 0.6rem;
+  }
+
+  .marketTitle {
+    font-size: var(--text-body);
+  }
+
+  .heroPrice {
+    font-size: 1.5rem;
+  }
+
+  .sideButton {
+    padding: var(--space-2);
+    font-size: var(--text-small);
+  }
+
+  .outcomeInfo {
+    flex-wrap: wrap;
+    gap: var(--space-2);
   }
 }
 

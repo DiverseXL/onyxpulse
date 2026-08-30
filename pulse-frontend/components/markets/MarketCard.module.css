@@ -17,11 +17,14 @@
   text-decoration: none;
   min-height: 230px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  position: relative;
+  z-index: 1;
   transition:
     transform var(--transition-fast),
     box-shadow var(--transition-fast),
     border-color var(--transition-fast),
     background-color var(--transition-fast);
+  -webkit-tap-highlight-color: transparent;
 }
 
 .card:hover {
@@ -221,6 +224,7 @@
   letter-spacing: -0.01em;
   color: var(--color-paper);
   line-height: 1.1;
+  font-variant-numeric: tabular-nums;
 }
 
 /* ── Bottom Row: Meta ─────────────────────── */
@@ -271,6 +275,37 @@
   height: 100%;
 }
 
+.rightMeta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.receiptLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--color-rust);
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 500;
+  text-decoration: none;
+  transition: color var(--transition-fast);
+  padding: var(--space-2) var(--space-2);
+  border-radius: 3px;
+  min-height: 44px;
+}
+
+.receiptLink:hover {
+  color: #e06040;
+  background: rgba(193, 80, 46, 0.1);
+}
+
+.receiptLink:focus-visible {
+  outline: 2px solid var(--color-paper);
+  outline-offset: 2px;
+}
+
 .volumeText {
   display: inline-flex;
   align-items: center;
@@ -285,5 +320,31 @@
 @media (prefers-reduced-motion: reduce) {
   .card {
     transition: none;
+  }
+}
+
+/* ── Mobile Responsive ────────────────────── */
+@media (max-width: 640px) {
+  .card {
+    padding: var(--space-4);
+    min-height: auto;
+  }
+
+  .title {
+    font-size: var(--text-small);
+    -webkit-line-clamp: 3;
+  }
+
+  .priceValue {
+    font-size: var(--text-body);
+  }
+
+  .bottomRow {
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .receiptLink {
+    min-height: 44px;
   }
 }

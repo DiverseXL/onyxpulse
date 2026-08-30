@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Clock, TrendingUp, CheckCircle, HelpCircle } from 'lucide-react';
+import { Clock, TrendingUp, CheckCircle, FileText } from 'lucide-react';
 import styles from './MarketCard.module.css';
 import type { MarketCardData } from '@/app/api/markets/route';
 import { useReducedMotionSafe, MOTION_SLOW, MOTION_FAST, EASE_OUT } from '@/lib/motion';
@@ -45,6 +45,7 @@ export default function MarketCard({ market }: MarketCardProps) {
   };
 
   const isUrgent = market.status === 'Trading' && timeLeft > 0 && timeLeft < 60;
+  const isSettled = market.status === 'Resolved' || market.status === 'Voided';
 
   // Status badge styling helper
   const getStatusBadge = () => {
@@ -185,12 +186,26 @@ export default function MarketCard({ market }: MarketCardProps) {
           {renderSparkline()}
         </div>
 
-        {market.volumeRaw > 0 && (
-          <span className={styles.volumeText}>
-            <TrendingUp size={11} className={styles.volIcon} aria-hidden="true" />
-            {market.volumeLabel}
-          </span>
-        )}
+        <div className={styles.rightMeta}>
+          {isSettled && (
+            <Link
+              href={`/receipt/${market.id}`}
+              className={styles.receiptLink}
+              onClick={(e) => e.stopPropagation()}
+              aria-label={`View receipt for ${market.question}`}
+            >
+              <FileText size={12} aria-hidden="true" />
+              View Receipt
+            </Link>
+          )}
+
+          {market.volumeRaw > 0 && (
+            <span className={styles.volumeText}>
+              <TrendingUp size={11} className={styles.volIcon} aria-hidden="true" />
+              {market.volumeLabel}
+            </span>
+          )}
+        </div>
       </div>
     </Link>
   );

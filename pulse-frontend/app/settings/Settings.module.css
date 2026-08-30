@@ -1,0 +1,461 @@
+/* ─────────────────────────────────────────────
+   Settings.module.css
+   /settings -- per-wallet preferences page
+   Typography and spacing mapped to design tokens.
+   NO EMOJI in code, comments, or styling.
+───────────────────────────────────────────── */
+
+.page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background-color: var(--color-shadow-mountain);
+  color: var(--color-paper);
+  display: flex;
+  flex-direction: column;
+}
+
+.main {
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: var(--space-7) var(--space-5) var(--space-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* ── Header ────────────────────────────────── */
+.headerSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.h1 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.85rem, 3.5vw, 2.6rem);
+  letter-spacing: -0.01em;
+  color: var(--color-paper);
+  line-height: 1.15;
+  margin: 0;
+}
+
+.subcopy {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  font-weight: 400;
+  color: rgba(242, 237, 225, var(--opacity-secondary));
+  max-width: 36rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ── Disconnected State ────────────────────── */
+.disconnected {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-8) var(--space-4);
+  gap: var(--space-4);
+  text-align: center;
+  min-height: 50vh;
+}
+
+.disconnectedIcon {
+  color: rgba(242, 237, 225, var(--opacity-muted));
+}
+
+.disconnectedTitle {
+  font-family: var(--font-body);
+  font-size: var(--text-h2);
+  font-weight: 600;
+  color: var(--color-paper);
+  margin: 0;
+}
+
+.disconnectedSubcopy {
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  color: rgba(242, 237, 225, var(--opacity-secondary));
+  max-width: 320px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ── Glass Card ─────────────────────────────── */
+.card {
+  background: rgba(14, 18, 26, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.cardIcon {
+  color: rgba(242, 237, 225, var(--opacity-muted));
+  flex-shrink: 0;
+}
+
+.cardTitle {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  font-weight: 600;
+  color: var(--color-paper);
+  margin: 0;
+}
+
+/* ── Field Group ────────────────────────────── */
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.fieldLabel {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(242, 237, 225, var(--opacity-secondary));
+}
+
+.fieldHint {
+  font-family: var(--font-body);
+  font-size: var(--text-micro);
+  color: rgba(242, 237, 225, var(--opacity-muted));
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* ── Address Row ────────────────────────────── */
+.addressRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+}
+
+.addressText {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  color: rgba(242, 237, 225, var(--opacity-secondary));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.copyButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 6px;
+  background: none;
+  border: none;
+  color: rgba(242, 237, 225, var(--opacity-muted));
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: color var(--transition-fast), background var(--transition-fast);
+}
+
+.copyButton:hover {
+  color: var(--color-paper);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* ── Network Row ────────────────────────────── */
+.networkRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.networkDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4ade80;
+  flex-shrink: 0;
+}
+
+.networkText {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  color: rgba(242, 237, 225, var(--opacity-secondary));
+}
+
+/* ── Disconnect Button ──────────────────────── */
+.disconnectButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0.45rem 0.9rem;
+  border-radius: 6px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  font-weight: 500;
+  color: #f87171;
+  cursor: pointer;
+  width: fit-content;
+  transition: background var(--transition-fast);
+  min-height: 44px;
+}
+
+.disconnectButton:hover {
+  background: rgba(239, 68, 68, 0.18);
+}
+
+/* ── Toggle ─────────────────────────────────── */
+.toggleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  cursor: pointer;
+  min-height: 44px;
+}
+
+.toggleLabel {
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  font-weight: 500;
+  color: var(--color-paper);
+}
+
+.toggle {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.toggleOn {
+  background: rgba(74, 222, 128, 0.3);
+  border-color: rgba(74, 222, 128, 0.5);
+}
+
+.toggleThumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--color-paper);
+  transition: transform var(--transition-fast);
+}
+
+.toggleOn .toggleThumb {
+  transform: translateX(20px);
+}
+
+/* ── Honesty Note ───────────────────────────── */
+.honestyNote {
+  font-family: var(--font-body);
+  font-size: var(--text-micro);
+  color: rgba(242, 237, 225, var(--opacity-muted));
+  line-height: 1.5;
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 6px;
+  border-left: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ── Input ──────────────────────────────────── */
+.inputRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.numberInput {
+  width: 120px;
+  padding: 0.5rem 0.7rem;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  color: var(--color-paper);
+  outline: none;
+  transition: border-color var(--transition-fast);
+  min-height: 44px;
+}
+
+.numberInput:focus {
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.numberInput:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.numberInput::-webkit-inner-spin-button,
+.numberInput::-webkit-outer-spin-button {
+  opacity: 1;
+}
+
+.inputUnit {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  color: rgba(242, 237, 225, var(--opacity-muted));
+  flex-shrink: 0;
+}
+
+/* ── Caveat Box ─────────────────────────────── */
+.caveatBox {
+  display: flex;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  background: rgba(251, 191, 36, 0.06);
+  border: 1px solid rgba(251, 191, 36, 0.15);
+  border-radius: 8px;
+}
+
+.caveatIcon {
+  color: #fbbf24;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.caveatText {
+  font-family: var(--font-body);
+  font-size: var(--text-micro);
+  color: rgba(242, 237, 225, var(--opacity-secondary));
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ── Radio Group ────────────────────────────── */
+.radioGroup {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.radioOption {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0.4rem 0.85rem;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-family: var(--font-body);
+  font-size: var(--text-micro);
+  font-weight: 500;
+  color: rgba(242, 237, 225, var(--opacity-secondary));
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+  min-height: 44px;
+}
+
+.radioOptionActive {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: var(--color-paper);
+}
+
+.radioInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+/* ── Save Button ────────────────────────────── */
+.saveSection {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.saveButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0.6rem 1.4rem;
+  border-radius: 8px;
+  background: var(--color-paper);
+  color: #0c150c;
+  border: none;
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform var(--transition-fast), filter var(--transition-fast);
+  min-height: 44px;
+}
+
+.saveButton:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+.saveButton:active {
+  transform: translateY(0);
+}
+
+/* ── Responsive ─────────────────────────────── */
+@media (max-width: 640px) {
+  .main {
+    padding: var(--space-6) var(--space-4) calc(var(--space-7) + 64px);
+  }
+
+  .radioGroup {
+    flex-direction: column;
+  }
+
+  .radioOption {
+    justify-content: center;
+  }
+
+  .addressText {
+    font-size: 0.6rem;
+  }
+
+  .h1 {
+    font-size: clamp(1.5rem, 5vw, 2rem);
+  }
+
+  .subcopy {
+    font-size: var(--text-small);
+  }
+
+  .card {
+    padding: var(--space-4);
+  }
+
+  .numberInput {
+    width: 100%;
+  }
+}

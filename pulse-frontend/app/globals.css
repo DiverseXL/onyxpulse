@@ -185,3 +185,48 @@ button {
   z-index: 1;
   pointer-events: none;
 }
+
+/* ── Mobile Utilities ────────────────────────
+   Safe area padding for bottom bars/CTAs.
+   Bottom nav height: 56px + safe area.
+   Touch target minimum: 44px.
+────────────────────────────────────────────── */
+
+/* Screen reader only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* iOS input zoom prevention — ensure all inputs are >= 16px */
+@media (max-width: 640px) {
+  input[type="text"],
+  input[type="number"],
+  input[type="email"],
+  input[type="search"],
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
+/* Hide scrollbar on horizontal chip scrolls */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Tabular nums utility */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
