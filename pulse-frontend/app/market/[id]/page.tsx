@@ -286,9 +286,65 @@ export default function MarketDetailPage() {
       <div className={styles.page}>
         <AppChromeNav />
         <main className={styles.main}>
-          <div className={styles.loadingState}>
-            <div className={styles.loadingSpinner} />
-            <p className={styles.loadingText}>Loading market data...</p>
+          {/* Back link skeleton */}
+          <div style={{ width: '80px', height: '14px', borderRadius: '4px', background: 'rgba(255,255,255,0.05)' }} className="md-shimmer" />
+          <div className={styles.panel}>
+            <div className={styles.honestyStrip} />
+            <div className={styles.panelBody}>
+              {/* Chart column skeleton */}
+              <div className={styles.chartColumn}>
+                <div style={{ width: '120px', height: '10px', borderRadius: '4px', background: 'rgba(255,255,255,0.05)' }} className="md-shimmer" />
+                <div style={{ width: '85%', height: '18px', borderRadius: '4px', background: 'rgba(255,255,255,0.05)', marginTop: '8px' }} className="md-shimmer" />
+                <div style={{ width: '60%', height: '18px', borderRadius: '4px', background: 'rgba(255,255,255,0.05)', marginTop: '4px' }} className="md-shimmer" />
+                <div style={{ display: 'flex', gap: '12px', marginTop: '24px', marginBottom: '24px' }}>
+                  <div style={{ width: '100px', height: '36px', borderRadius: '4px', background: 'rgba(255,255,255,0.05)' }} className="md-shimmer" />
+                  <div style={{ width: '60px', height: '24px', borderRadius: '6px', background: 'rgba(255,255,255,0.05)' }} className="md-shimmer" />
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
+                  <div style={{ width: '160px', height: '10px', borderRadius: '4px', background: 'rgba(255,255,255,0.05)' }} className="md-shimmer" />
+                  <div style={{ width: '90px', height: '24px', borderRadius: '6px', background: 'rgba(255,255,255,0.05)' }} className="md-shimmer" />
+                </div>
+                <div style={{ width: '100%', height: '220px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.04)' }} className="md-shimmer" />
+                <div style={{ width: '200px', height: '10px', borderRadius: '4px', background: 'rgba(255,255,255,0.05)', marginTop: '12px' }} className="md-shimmer" />
+              </div>
+              {/* Ticket column skeleton */}
+              <div className={styles.ticketColumn}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '16px' }}>
+                  <div style={{ height: '44px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)' }} className="md-shimmer" />
+                  <div style={{ height: '44px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)' }} className="md-shimmer" />
+                </div>
+                <div style={{ height: '32px', borderRadius: '6px', background: 'rgba(255,255,255,0.05)', marginBottom: '16px' }} className="md-shimmer" />
+                <div style={{ height: '44px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', marginBottom: '12px' }} className="md-shimmer" />
+                <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+                  {[1, 2, 3, 4].map((i) => (
+                    <div key={i} style={{ flex: 1, height: '28px', borderRadius: '5px', background: 'rgba(255,255,255,0.05)' }} className="md-shimmer" />
+                  ))}
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px', padding: 'var(--space-3)', background: 'rgba(0,0,0,0.25)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.04)' }}>
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <div style={{ width: `${60 + i * 5}px`, height: '12px', borderRadius: '4px', background: 'rgba(255,255,255,0.05)' }} className="md-shimmer" />
+                      <div style={{ width: `${70 + i * 8}px`, height: '12px', borderRadius: '4px', background: 'rgba(255,255,255,0.05)' }} className="md-shimmer" />
+                    </div>
+                  ))}
+                </div>
+                <div style={{ height: '48px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', marginBottom: '12px' }} className="md-shimmer" />
+                <div style={{ width: '80%', height: '10px', borderRadius: '4px', background: 'rgba(255,255,255,0.05)', margin: '0 auto' }} className="md-shimmer" />
+              </div>
+            </div>
+            {/* Outcome footer rows skeleton */}
+            <div className={styles.footerRows}>
+              {[1, 2].map((i) => (
+                <div key={i} className={styles.outcomeRow}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div style={{ width: '36px', height: '20px', borderRadius: '4px', background: 'rgba(255,255,255,0.05)' }} className="md-shimmer" />
+                    <div style={{ width: '48px', height: '16px', borderRadius: '4px', background: 'rgba(255,255,255,0.05)' }} className="md-shimmer" />
+                    <div style={{ width: '40px', height: '12px', borderRadius: '4px', background: 'rgba(255,255,255,0.05)' }} className="md-shimmer" />
+                  </div>
+                  <div style={{ width: '72px', height: '30px', borderRadius: '6px', background: 'rgba(255,255,255,0.05)' }} className="md-shimmer" />
+                </div>
+              ))}
+            </div>
           </div>
         </main>
       </div>
@@ -376,8 +432,8 @@ export default function MarketDetailPage() {
               <div className={styles.priceHeader}>
                 <span key={`hero-${selectedSide}`} className={`${styles.heroPrice} ${styles.heroPriceEnter}`}>
                   {hoverPoint
-                    ? `${hoverPoint.price}\u00a2`
-                    : `${selectedSide === 'yes' ? data.yesCents : data.noCents}\u00a2`}
+                    ? `${hoverPoint.price}¢`
+                    : `${selectedSide === 'yes' ? data.yesCents : data.noCents}¢`}
                 </span>
                 <span
                   className={`${styles.deltaBadge} ${
@@ -483,7 +539,7 @@ export default function MarketDetailPage() {
                       top: `${Math.max(10, hoverPoint.y - 48)}px`,
                     }}
                   >
-                    <span className={styles.tooltipPrice}>{hoverPoint.price}\u00a2</span>
+                    <span className={styles.tooltipPrice}>{hoverPoint.price}¢</span>
                     <span className={styles.tooltipDate}>
                       {formatTooltipDate(hoverPoint.timestamp)}
                     </span>
@@ -511,7 +567,7 @@ export default function MarketDetailPage() {
                   onClick={() => setSelectedSide('yes')}
                 >
                   <span>Yes</span>
-                  <span>{data.yesAskCents}\u00a2</span>
+                  <span>{data.yesAskCents}¢</span>
                 </button>
                 <button
                   type="button"
@@ -523,7 +579,7 @@ export default function MarketDetailPage() {
                   onClick={() => setSelectedSide('no')}
                 >
                   <span>No</span>
-                  <span>{data.noAskCents}\u00a2</span>
+                  <span>{data.noAskCents}¢</span>
                 </button>
               </div>
 
@@ -658,7 +714,7 @@ export default function MarketDetailPage() {
             <div className={styles.outcomeRow}>
               <div className={styles.outcomeInfo}>
                 <span className={styles.outcomeTagYes}>Yes</span>
-                <span className={styles.outcomePrice}>{data.yesAskCents}\u00a2</span>
+                <span className={styles.outcomePrice}>{data.yesAskCents}¢</span>
                 <span
                   className={`${styles.outcomeDelta} ${
                     data.deltaPositive ? styles.deltaPositiveText : styles.deltaNegativeText
@@ -679,7 +735,7 @@ export default function MarketDetailPage() {
             <div className={styles.outcomeRow}>
               <div className={styles.outcomeInfo}>
                 <span className={styles.outcomeTagNo}>No</span>
-                <span className={styles.outcomePrice}>{data.noAskCents}\u00a2</span>
+                <span className={styles.outcomePrice}>{data.noAskCents}¢</span>
                 <span
                   className={`${styles.outcomeDelta} ${
                     data.deltaPositive ? styles.deltaNegativeText : styles.deltaPositiveText

@@ -902,3 +902,20 @@
     font-size: 0.6rem;
   }
 }
+
+/* ── Shimmer skeleton animation ─────────────── */
+:global(.md-shimmer) {
+  animation: mdShimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes mdShimmer {
+  0%, 100% { opacity: 0.25; }
+  50% { opacity: 0.6; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :global(.md-shimmer) {
+    animation: none;
+    opacity: 0.4;
+  }
+}

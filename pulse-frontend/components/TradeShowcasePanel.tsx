@@ -360,7 +360,7 @@ export default function TradeShowcasePanel({ activeTab, onTabChange }: TradeShow
 
             <div className={styles.priceHeader}>
               <span key={`hero-${selectedSide}`} className={`${styles.heroPrice} ${styles.heroPriceEnter}`}>
-                {hoverPoint ? `${hoverPoint.price}\u00a2` : `${selectedSide === 'yes' ? data.yesCents : data.noCents}\u00a2`}
+                {hoverPoint ? `${hoverPoint.price}¢` : `${selectedSide === 'yes' ? data.yesCents : data.noCents}¢`}
               </span>
               <span
                 className={`${styles.deltaBadge} ${
@@ -481,7 +481,7 @@ export default function TradeShowcasePanel({ activeTab, onTabChange }: TradeShow
                     top: `${Math.max(10, hoverPoint.y - 48)}px`,
                   }}
                 >
-                  <span className={styles.tooltipPrice}>{hoverPoint.price}\u00a2</span>
+                  <span className={styles.tooltipPrice}>{hoverPoint.price}¢</span>
                   <span className={styles.tooltipDate}>
                     {formatTooltipDate(hoverPoint.timestamp)}
                   </span>
@@ -509,7 +509,7 @@ export default function TradeShowcasePanel({ activeTab, onTabChange }: TradeShow
                 onClick={() => setSelectedSide('yes')}
               >
                 <span>Yes</span>
-                <span>{data.yesAskCents}\u00a2</span>
+                <span>{data.yesAskCents}¢</span>
               </button>
               <button
                 type="button"
@@ -520,7 +520,7 @@ export default function TradeShowcasePanel({ activeTab, onTabChange }: TradeShow
                 onClick={() => setSelectedSide('no')}
               >
                 <span>No</span>
-                <span>{data.noAskCents}\u00a2</span>
+                <span>{data.noAskCents}¢</span>
               </button>
             </div>
 
