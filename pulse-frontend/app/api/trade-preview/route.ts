@@ -13,6 +13,7 @@ import {
 export type TradePreviewData = {
   marketId: string;
   marketAddress: string;
+  poolAddress: string;
   quoteDecimals: number;
   title: string;
   contextLine: string;
@@ -152,6 +153,7 @@ export async function GET(request: Request) {
       const data: TradePreviewData = {
         marketId: targetMarket.id,
         marketAddress: targetMarket.marketAddress,
+        poolAddress: targetMarket.poolAddress,
         quoteDecimals: targetMarket.quoteDecimals || 6,
         title: targetMarket.question || `Will ${asset}/USDC settle above strike at window close?`,
         contextLine: `${asset} · ${durationMin}m window`,
@@ -192,6 +194,7 @@ export async function GET(request: Request) {
     const fallbackData: TradePreviewData = {
       marketId: '0x0000000000000000000000000000000000000000000000000000000000000001',
       marketAddress: '',
+      poolAddress: '',
       quoteDecimals: 6,
       title: "Will BTC/USDC's price be at or above 64,250 at 16:30 UTC?",
       contextLine: 'BTC · 15m window',
@@ -227,6 +230,7 @@ export async function GET(request: Request) {
     return NextResponse.json({
       marketId: '0x0000000000000000000000000000000000000000000000000000000000000001',
       marketAddress: '',
+      poolAddress: '',
       quoteDecimals: 6,
       title: "Will BTC/USDC's price be at or above 64,250 at 16:30 UTC?",
       contextLine: 'BTC · 15m window',

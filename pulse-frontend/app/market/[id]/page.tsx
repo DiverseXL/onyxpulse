@@ -12,6 +12,7 @@ import ChainMismatchBanner from '@/components/markets/ChainMismatchBanner';
 import type { TradePreviewData } from '@/app/api/trade-preview/route';
 import { usePulseWallet } from '@/lib/wallet/PulseWalletContext';
 import { placeClientOrder } from '@/lib/wallet/placeOrder';
+import { PulseEngineError } from '@/lib/engine/errors';
 import { getWalletClient } from '@wagmi/core';
 import { wagmiConfig } from '@/lib/wallet/wagmiConfig';
 import { useAccount } from 'wagmi';
@@ -68,8 +69,8 @@ export default function MarketDetailPage() {
   const [selectedSide, setSelectedSide] = useState<'yes' | 'no'>('yes');
   const [orderType, setOrderType] = useState<'buy' | 'sell'>('buy');
   const [amount, setAmount] = useState<number>(100);
-  const [orderStatus, setOrderStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
-  const [orderResult, setOrderResult] = useState<{ hash: string; orderId: string | null } | null>(null);
+  const [orderStatus, setOrderStatus] = useState<'idle' | 'submitting' | 'success' | 'error' | 'rejected'>('idle');
+  const [orderResult, setOrderResult] = useState<{ hash: string; explorerUrl: string } | null>(null);
   const [orderError, setOrderError] = useState<string | null>(null);
   const [hoverPoint, setHoverPoint] = useState<{
     x: number;
@@ -237,6 +238,7 @@ export default function MarketDetailPage() {
       return;
     }
 
+    // Reset rejection state from any prior attempt
     setOrderStatus('submitting');
     setOrderError(null);
     setOrderResult(null);
@@ -254,23 +256,25 @@ export default function MarketDetailPage() {
       }
 
       const result = await placeClientOrder(walletClient, walletClient.account, {
-        poolAddress: data.marketAddress,
+        poolAddress: data.poolAddress,
+        marketId: data.marketId,
         side,
         priceCents,
         amount,
         decimals: data.quoteDecimals,
       });
 
-      setOrderResult({ hash: result.hash, orderId: null });
+      setOrderResult({ hash: result.hash, explorerUrl: result.explorerUrl });
       setOrderStatus('success');
     } catch (err: unknown) {
-      const raw = err instanceof Error ? err.message : 'Unknown error';
-      // Detect chain mismatch and show a clearer message
-      const message = raw.includes('does not match the target chain')
-        ? 'Wrong network -- switch MetaMask to Somnia Testnet (chain 50312) and try again.'
-        : raw;
-      setOrderError(message);
-      setOrderStatus('error');
+      const msg = err instanceof Error ? err.message : String(err);
+      const isRejected = msg.includes('rejected') || msg.includes('Rejected') || msg.includes('User rejected');
+      if (isRejected) {
+        setOrderStatus('rejected');
+      } else {
+        setOrderError(msg);
+        setOrderStatus('error');
+      }
     } finally {
       setTimeout(() => {
         setOrderStatus('idle');
@@ -686,6 +690,10 @@ export default function MarketDetailPage() {
                   <span className={styles.ctaError}>
                     Failed - Retry
                   </span>
+                ) : orderStatus === 'rejected' ? (
+                  <span className={styles.ctaError}>
+                    Retry
+                  </span>
                 ) : (
                   <>{orderType === 'buy' ? 'Buy' : 'Sell'} {selectedSide === 'yes' ? 'Yes' : 'No'}</>
                 )}
@@ -697,9 +705,14 @@ export default function MarketDetailPage() {
 
               {orderStatus === 'success' && orderResult && (
                 <p className={styles.orderSuccessText}>
-                  {orderResult.orderId
-                    ? `Order #${orderResult.orderId} confirmed on-chain`
-                    : `Transaction submitted`}
+                  <a
+                    href={orderResult.explorerUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: '#4ade80', textDecoration: 'underline', textUnderlineOffset: '2px' }}
+                  >
+                    Transaction submitted -- view on explorer
+                  </a>
                 </p>
               )}
 
@@ -759,6 +772,46 @@ export default function MarketDetailPage() {
           </div>
         </motion.div>
       </main>
+
+      {/* ── Order Rejected Popup ──────────────────────────────── */}
+      {orderStatus === 'rejected' && (
+        <div className={styles.rejectedOverlay} role="dialog" aria-label="Order rejected">
+          <div className={styles.rejectedPopup}>
+            <p className={styles.rejectedTitle}>Order Rejected</p>
+            <p className={styles.rejectedSubtitle}>This order was not submitted.</p>
+
+            <table className={styles.rejectedTable}>
+              <tbody>
+                <tr>
+                  <td className={styles.rejectedLabel}>Side</td>
+                  <td className={styles.rejectedValue}>
+                    {orderType === 'buy' ? 'Buy' : 'Sell'} {selectedSide === 'yes' ? 'Yes' : 'No'}
+                  </td>
+                </tr>
+                <tr>
+                  <td className={styles.rejectedLabel}>Price</td>
+                  <td className={styles.rejectedValue}>
+                    {selectedSide === 'yes' ? data?.yesAskCents : data?.noAskCents}&cent;
+                  </td>
+                </tr>
+                <tr>
+                  <td className={styles.rejectedLabel}>Amount</td>
+                  <td className={styles.rejectedValue}>{amount} test USDC</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <p className={styles.rejectedFooter}>Bet responsibly.</p>
+            <button
+              type="button"
+              className={styles.rejectedDismiss}
+              onClick={() => setOrderStatus('idle')}
+            >
+              Dismiss
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

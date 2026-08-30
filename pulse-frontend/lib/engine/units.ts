@@ -116,3 +116,44 @@ export async function getPoolTickSize(
   const params = await client.getBinaryBookParams(pool);
   return params.tickSize;
 }
+
+/**
+ * Read the pool's full order-book parameters (tick size, lot size, min quantity).
+ *
+ * Returns the raw `BinaryBookParams` from the on-chain `getOrderBookParameters`
+ * view — the grid the pool enforces on all orders:
+ * - `tickSize`: price must be a multiple of this
+ * - `lotSize`: quantity must be a multiple of this
+ * - `minQuantity`: quantity must be >= this (and a lot multiple)
+ *
+ * All values are raw bigint (outcome-token units, scaled by quoteDecimals).
+ * Per-market and recycled per pool — always read fresh before placing an order.
+ *
+ * @param client - The SomniaMarketsClient (from createPulseClient).
+ * @param pool - The pool address (lowercased hex).
+ * @returns The full BinaryBookParams with tickSize, lotSize, minQuantity.
+ */
+export async function getPoolBookParams(
+  client: SomniaMarketsClient,
+  pool: string,
+): Promise<{ tickSize: bigint; lotSize: bigint; minQuantity: bigint }> {
+  return await client.getBinaryBookParams(pool);
+}
+
+/**
+ * Snap a raw quantity down to the nearest valid lot on the pool's grid.
+ *
+ * The pool rejects any order whose quantity is not a multiple of `lotSize`
+ * (error: `InvalidQuantity` / `QuantityNotAligned`). This rounds DOWN to the
+ * nearest whole lot, matching the SDK's own internal pattern in derivedReads.
+ *
+ * @example
+ * snapToLotSize(16129032n, 1000000n) // 16000000n (snapped to 16 lots)
+ * snapToLotSize(16000000n, 1000000n) // 16000000n (already aligned)
+ */
+export function snapToLotSize(quantity: bigint, lotSize: bigint): bigint {
+  if (lotSize <= 0n) {
+    throw new Error(`lotSize must be positive, got ${lotSize.toString()}`);
+  }
+  return quantity - (quantity % lotSize);
+}

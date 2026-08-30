@@ -23,6 +23,7 @@ import {
 const INITIAL_DATA: TradePreviewData = {
   marketId: '0x0000000000000000000000000000000000000000000000000000000000000001',
   marketAddress: '',
+  poolAddress: '',
   quoteDecimals: 6,
   title: "Will BTC/USDC's price be at or above 64,250 at 16:30 UTC?",
   contextLine: 'BTC \u00b7 15m window',

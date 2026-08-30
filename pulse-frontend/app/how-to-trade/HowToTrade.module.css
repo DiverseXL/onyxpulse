@@ -1,0 +1,174 @@
+/* ─────────────────────────────────────────────
+   HowToTrade.module.css
+   Pulse — How to Trade Guide
+   Typography and spacing mapped to design tokens.
+   NO EMOJI in code, comments, or styling.
+───────────────────────────────────────────── */
+
+.page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background-color: var(--color-shadow-mountain);
+  color: var(--color-paper);
+  display: flex;
+  flex-direction: column;
+}
+
+.main {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: var(--space-7) var(--space-5) var(--space-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+/* ── Header ────────────────────────────────── */
+.headerSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.h1 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.85rem, 3.5vw, 2.6rem);
+  letter-spacing: -0.01em;
+  color: var(--color-paper);
+  line-height: 1.15;
+  margin: 0;
+}
+
+.subcopy {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  color: rgba(242, 237, 225, var(--opacity-muted));
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  max-width: 36rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ── Step List ─────────────────────────────── */
+.stepList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* ── Step Card ─────────────────────────────── */
+.stepCard {
+  background: rgba(14, 18, 26, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.stepHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.stepNumber {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 600;
+  color: var(--color-paper);
+  flex-shrink: 0;
+}
+
+.stepTitle {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  font-weight: 600;
+  color: var(--color-paper);
+  margin: 0;
+}
+
+.stepDescription {
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  color: rgba(242, 237, 225, var(--opacity-secondary));
+  line-height: 1.6;
+  margin: 0;
+  padding-left: calc(28px + var(--space-3));
+}
+
+/* ── Footer CTA ────────────────────────────── */
+.ctaFooter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-4);
+  background: rgba(14, 18, 26, 0.35);
+  border: 1px dashed rgba(193, 80, 46, 0.2);
+  border-radius: 14px;
+  text-align: center;
+}
+
+.ctaFooterTitle {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  font-weight: 600;
+  color: var(--color-paper);
+  margin: 0;
+}
+
+.ctaFooterText {
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  color: rgba(242, 237, 225, var(--opacity-secondary));
+  margin: 0;
+}
+
+.ctaButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0.65rem 1.5rem;
+  border-radius: 9999px;
+  background: var(--color-paper);
+  color: #0c150c;
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: transform var(--transition-fast), filter var(--transition-fast);
+}
+
+.ctaButton:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+/* ── Responsive ────────────────────────────── */
+@media (max-width: 640px) {
+  .main {
+    padding: var(--space-6) var(--space-4) var(--space-7);
+  }
+
+  .stepDescription {
+    padding-left: 0;
+  }
+}

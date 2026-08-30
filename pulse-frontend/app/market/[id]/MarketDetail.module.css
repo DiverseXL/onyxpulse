@@ -665,6 +665,113 @@
   line-height: 1.4;
 }
 
+/* ── Order Rejected Popup ────────────────── */
+.rejectedOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: rejectedOverlayIn 0.2s ease-out;
+}
+
+@keyframes rejectedOverlayIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.rejectedPopup {
+  background: rgba(28, 25, 23, 0.95);
+  border: 1px solid rgba(251, 191, 36, 0.25);
+  border-radius: 12px;
+  padding: var(--space-4) var(--space-4);
+  width: 320px;
+  max-width: 90vw;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  animation: rejectedPopupIn 0.25s ease-out;
+}
+
+@keyframes rejectedPopupIn {
+  from { opacity: 0; transform: scale(0.95) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.rejectedTitle {
+  font-family: var(--font-mono);
+  font-size: var(--text-body);
+  font-weight: 600;
+  color: #fbbf24;
+  margin: 0 0 4px;
+  line-height: 1.3;
+}
+
+.rejectedSubtitle {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  color: rgba(242, 237, 225, 0.5);
+  margin: 0 0 var(--space-3);
+  line-height: 1.3;
+}
+
+.rejectedTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: var(--space-3);
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+}
+
+.rejectedTable tr + tr {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.rejectedLabel {
+  text-align: left;
+  padding: 8px 0;
+  color: rgba(242, 237, 225, 0.45);
+  font-weight: 400;
+}
+
+.rejectedValue {
+  text-align: right;
+  padding: 8px 0;
+  color: rgba(242, 237, 225, 0.85);
+  font-weight: 500;
+}
+
+.rejectedFooter {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  color: rgba(251, 191, 36, 0.6);
+  margin: 0 0 var(--space-3);
+  line-height: 1.3;
+}
+
+.rejectedDismiss {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 500;
+  color: rgba(242, 237, 225, 0.85);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: 8px 24px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.rejectedDismiss:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
 /* ── Ticket Footnote ──────────────────────── */
 .ticketFootnote {
   font-family: var(--font-mono);

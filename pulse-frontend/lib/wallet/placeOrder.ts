@@ -1,94 +1,38 @@
 'use client';
 
 /**
- * Client-side order placement using wagmi walletClient + viem.
+ * Client-side order placement using the engine's placeMarketOrder.
  *
- * Sends an approve + placeOrder transaction pair through the user's connected
- * wallet. No server-side private key needed.
+ * Delegates to the already-tested engine function from lib/engine/trading.ts
+ * which handles:
+ *   - Correct contract function call (placeBinaryOrder, not placeOrder)
+ *   - Correct argument order and types
+ *   - Market-expiry-aware default expiry (not hardcoded 0)
+ *   - Correct ORDER_TYPE.MARKET (2), not ORDER_TYPE.FILL_OR_KILL (1)
+ *   - Auto-approval of the escrow token (no separate approve tx needed)
+ *   - On-chain status gate via assertMarketWritable
+ *
+ * The previous implementation hand-built the raw pool.placeOrder call with
+ * several critical bugs that caused on-chain reverts.
  */
 
-import { encodeFunctionData, type Hex, type WalletClient, type Account } from 'viem';
-import { somniaTestnet } from './wagmiConfig';
+import type { WalletClient, Account } from 'viem';
+import { createPulseClient } from '@/lib/engine/client';
+import { placeMarketOrder } from '@/lib/engine/trading';
+import { PulseErrorCode, PulseEngineError } from '@/lib/engine/errors';
 
 // -- Constants ---------------------------------------------------------------
 
-/** Somnia Shannon testnet test USDC contract. */
-const TEST_USDC = '0x70a86D8842FB63C4Ad2b7cdddF530eBf1BB25d8E' as const;
-
-/** Pool's placeOrder ABI (from @somnia-chain/markets-sdk tradeAbi.ts). */
-const POOL_PLACE_ORDER_ABI = [
-  {
-    type: 'function',
-    name: 'placeOrder',
-    stateMutability: 'payable',
-    inputs: [
-      { name: 'isBid', type: 'bool' },
-      { name: 'userData', type: 'uint64' },
-      { name: 'price', type: 'uint256' },
-      { name: 'quantity', type: 'uint256' },
-      { name: 'expireTimestampNs', type: 'uint64' },
-      { name: 'orderType', type: 'uint8' },
-      { name: 'selfMatchingOption', type: 'uint8' },
-      { name: 'builder', type: 'address' },
-      { name: 'builderFeeBpsTimes1k', type: 'uint96' },
-    ],
-    outputs: [],
-  },
-] as const;
-
-/** Standard ERC-20 approve ABI. */
-const ERC20_APPROVE_ABI = [
-  {
-    type: 'function',
-    name: 'approve',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { name: 'spender', type: 'address' },
-      { name: 'amount', type: 'uint256' },
-    ],
-    outputs: [{ name: '', type: 'bool' }],
-  },
-] as const;
-
-/** IOC = Immediate-or-Cancel (market order). */
-const ORDER_TYPE_IOC = 1;
-
-/** ADDRESS(0) for builder field (no builder fee). */
-const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000' as const;
-
-// -- Helpers (pure, no SDK imports) ------------------------------------------
-
-/**
- * Convert a human-readable number/string to a bigint scaled by `decimals`.
- */
-function toBigintAmount(human: number | string, decimals: number): bigint {
-  const str = typeof human === 'string' ? human : String(human);
-  if (str === '0' || str === '0.0' || str === '0.') return 0n;
-
-  const sign = str.startsWith('-') ? -1n : 1n;
-  const abs = str.startsWith('-') ? str.slice(1) : str;
-
-  const dotIdx = abs.indexOf('.');
-  const intPart = dotIdx === -1 ? abs : abs.slice(0, dotIdx);
-  let fracPart = dotIdx === -1 ? '' : abs.slice(dotIdx + 1);
-
-  if (fracPart.length > decimals) {
-    throw new Error(
-      `Input has ${fracPart.length} decimal places but only ${decimals} are allowed: "${str}"`,
-    );
-  }
-
-  fracPart = fracPart.padEnd(decimals, '0');
-  const combined = intPart + fracPart;
-  const value = combined === '' ? 0n : BigInt(combined);
-  return sign * value;
-}
+/** Block explorer base URL for Somnia Shannon testnet. */
+const EXPLORER_TX_URL = 'https://shannon-explorer.somnia.network/tx/' as const;
 
 // -- Types -------------------------------------------------------------------
 
 export interface PlaceClientOrderParams {
   /** The binary pool contract address. */
   poolAddress: string;
+  /** The market's bytes32 ID (for assertMarketWritable). */
+  marketId: string;
   /** Trade side. */
   side: 'BUY_YES' | 'BUY_NO' | 'SELL_YES' | 'SELL_NO';
   /** Price in cents (e.g. 62 for 62%). */
@@ -102,6 +46,60 @@ export interface PlaceClientOrderParams {
 export interface PlaceClientOrderResult {
   /** Transaction hash of the placeOrder call. */
   hash: string;
+  /** Explorer URL for the transaction. */
+  explorerUrl: string;
+}
+
+// -- Helpers -----------------------------------------------------------------
+
+/**
+ * Convert cents to a human-readable decimal string safely (no floating-point).
+ * E.g. 62 cents → "0.62"
+ *
+ * This is the format expected by placeMarketOrder's humanPrice param.
+ */
+function centsToHumanString(cents: number): string {
+  // Use string math to avoid IEEE 754 issues
+  const centsStr = String(cents);
+  const dotIdx = centsStr.indexOf('.');
+  const intPart = dotIdx === -1 ? centsStr : centsStr.slice(0, dotIdx);
+  const fracPart = dotIdx === -1 ? '' : centsStr.slice(dotIdx + 1);
+
+  // cents / 100 = shift decimal left by 2
+  const combined = intPart + fracPart;
+  const shifted = combined.padStart(3, '0'); // ensure at least "0.00"
+  const resultInt = shifted.slice(0, -2) || '0';
+  const resultFrac = shifted.slice(-2);
+  return `${resultInt}.${resultFrac}`;
+}
+
+/**
+ * Convert amount / price to quantity using string math (no float division).
+ * quantity = amount / price (both in human units).
+ *
+ * This is the format expected by placeMarketOrder's humanQuantity param.
+ */
+function computeQuantityString(amount: number, priceCents: number): string {
+  // quantity = amount / (priceCents / 100) = (amount * 100) / priceCents
+  // Use BigInt to avoid float issues
+  const amountScaled = BigInt(Math.round(amount * 1_000_000)); // 6 decimals
+  const priceScaled = BigInt(Math.round(priceCents * 10_000)); // 6-2=4 decimals, but priceCents is integer so *10000 gives 6 decimal places
+  if (priceScaled === 0n) return '0.000000';
+
+  // quantity = amountScaled / priceScaled, both in 10^6 scale
+  // But priceScaled is priceCents * 10000 (= priceCents * 10^(6-2))
+  // and amountScaled is amount * 1000000 (= amount * 10^6)
+  // So quantity = (amount * 10^6) / (priceCents * 10^4) = (amount * 100) / priceCents
+  // We want this in human units with 6 decimal places
+  // quantity_human = amount / (priceCents / 100) = amount * 100 / priceCents
+  // scaled = quantity_human * 10^6 = amount * 100 * 10^6 / priceCents
+
+  const quantityScaled = (amountScaled * 1_000_000n) / (priceScaled);
+  // Convert back to human string
+  const str = quantityScaled.toString().padStart(7, '0');
+  const intPart = str.slice(0, str.length - 6) || '0';
+  const fracPart = str.slice(str.length - 6);
+  return `${intPart}.${fracPart}`;
 }
 
 // -- Main export -------------------------------------------------------------
@@ -109,9 +107,15 @@ export interface PlaceClientOrderResult {
 /**
  * Place a market order (IOC) via the user's connected wallet.
  *
- * Steps:
- *   1. Approve the pool to spend the user's test USDC
- *   2. Call placeOrder on the pool contract
+ * Delegates to the engine's placeMarketOrder which handles:
+ *   - on-chain status gate (assertMarketWritable)
+ *   - correct contract function call (placeBinaryOrder)
+ *   - market-expiry-aware default expiry
+ *   - correct ORDER_TYPE.MARKET (2)
+ *   - auto-approval of the escrow token
+ *   - tick/lot alignment via the SDK
+ *
+ * @throws PulseEngineError on failure (typed error with code).
  */
 export async function placeClientOrder(
   walletClient: WalletClient,
@@ -127,66 +131,95 @@ export async function placeClientOrder(
   } = params;
 
   if (!account?.address) {
-    throw new Error('Wallet not connected -- please connect your wallet first.');
+    throw new PulseEngineError(
+      PulseErrorCode.UNKNOWN,
+      'placeClientOrder',
+      'Wallet not connected -- please connect your wallet first.',
+    );
   }
 
-  const isBid = side === 'BUY_YES' || side === 'BUY_NO';
-  const humanPrice = (priceCents / 100).toFixed(decimals);
-  const humanQuantity = (amount / (priceCents / 100)).toFixed(decimals);
+  if (priceCents <= 0 || priceCents >= 100) {
+    throw new PulseEngineError(
+      PulseErrorCode.INVALID_PRICE,
+      'placeClientOrder',
+      `Invalid price: ${priceCents} cents. Must be between 1 and 99.`,
+    );
+  }
 
-  const price = toBigintAmount(humanPrice, decimals);
-  const quantity = toBigintAmount(humanQuantity, decimals);
+  if (amount <= 0) {
+    throw new PulseEngineError(
+      PulseErrorCode.INVALID_PRICE,
+      'placeClientOrder',
+      `Invalid amount: ${amount}. Must be greater than 0.`,
+    );
+  }
 
-  // -- Step 1: Approve pool to spend test USDC -------------------------------
-  const approveCalldata = encodeFunctionData({
-    abi: ERC20_APPROVE_ABI,
-    functionName: 'approve',
-    args: [poolAddress as Hex, quantity],
-  });
+  // Create PulseClient and trader bound to the wallet
+  const pulse = createPulseClient();
+  const trader = pulse.client.createTrader({ walletClient });
 
-  let approveHash: `0x${string}`;
+  // Convert params to the format expected by placeMarketOrder
+  const humanPrice = centsToHumanString(priceCents);
+  const humanQuantity = computeQuantityString(amount, priceCents);
+
   try {
-    approveHash = await walletClient.sendTransaction({
-      to: TEST_USDC,
-      data: approveCalldata,
-      chain: somniaTestnet,
-      account,
+    const result = await placeMarketOrder(pulse.client, trader, {
+      pool: poolAddress as `0x${string}`,
+      side,
+      humanPrice,
+      humanQuantity,
+      decimals,
     });
+
+    return {
+      hash: result.hash,
+      explorerUrl: `${EXPLORER_TX_URL}${result.hash}`,
+    };
   } catch (err: unknown) {
+    // Re-throw PulseEngineError as-is (already mapped by placeMarketOrder)
+    if (err instanceof PulseEngineError) throw err;
+
+    // Map raw errors to user-friendly messages
     const msg = err instanceof Error ? err.message : String(err);
+
     if (msg.includes('does not match the target chain')) {
-      throw new Error(
-        'Wrong network -- your wallet is not on Somnia Testnet (chain 50312). '
-        + 'Switch networks in MetaMask and try again.',
+      throw new PulseEngineError(
+        PulseErrorCode.UNKNOWN,
+        'placeClientOrder',
+        'Wrong network -- your wallet is not on Somnia Testnet (chain 50312). Switch networks in MetaMask and try again.',
+        err,
       );
     }
-    throw err;
+    if (msg.includes('User rejected') || msg.includes('rejected')) {
+      throw new PulseEngineError(
+        PulseErrorCode.UNKNOWN,
+        'placeClientOrder',
+        'Transaction rejected by user in MetaMask.',
+        err,
+      );
+    }
+    if (msg.includes('OrderExpiryBeyondMarket')) {
+      throw new PulseEngineError(
+        PulseErrorCode.INVALID_PRICE,
+        'placeClientOrder',
+        'Market is expiring too soon to place a safe order. Try a different market.',
+        err,
+      );
+    }
+    if (msg.includes('InsufficientBalance') || msg.includes('insufficient')) {
+      throw new PulseEngineError(
+        PulseErrorCode.INSUFFICIENT_BALANCE,
+        'placeClientOrder',
+        'Insufficient test USDC balance. Visit /faucet to get more test USDC.',
+        err,
+      );
+    }
+
+    throw new PulseEngineError(
+      PulseErrorCode.UNKNOWN,
+      'placeClientOrder',
+      `Order placement failed: ${msg}`,
+      err,
+    );
   }
-
-  // -- Step 2: Place the order on the pool -----------------------------------
-  const placeOrderCalldata = encodeFunctionData({
-    abi: POOL_PLACE_ORDER_ABI,
-    functionName: 'placeOrder',
-    args: [
-      isBid,          // isBid
-      0n,             // userData (opaque MM tag, 0 unused)
-      price,          // price
-      quantity,       // quantity
-      0n,             // expireTimestampNs (0 for IOC)
-      ORDER_TYPE_IOC, // orderType (1 = IOC / market)
-      0,              // selfMatchingOption (0 = CANCEL_TAKER default)
-      ZERO_ADDRESS,   // builder (no builder)
-      0n,             // builderFeeBpsTimes1k (no fee)
-    ],
-  });
-
-  const placeHash = await walletClient.sendTransaction({
-    to: poolAddress as Hex,
-    data: placeOrderCalldata,
-    value: 0n, // ERC-20 pool -- no native token needed
-    chain: somniaTestnet,
-    account,
-  });
-
-  return { hash: placeHash };
 }

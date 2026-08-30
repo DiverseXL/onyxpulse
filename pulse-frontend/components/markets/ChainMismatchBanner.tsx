@@ -9,7 +9,7 @@
  * NO EMOJI in code, comments, or UI copy.
  */
 
-import { useState, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useChainId, useSwitchChain } from 'wagmi';
 import { AlertTriangle, ArrowRightLeft } from 'lucide-react';
 import { somniaTestnet } from '@/lib/wallet/wagmiConfig';
@@ -17,9 +17,14 @@ import { somniaTestnet } from '@/lib/wallet/wagmiConfig';
 const TARGET_CHAIN_ID = somniaTestnet.id;
 
 export default function ChainMismatchBanner() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const currentChainId = useChainId();
   const { switchChain, isPending } = useSwitchChain();
   const [switchError, setSwitchError] = useState<string | null>(null);
+
+  // Wait for client hydration to avoid mismatch
+  if (!mounted) return null;
 
   // Correct chain -- render nothing
   if (currentChainId === TARGET_CHAIN_ID) return null;

@@ -9,10 +9,10 @@ import type {
 } from "@somnia-chain/markets-sdk";
 import { ORDER_TYPE } from "@somnia-chain/markets-sdk";
 
-import { toBigintAmount } from "./units.ts";
+import { toBigintAmount, getPoolBookParams, snapToTick, snapToLotSize } from "./units.ts";
 import { assertMarketWritable } from "./statusGate.ts";
 import { computeDefaultExpiry } from "./orderbook.ts";
-import { mapSdkError } from "./errors.ts";
+import { mapSdkError, PulseEngineError, PulseErrorCode } from "./errors.ts";
 
 /**
  * A Trader instance bound to a signing key.
@@ -54,14 +54,54 @@ export async function placeMarketOrder(
   const ctx = `placeMarketOrder for pool ${pool} (side=${side})`;
 
   try {
-    // On-chain status gate: verify the market is tradeable before sending.
+    // FRESH on-chain re-fetch: read the pool's current market binding from the
+    // indexer immediately before constructing the order. This ensures we don't
+    // hold stale market data from page load (e.g. if the pool recycled to a new
+    // market/window while the user was connecting wallet / getting faucet funds).
     const market = await client.getMarketByPool(pool);
     if (market && "marketId" in market) {
+      // On-chain status gate: verify the market is tradeable at THIS block.
+      // Uses getMarketOnchain (direct eth_call, not indexer) for freshness.
       await assertMarketWritable(client, market.marketId, "Trading");
     }
 
-    const price = toBigintAmount(humanPrice, decimals);
-    const quantity = toBigintAmount(humanQuantity, decimals);
+    // The SDK's trader.placeOrder → binaryOrderCall will also read
+    // pool.marketExpiryNs() on-chain to compute the default order expiry,
+    // so the expiry always reflects the pool's current state — not a stale
+    // cached value. This is the contract-level defense against Hypothesis 2.
+
+    // Snap price and quantity to the pool's on-chain grid before submission.
+    // The SDK does NOT do this — it passes raw values to the contract,
+    // which rejects off-grid orders with InvalidQuantity.
+    const bookParams = await getPoolBookParams(client, pool);
+
+    const price = snapToTick(
+      toBigintAmount(humanPrice, decimals),
+      bookParams.tickSize,
+    );
+    let quantity = snapToLotSize(
+      toBigintAmount(humanQuantity, decimals),
+      bookParams.lotSize,
+    );
+
+    // Enforce minimum order size: the pool rejects anything below minQuantity
+    // (error: MinQuantityNotMet). If the snapped quantity is too small, bump
+    // it up to one lot (the smallest valid order).
+    if (quantity < bookParams.minQuantity) {
+      quantity = bookParams.minQuantity;
+    }
+
+    // Final guard: if quantity is still zero after snapping, the order is
+    // too small to place at all.
+    if (quantity <= 0n) {
+      throw new PulseEngineError(
+        PulseErrorCode.INVALID_PRICE,
+        ctx,
+        `Quantity too small for this pool's minimum order size. ` +
+          `Minimum: ${bookParams.minQuantity.toString()} raw units. ` +
+          `Lot size: ${bookParams.lotSize.toString()}.`,
+      );
+    }
 
     return await trader.placeOrder({
       pool,
@@ -124,14 +164,42 @@ export async function placeLimitOrder(
   const ctx = `placeLimitOrder for pool ${pool} (side=${side}, price=${humanPrice})`;
 
   try {
-    // On-chain status gate: verify the market is tradeable before sending.
+    // FRESH on-chain re-fetch: read the pool's current market binding from the
+    // indexer immediately before constructing the order. This ensures we don't
+    // hold stale market data from page load (e.g. if the pool recycled to a new
+    // market/window while the user was connecting wallet / getting faucet funds).
     const onChainMarket = await client.getMarketByPool(pool);
     if (onChainMarket && "marketId" in onChainMarket) {
+      // On-chain status gate: verify the market is tradeable at THIS block.
       await assertMarketWritable(client, onChainMarket.marketId, "Trading");
     }
 
-    const price = toBigintAmount(humanPrice, decimals);
-    const quantity = toBigintAmount(humanQuantity, decimals);
+    // Snap price and quantity to the pool's on-chain grid before submission.
+    const bookParams = await getPoolBookParams(client, pool);
+
+    const price = snapToTick(
+      toBigintAmount(humanPrice, decimals),
+      bookParams.tickSize,
+    );
+    let quantity = snapToLotSize(
+      toBigintAmount(humanQuantity, decimals),
+      bookParams.lotSize,
+    );
+
+    // Enforce minimum order size.
+    if (quantity < bookParams.minQuantity) {
+      quantity = bookParams.minQuantity;
+    }
+
+    if (quantity <= 0n) {
+      throw new PulseEngineError(
+        PulseErrorCode.INVALID_PRICE,
+        ctx,
+        `Quantity too small for this pool's minimum order size. ` +
+          `Minimum: ${bookParams.minQuantity.toString()} raw units. ` +
+          `Lot size: ${bookParams.lotSize.toString()}.`,
+      );
+    }
 
     // Compute expiry: explicit > derived from market > SDK default.
     const expiry =

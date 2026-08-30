@@ -57,10 +57,18 @@ export default function AppChromeNav() {
             Markets
           </Link>
           <Link
-            href="/#trade-preview-panel"
+            href="/portfolio"
             className={`${styles.navLink} ${pathname === '/portfolio' ? styles.navLinkActive : ''}`}
+            aria-current={pathname === '/portfolio' ? 'page' : undefined}
           >
             Portfolio
+          </Link>
+          <Link
+            href="/how-to-trade"
+            className={`${styles.navLink} ${pathname === '/how-to-trade' ? styles.navLinkActive : ''}`}
+            aria-current={pathname === '/how-to-trade' ? 'page' : undefined}
+          >
+            How to Trade
           </Link>
           <a
             href="https://shannon-faucet.somnia.network"
