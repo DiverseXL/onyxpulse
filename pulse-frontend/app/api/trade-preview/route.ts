@@ -19,6 +19,8 @@ export type TradePreviewData = {
   contextLine: string;
   asset: string;
   windowDuration: string;
+  /** On-chain market status: Listed, Trading, Locked, Settling, Resolved, Voided. */
+  status: string;
   yesCents: number;
   noCents: number;
   yesAskCents: number;  // YES best ask — what you pay to buy YES
@@ -159,6 +161,7 @@ export async function GET(request: Request) {
         contextLine: `${asset} · ${durationMin}m window`,
         asset,
         windowDuration: `${durationMin}m`,
+        status: targetMarket.status || 'Trading',
         yesCents,
         noCents,
         yesAskCents,
@@ -200,6 +203,7 @@ export async function GET(request: Request) {
       contextLine: 'BTC · 15m window',
       asset: 'BTC',
       windowDuration: '15m',
+      status: 'Trading',
       yesCents: fallbackYesCents,
       noCents: fallbackNoCents,
       yesAskCents: fallbackYesCents + 1,
@@ -236,6 +240,7 @@ export async function GET(request: Request) {
       contextLine: 'BTC · 15m window',
       asset: 'BTC',
       windowDuration: '15m',
+      status: 'Trading',
       yesCents: fallbackYesCents,
       noCents: 100 - fallbackYesCents,
       yesAskCents: fallbackYesCents + 1,

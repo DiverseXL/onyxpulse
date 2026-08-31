@@ -18,7 +18,7 @@
 
 import type { WalletClient, Account } from 'viem';
 import { createPulseClient } from '@/lib/engine/client';
-import { placeMarketOrder } from '@/lib/engine/trading';
+import { placeMarketOrder, placeLimitOrder } from '@/lib/engine/trading';
 import { PulseErrorCode, PulseEngineError } from '@/lib/engine/errors';
 import { checkRiskLimits } from '@/lib/engine/riskEngine';
 import { loadSettings } from '@/lib/settings';
@@ -240,6 +240,133 @@ export async function placeClientOrder(
       PulseErrorCode.UNKNOWN,
       'placeClientOrder',
       `Order placement failed: ${msg}`,
+      err,
+    );
+  }
+}
+
+// -- Limit order export -------------------------------------------------------
+
+export interface PlaceClientLimitOrderParams extends PlaceClientOrderParams {
+  /** Limit price in cents (e.g. 62 for 62%). */
+  priceCents: number;
+}
+
+/**
+ * Place a limit order that rests on the book via the user's connected wallet.
+ *
+ * Unlike a market (IOC) order, a limit order stays on the order book until
+ * filled, cancelled, or expired. This is the fallback when a market order
+ * fails due to ImmediateOrCancelNoFill (insufficient opposing liquidity).
+ *
+ * @throws PulseEngineError on failure (typed error with code).
+ */
+export async function placeClientLimitOrder(
+  walletClient: WalletClient,
+  account: Account,
+  params: PlaceClientLimitOrderParams,
+): Promise<PlaceClientOrderResult> {
+  const {
+    poolAddress,
+    side,
+    priceCents,
+    amount,
+    decimals = 6,
+  } = params;
+
+  if (!account?.address) {
+    throw new PulseEngineError(
+      PulseErrorCode.UNKNOWN,
+      'placeClientLimitOrder',
+      'Wallet not connected -- please connect your wallet first.',
+    );
+  }
+
+  if (priceCents <= 0 || priceCents >= 100) {
+    throw new PulseEngineError(
+      PulseErrorCode.INVALID_PRICE,
+      'placeClientLimitOrder',
+      `Invalid price: ${priceCents} cents. Must be between 1 and 99.`,
+    );
+  }
+
+  if (amount <= 0) {
+    throw new PulseEngineError(
+      PulseErrorCode.INVALID_PRICE,
+      'placeClientLimitOrder',
+      `Invalid amount: ${amount}. Must be greater than 0.`,
+    );
+  }
+
+  const pulse = createPulseClient();
+  const trader = pulse.client.createTrader({ walletClient });
+
+  const humanPrice = centsToHumanString(priceCents);
+  const humanQuantity = computeQuantityString(amount, priceCents);
+
+  // Check risk limits before submitting (if enabled)
+  const settings = loadSettings(account.address);
+  if (settings.riskLimitsEnabled && params.marketId) {
+    const riskCheck = await checkRiskLimits(
+      pulse.client,
+      account.address as `0x${string}`,
+      params.marketId,
+      String(amount),
+      settings.riskLimits,
+    );
+    if (!riskCheck.allowed) {
+      throw new PulseEngineError(
+        PulseErrorCode.UNKNOWN,
+        'placeClientLimitOrder',
+        `Trade blocked by risk limits: ${riskCheck.reason}`,
+      );
+    }
+  }
+
+  try {
+    // Fetch the market for expiry computation
+    const market = await pulse.client.getMarketByPool(poolAddress as `0x${string}`);
+    const marketRow = market && 'marketId' in market ? market : undefined;
+
+    const result = await placeLimitOrder(pulse.client, trader, {
+      pool: poolAddress as `0x${string}`,
+      side,
+      humanPrice,
+      humanQuantity,
+      decimals,
+      market: marketRow,
+    });
+
+    return {
+      hash: result.hash,
+      explorerUrl: `${EXPLORER_TX_URL}${result.hash}`,
+    };
+  } catch (err: unknown) {
+    if (err instanceof PulseEngineError) throw err;
+
+    const msg = err instanceof Error ? err.message : String(err);
+
+    if (msg.includes('does not match the target chain')) {
+      throw new PulseEngineError(
+        PulseErrorCode.UNKNOWN,
+        'placeClientLimitOrder',
+        'Wrong network -- your wallet is not on Somnia Testnet (chain 50312). Switch networks in MetaMask and try again.',
+        err,
+      );
+    }
+    if (msg.includes('User rejected') || msg.includes('rejected')) {
+      throw new PulseEngineError(
+        PulseErrorCode.UNKNOWN,
+        'placeClientLimitOrder',
+        'Transaction rejected by user in MetaMask.',
+        err,
+      );
+    }
+
+    throw new PulseEngineError(
+      PulseErrorCode.UNKNOWN,
+      'placeClientLimitOrder',
+      `Limit order placement failed: ${msg}`,
       err,
     );
   }

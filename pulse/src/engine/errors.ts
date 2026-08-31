@@ -35,6 +35,8 @@ export const PulseErrorCode = {
   MARKET_NOT_FOUND: "MARKET_NOT_FOUND",
   /** Market was already finalized / redeemed. */
   ALREADY_REDEEMED: "ALREADY_REDEEMED",
+  /** IOC market order could not fill due to insufficient opposing liquidity. */
+  NO_LIQUIDITY: "NO_LIQUIDITY",
   /** Unrecognised error — original message preserved. */
   UNKNOWN: "UNKNOWN",
 } as const;
@@ -116,6 +118,9 @@ const ERROR_NAME_TO_CODE: Record<string, PulseErrorCode> = {
 
   // Settlement
   AlreadyFinalized: PulseErrorCode.ALREADY_REDEEMED,
+
+  // Liquidity
+  ImmediateOrCancelNoFill: PulseErrorCode.NO_LIQUIDITY,
 };
 
 /**

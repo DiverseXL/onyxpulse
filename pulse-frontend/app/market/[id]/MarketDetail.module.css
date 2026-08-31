@@ -71,6 +71,72 @@
   filter: brightness(1.1);
 }
 
+/* ── Locked Market Banner ────────────────── */
+.lockedBanner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  background: rgba(251, 191, 36, 0.08);
+  border: 1px solid rgba(251, 191, 36, 0.25);
+  border-radius: 10px;
+}
+
+.lockedBannerIcon {
+  color: #fbbf24;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.lockedBannerContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.lockedBannerTitle {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  font-weight: 600;
+  color: #fbbf24;
+  line-height: 1.3;
+}
+
+.lockedBannerSubtitle {
+  margin: 0.25rem 0 0;
+  font-family: var(--font-body);
+  font-size: var(--text-micro);
+  color: rgba(251, 191, 36, 0.8);
+  line-height: 1.4;
+}
+
+.lockedBannerActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+.lockedBannerLink {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.75rem;
+  border-radius: 9999px;
+  background: rgba(251, 191, 36, 0.2);
+  border: 1px solid rgba(251, 191, 36, 0.4);
+  color: #fbbf24;
+  font-family: var(--font-body);
+  font-size: var(--text-micro);
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 150ms ease;
+  white-space: nowrap;
+}
+
+.lockedBannerLink:hover {
+  background: rgba(251, 191, 36, 0.3);
+}
+
 .receiptBanner:focus-visible {
   outline: 2px solid var(--color-paper);
   outline-offset: 2px;
@@ -392,6 +458,11 @@
   min-height: 48px;
 }
 
+.sideButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 .sideButtonYesActive {
   background: rgba(34, 197, 94, 0.18);
   color: #4ade80;
@@ -502,6 +573,11 @@
   letter-spacing: -0.01em;
   outline: none;
   min-width: 0;
+}
+
+.amountInput:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .unitTag {
@@ -681,15 +757,62 @@
   gap: var(--space-2);
 }
 
+.orderErrorBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: calc(-1 * var(--space-2));
+  margin-bottom: var(--space-2);
+}
+
 .orderErrorText {
   font-family: var(--font-mono);
   font-size: var(--text-micro);
   font-weight: 400;
   color: #f87171;
   text-align: center;
-  margin-top: calc(-1 * var(--space-2));
-  margin-bottom: var(--space-2);
   line-height: 1.4;
+}
+
+.limitFallbackButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  font-weight: 600;
+  color: var(--color-paper);
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    0 2px 8px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
+  min-height: 40px;
+  width: 100%;
+}
+
+.limitFallbackButton:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-1px);
+}
+
+.limitFallbackButton:active {
+  transform: translateY(0);
+}
+
+.limitFallbackButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .orderSuccessText {

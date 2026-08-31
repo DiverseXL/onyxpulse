@@ -29,6 +29,7 @@ const INITIAL_DATA: TradePreviewData = {
   contextLine: 'BTC \u00b7 15m window',
   asset: 'BTC',
   windowDuration: '15m',
+  status: 'Trading',
   yesCents: 58,
   noCents: 42,
   deltaLabel: '+4.2%',

@@ -5,14 +5,17 @@ import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ArrowLeft, TrendingUp, TrendingDown, AlertCircle, RefreshCw, CheckCircle, Loader2, FileText } from 'lucide-react';
+import { ArrowLeft, TrendingUp, TrendingDown, AlertCircle, RefreshCw, CheckCircle, Loader2, FileText, Lock } from 'lucide-react';
 import styles from './MarketDetail.module.css';
 import AppChromeNav from '@/components/markets/AppChromeNav';
 import ChainMismatchBanner from '@/components/markets/ChainMismatchBanner';
 import type { TradePreviewData } from '@/app/api/trade-preview/route';
 import { usePulseWallet } from '@/lib/wallet/PulseWalletContext';
 import { placeClientOrder } from '@/lib/wallet/placeOrder';
-import { PulseEngineError } from '@/lib/engine/errors';
+import { PulseEngineError, PulseErrorCode } from '@/lib/engine/errors';
+import { placeClientLimitOrder } from '@/lib/wallet/placeOrder';
+import { createPulseClient } from '@/lib/engine/client';
+import { getOnChainMarketStatus } from '@/lib/engine/statusGate';
 import { getWalletClient } from '@wagmi/core';
 import { wagmiConfig } from '@/lib/wallet/wagmiConfig';
 import { useAccount } from 'wagmi';
@@ -102,6 +105,8 @@ export default function MarketDetailPage() {
   const [orderStatus, setOrderStatus] = useState<'idle' | 'submitting' | 'success' | 'error' | 'rejected'>('idle');
   const [orderResult, setOrderResult] = useState<{ hash: string; explorerUrl: string } | null>(null);
   const [orderError, setOrderError] = useState<string | null>(null);
+  const [showLimitFallback, setShowLimitFallback] = useState(false);
+  const [liveStatus, setLiveStatus] = useState<string | null>(null);
   const [hoverPoint, setHoverPoint] = useState<{
     x: number;
     y: number;
@@ -112,6 +117,36 @@ export default function MarketDetailPage() {
   } | null>(null);
 
   const chartRef = useRef<HTMLDivElement>(null);
+
+  // ── Proactive on-chain status polling (every 8s) ──────────────────────
+  // Detects Trading → Locked transitions before the user tries to place an order.
+  useEffect(() => {
+    if (!data?.marketId || !data?.poolAddress) return;
+
+    let stopped = false;
+
+    async function pollStatus() {
+      if (stopped) return;
+      try {
+        const pulse = createPulseClient();
+        const status = await getOnChainMarketStatus(pulse.client, data!.marketId);
+        if (!stopped) {
+          setLiveStatus(status);
+        }
+      } catch {
+        // Non-fatal: next poll will retry.
+      }
+    }
+
+    // Initial check
+    void pollStatus();
+    const timer = setInterval(() => void pollStatus(), 8_000);
+
+    return () => {
+      stopped = true;
+      clearInterval(timer);
+    };
+  }, [data?.marketId, data?.poolAddress]);
 
 
 
@@ -304,12 +339,99 @@ export default function MarketDetailPage() {
       } else {
         setOrderError(msg);
         setOrderStatus('error');
+
+        // Check if this is a no-liquidity error — offer limit order fallback
+        const isNoLiquidity =
+          (err instanceof PulseEngineError && err.code === PulseErrorCode.NO_LIQUIDITY) ||
+          msg.includes('ImmediateOrCancelNoFill') ||
+          msg.includes('no liquidity') ||
+          msg.includes('No liquidity');
+        if (isNoLiquidity) {
+          setShowLimitFallback(true);
+        }
+
+        // Check if market transitioned to Locked during submission — force liveStatus update
+        const isWrongStatus =
+          (err instanceof PulseEngineError && err.code === PulseErrorCode.WRONG_STATUS) ||
+          msg.includes('WrongStatus') ||
+          msg.includes('not writable');
+        if (isWrongStatus) {
+          setLiveStatus('Locked');
+        }
       }
     } finally {
       setTimeout(() => {
         setOrderStatus('idle');
         setOrderResult(null);
         setOrderError(null);
+        setShowLimitFallback(false);
+      }, 8000);
+    }
+  }, [data, orderType, selectedSide, amount, orderStatus, wallet, wagmiAddress]);
+
+  /* ── Place limit order handler (fallback when IOC fails due to no liquidity) ── */
+  const handlePlaceLimitOrder = useCallback(async () => {
+    if (!data || orderStatus === 'submitting') return;
+
+    if (wallet.connectionStatus !== 'connected' || !wallet.address) {
+      setOrderError('Please connect your wallet first.');
+      setOrderStatus('error');
+      setTimeout(() => { setOrderStatus('idle'); setOrderError(null); }, 3000);
+      return;
+    }
+
+    setOrderStatus('submitting');
+    setOrderError(null);
+    setOrderResult(null);
+    setShowLimitFallback(false);
+
+    const side = orderType === 'buy'
+      ? (selectedSide === 'yes' ? 'BUY_YES' : 'BUY_NO')
+      : (selectedSide === 'yes' ? 'SELL_YES' : 'SELL_NO');
+
+    const priceCents = selectedSide === 'yes' ? data.yesAskCents : data.noAskCents;
+
+    try {
+      const walletClient = await getWalletClient(wagmiConfig);
+      if (!walletClient || !walletClient.account) {
+        throw new Error('Wallet client not available. Please reconnect.');
+      }
+
+      const result = await placeClientLimitOrder(walletClient, walletClient.account, {
+        poolAddress: data.poolAddress,
+        marketId: data.marketId,
+        side,
+        priceCents,
+        amount,
+        decimals: data.quoteDecimals,
+      });
+
+      setOrderResult({ hash: result.hash, explorerUrl: result.explorerUrl });
+      setOrderStatus('success');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      const isRejected = msg.includes('rejected') || msg.includes('Rejected') || msg.includes('User rejected');
+      if (isRejected) {
+        setOrderStatus('rejected');
+      } else {
+        setOrderError(msg);
+        setOrderStatus('error');
+
+        // Check if market transitioned to Locked during submission
+        const isWrongStatus =
+          (err instanceof PulseEngineError && err.code === PulseErrorCode.WRONG_STATUS) ||
+          msg.includes('WrongStatus') ||
+          msg.includes('not writable');
+        if (isWrongStatus) {
+          setLiveStatus('Locked');
+        }
+      }
+    } finally {
+      setTimeout(() => {
+        setOrderStatus('idle');
+        setOrderResult(null);
+        setOrderError(null);
+        setShowLimitFallback(false);
       }, 5000);
     }
   }, [data, orderType, selectedSide, amount, orderStatus, wallet, wagmiAddress]);
@@ -422,6 +544,8 @@ export default function MarketDetailPage() {
   /* ── Main content ── */
   if (!data) return null;
 
+  const isLocked = liveStatus !== null && liveStatus !== 'Trading' && liveStatus !== 'Listed';
+
   return (
     <div className={styles.page}>
       <AppChromeNav />
@@ -442,6 +566,29 @@ export default function MarketDetailPage() {
 
         {/* Chain mismatch warning */}
         <ChainMismatchBanner />
+
+        {/* Locked market banner */}
+        {isLocked && (
+          <div className={styles.lockedBanner} role="status" aria-live="polite">
+            <Lock size={18} aria-hidden="true" className={styles.lockedBannerIcon} />
+            <div className={styles.lockedBannerContent}>
+              <p className={styles.lockedBannerTitle}>
+                This market has locked — the trading window has closed.
+              </p>
+              <p className={styles.lockedBannerSubtitle}>
+                Your position will be claimable once this market resolves — check your Portfolio after settlement.
+              </p>
+            </div>
+            <div className={styles.lockedBannerActions}>
+              <Link href="/markets" className={styles.lockedBannerLink}>
+                Find another market
+              </Link>
+              <Link href="/portfolio" className={styles.lockedBannerLink}>
+                Portfolio
+              </Link>
+            </div>
+          </div>
+        )}
 
         {/* View Receipt link — only shown for resolved/voided/finalized markets */}
         {data && (
@@ -604,9 +751,9 @@ export default function MarketDetailPage() {
                       : ''
                   }`}
                   onClick={() => setSelectedSide('yes')}
+                  disabled={isLocked}
                 >
                   <span>Yes</span>
-                  <span>{data.yesAskCents}¢</span>
                 </button>
                 <button
                   type="button"
@@ -616,9 +763,9 @@ export default function MarketDetailPage() {
                       : ''
                   }`}
                   onClick={() => setSelectedSide('no')}
+                  disabled={isLocked}
                 >
                   <span>No</span>
-                  <span>{data.noAskCents}¢</span>
                 </button>
               </div>
 
@@ -657,6 +804,7 @@ export default function MarketDetailPage() {
                     onChange={(e) => setAmount(Number(e.target.value) || 0)}
                     className={styles.amountInput}
                     aria-label="Trade amount in test USDC"
+                    disabled={isLocked}
                   />
                   <span className={styles.unitTag}>test USDC</span>
                 </div>
@@ -705,11 +853,13 @@ export default function MarketDetailPage() {
                 type="button"
                 className={`${styles.ticketCta} ${
                   selectedSide === 'yes' ? styles.ticketCtaYes : styles.ticketCtaNo
-                } ${orderStatus === 'submitting' ? styles.ticketCtaDisabled : ''}`}
+                } ${orderStatus === 'submitting' || isLocked ? styles.ticketCtaDisabled : ''}`}
                 onClick={wallet.connectionStatus !== 'connected' ? wallet.connect : handlePlaceOrder}
-                disabled={orderStatus === 'submitting'}
+                disabled={orderStatus === 'submitting' || isLocked}
               >
-                {wallet.connectionStatus !== 'connected' ? (
+                {isLocked ? (
+                  <span>Market locked</span>
+                ) : wallet.connectionStatus !== 'connected' ? (
                   <span>Connect Wallet</span>
                 ) : orderStatus === 'submitting' ? (
                   <span className={styles.ctaLoading}>
@@ -735,7 +885,24 @@ export default function MarketDetailPage() {
               </button>
 
               {orderStatus === 'error' && orderError && (
-                <p className={styles.orderErrorText}>{orderError}</p>
+                <div className={styles.orderErrorBlock}>
+                  {showLimitFallback ? (
+                    <>
+                      <p className={styles.orderErrorText}>
+                        Not enough liquidity to fill this trade immediately. Try a smaller amount, or place a limit order to rest on the book until it fills.
+                      </p>
+                      <button
+                        type="button"
+                        className={styles.limitFallbackButton}
+                        onClick={handlePlaceLimitOrder}
+                      >
+                        Place as Limit Order
+                      </button>
+                    </>
+                  ) : (
+                    <p className={styles.orderErrorText}>{orderError}</p>
+                  )}
+                </div>
               )}
 
               {orderStatus === 'success' && orderResult && (
