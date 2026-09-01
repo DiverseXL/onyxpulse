@@ -5,7 +5,8 @@
  *
  * Two states:
  *   1. Disconnected  -- prompt to connect wallet
- *   2. Connected     -- get STT, then get test USDC
+ *   2. Connected     -- educational explainer, get STT sources accordion,
+ *                       then get test USDC
  *
  * NO EMOJI anywhere -- lucide-react icons only.
  */
@@ -22,17 +23,19 @@ import {
   ArrowRight,
   AlertCircle,
   Loader2,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 import {
   createPublicClient,
   http,
-  defineChain,
   erc20Abi,
   encodeFunctionData,
   type Hex,
 } from 'viem';
 import { getWalletClient } from '@wagmi/core';
 import { somniaTestnet } from '@/lib/wallet/wagmiConfig';
+import { assertCorrectChain } from '@/lib/wallet/chainGuard';
 import styles from './Faucet.module.css';
 import AppChromeNav from '@/components/markets/AppChromeNav';
 import ConnectButton from '@/components/markets/ConnectButton';
@@ -76,8 +79,37 @@ const FAUCET_ABI = [
 /** Minimum STT balance (in ether) to consider sufficient for a few transactions. */
 const STT_MINIMUM_THRESHOLD = 0.1;
 
-/** Somnia testnet STT faucet URL. */
-const STT_FAUCET_URL = 'https://shannon-faucet.somnia.network';
+/** STT faucet sources -- the only four options shown in the accordion. */
+const STT_SOURCES = [
+  {
+    id: 'official',
+    name: 'Official Somnia Faucet',
+    url: 'https://testnet.somnia.network/',
+    description:
+      'The primary source for Shannon testnet STT.',
+  },
+  {
+    id: 'shannon',
+    name: 'Shannon Faucet',
+    url: 'https://shannon-faucet.somnia.network',
+    description:
+      'An alternative direct faucet for Shannon testnet gas.',
+  },
+  {
+    id: 'google-cloud',
+    name: 'Google Cloud Web3 Faucet',
+    url: 'https://cloud.google.com/application/web3/faucet/somnia/shannon',
+    description:
+      "Google Cloud's public Web3 faucet for Somnia Shannon -- another option if the primary faucet is rate-limited.",
+  },
+  {
+    id: 'telegram',
+    name: 'Hackathon Telegram',
+    url: 'https://t.me/+XHq0F0JXMyhmMzM0',
+    description:
+      'Organizers sometimes distribute STT directly to participants here.',
+  },
+] as const;
 
 /* -------------------------------------------------------------------------- */
 /*  Animated Balance Component                                                  */
@@ -131,6 +163,120 @@ function AnimatedBalance({
 }
 
 /* -------------------------------------------------------------------------- */
+/*  STT Source Accordion Item                                                   */
+/* -------------------------------------------------------------------------- */
+
+function SttSourceItem({
+  source,
+  isExpanded,
+  onToggle,
+  walletAddress,
+  reducedMotion,
+}: {
+  source: (typeof STT_SOURCES)[number];
+  isExpanded: boolean;
+  onToggle: () => void;
+  walletAddress: string | null;
+  reducedMotion: boolean;
+}) {
+  const [copied, setCopied] = useState(false);
+  const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const contentId = `stt-source-${source.id}`;
+
+  const handleCopy = useCallback(async () => {
+    if (!walletAddress) return;
+    try {
+      await navigator.clipboard.writeText(walletAddress);
+      setCopied(true);
+      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+      copyTimerRef.current = setTimeout(() => setCopied(false), 2500);
+    } catch {
+      // Clipboard API may fail in some environments
+    }
+  }, [walletAddress]);
+
+  useEffect(() => {
+    return () => {
+      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+    };
+  }, []);
+
+  return (
+    <div className={styles.accordionItem}>
+      <button
+        type="button"
+        className={styles.accordionButton}
+        onClick={onToggle}
+        aria-expanded={isExpanded}
+        aria-controls={contentId}
+      >
+        <span className={styles.accordionButtonContent}>
+          <span className={styles.accordionItemName}>{source.name}</span>
+          {source.id === 'official' && (
+            <span className={styles.recommendedBadge}>RECOMMENDED</span>
+          )}
+        </span>
+        {isExpanded ? (
+          <ChevronUp size={16} aria-hidden="true" className={styles.accordionChevron} />
+        ) : (
+          <ChevronDown size={16} aria-hidden="true" className={styles.accordionChevron} />
+        )}
+      </button>
+
+      {isExpanded && (
+        <motion.div
+          id={contentId}
+          role="region"
+          aria-label={`${source.name} details`}
+          className={styles.accordionContent}
+          variants={safeVariants(reducedMotion, fadeSlideUp)}
+          initial="hidden"
+          animate="visible"
+          transition={safeTransition(reducedMotion, {
+            duration: MOTION_MEDIUM,
+            ease: EASE_OUT,
+          })}
+        >
+          <p className={styles.accordionDescription}>{source.description}</p>
+          <div className={styles.accordionActions}>
+            <button
+              type="button"
+              className={`${styles.btn} ${styles.btnSecondary}`}
+              onClick={handleCopy}
+              aria-label={`Copy wallet address for ${source.name}`}
+            >
+              {copied ? (
+                <>
+                  <CheckCircle size={13} aria-hidden="true" />
+                  Copied
+                </>
+              ) : (
+                <>
+                  <Copy size={13} aria-hidden="true" />
+                  Copy My Address
+                </>
+              )}
+            </button>
+            <button
+              type="button"
+              className={`${styles.btn} ${styles.btnSecondary}`}
+              onClick={() => window.open(source.url, '_blank', 'noopener,noreferrer')}
+              aria-label={`Open ${source.name} in a new tab`}
+            >
+              <ExternalLink size={13} aria-hidden="true" />
+              Open
+            </button>
+          </div>
+          <div aria-live="polite" className="sr-only">
+            {copied ? 'Address copied to clipboard' : ''}
+          </div>
+        </motion.div>
+      )}
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
 /*  Faucet Page                                                                */
 /* -------------------------------------------------------------------------- */
 
@@ -149,7 +295,7 @@ export default function FaucetPage() {
   >('idle');
   const [faucetError, setFaucetError] = useState<string | null>(null);
 
-  /* -- Copy address state ------------------------------------------------- */
+  /* -- Copy address state (for the main address display) ------------------ */
   const [copied, setCopied] = useState(false);
   const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -160,8 +306,14 @@ export default function FaucetPage() {
   /* -- Refetch STT balance on demand -------------------------------------- */
   const [sttRefreshing, setSttRefreshing] = useState(false);
 
+  /* -- Accordion state ---------------------------------------------------- */
+  const [expandedSources, setExpandedSources] = useState<Set<string>>(
+    new Set(['official'])
+  );
+
   /* -- Derived state ------------------------------------------------------ */
-  const bothSufficient = isConnected && usdcBalance !== null && usdcBalance > 0 && sttSufficient;
+  const bothSufficient =
+    isConnected && usdcBalance !== null && usdcBalance > 0 && sttSufficient;
 
   /* -- Fetch test USDC balance -------------------------------------------- */
   const fetchUsdcBalance = useCallback(async () => {
@@ -204,6 +356,9 @@ export default function FaucetPage() {
         throw new Error('Wallet not connected. Please reconnect.');
       }
 
+      // Hard backstop: verify chain ID before sending transaction
+      assertCorrectChain(walletClient, 'faucet claim');
+
       const calldata = encodeFunctionData({
         abi: FAUCET_ABI,
         functionName: 'faucet',
@@ -219,7 +374,8 @@ export default function FaucetPage() {
       setFaucetStatus('success');
       setTimeout(fetchUsdcBalance, 1500);
     } catch (err: unknown) {
-      const raw = err instanceof Error ? err.message : 'Faucet call failed. Please try again.';
+      const raw =
+        err instanceof Error ? err.message : 'Faucet call failed. Please try again.';
       // Detect chain mismatch and show a clearer message
       const message = raw.includes('does not match the target chain')
         ? 'Wrong network -- switch MetaMask to Somnia Testnet (chain 50312) and try again.'
@@ -248,6 +404,19 @@ export default function FaucetPage() {
     setSttRefreshing(true);
     setTimeout(() => setSttRefreshing(false), 1000);
   }, [wallet.address]);
+
+  /* -- Toggle accordion item ---------------------------------------------- */
+  const toggleSource = useCallback((id: string) => {
+    setExpandedSources((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }, []);
 
   /* -- Cleanup timers ----------------------------------------------------- */
   useEffect(() => {
@@ -279,6 +448,25 @@ export default function FaucetPage() {
           <h1 className={styles.h1}>Get Ready to Trade</h1>
           <p className={styles.subcopy}>
             Everything you need to start trading DreamDEX Event Contracts on testnet.
+          </p>
+        </motion.div>
+
+        {/* -- Educational explainer (always visible) ------------------------- */}
+        <motion.div
+          className={styles.explainerCard}
+          variants={safeVariants(reducedMotion, fadeSlideUp)}
+          initial="hidden"
+          animate="visible"
+          transition={safeTransition(reducedMotion, {
+            duration: MOTION_MEDIUM,
+            ease: EASE_OUT,
+          })}
+        >
+          <h2 className={styles.explainerTitle}>What&apos;s a faucet?</h2>
+          <p className={styles.explainerText}>
+            A faucet is a free service that gives out small amounts of test tokens
+            so you can try an app without spending real money. Everything on this
+            page is testnet-only -- none of it has real value.
           </p>
         </motion.div>
 
@@ -319,11 +507,11 @@ export default function FaucetPage() {
             })}
             style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}
           >
-            {/* Step 1: Get STT */}
+            {/* Step 1: Get STT -- accordion of sources */}
             <div className={styles.glassCard}>
               <div className={styles.stepHeader}>
                 <span className={styles.stepNumber}>1</span>
-                <h2 className={styles.stepTitle}>Get testnet STT</h2>
+                <h2 className={styles.stepTitle}>Where to get testnet funds</h2>
                 {sttSufficient ? (
                   <span className={`${styles.badge} ${styles.badgeSufficient}`}>
                     <CheckCircle size={10} aria-hidden="true" />
@@ -337,6 +525,7 @@ export default function FaucetPage() {
                 )}
               </div>
 
+              {/* STT balance */}
               <div className={styles.balanceSection}>
                 <span className={styles.balanceLabel}>STT Balance</span>
                 <div className={styles.balanceRow}>
@@ -345,74 +534,42 @@ export default function FaucetPage() {
                     className={styles.balanceValue}
                   />
                   <span className={styles.balanceUnit}>STT</span>
+                  <button
+                    type="button"
+                    className={`${styles.btnIcon} ${
+                      sttRefreshing ? styles.btnIconDisabled : ''
+                    }`}
+                    onClick={handleRefreshStt}
+                    disabled={sttRefreshing}
+                    aria-label="Refresh STT balance"
+                  >
+                    <RefreshCw
+                      size={14}
+                      className={sttRefreshing ? 'spin' : ''}
+                      aria-hidden="true"
+                    />
+                  </button>
                 </div>
               </div>
 
-              {wallet.address && (
-                <div className={styles.addressDisplay}>
-                  <span>{wallet.address}</span>
-                </div>
-              )}
-
+              {/* Instructions */}
               <p className={styles.stepInstructions}>
-                1. Copy your address below
-                <br />
-                2. Paste it on the faucet page
-                <br />
-                3. Come back and refresh your balance
+                Copy your address, paste it on one of the faucets below, then come
+                back and check your balance.
               </p>
 
-              <div className={styles.btnGroup}>
-                <button
-                  type="button"
-                  className={`${styles.btn} ${styles.btnSecondary}`}
-                  onClick={handleCopyAddress}
-                  aria-label="Copy wallet address to clipboard"
-                >
-                  {copied ? (
-                    <>
-                      <CheckCircle size={13} aria-hidden="true" />
-                      Copied
-                    </>
-                  ) : (
-                    <>
-                      <Copy size={13} aria-hidden="true" />
-                      Copy My Address
-                    </>
-                  )}
-                </button>
-
-                <a
-                  href={STT_FAUCET_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`${styles.btn} ${styles.btnSecondary}`}
-                  aria-label="Open Somnia testnet faucet in a new tab"
-                >
-                  <ExternalLink size={13} aria-hidden="true" />
-                  Open Faucet
-                </a>
-
-                <button
-                  type="button"
-                  className={`${styles.btn} ${styles.btnSecondary} ${
-                    sttRefreshing ? styles.btnDisabled : ''
-                  }`}
-                  onClick={handleRefreshStt}
-                  disabled={sttRefreshing}
-                  aria-label="Check STT balance"
-                >
-                  <RefreshCw
-                    size={13}
-                    className={sttRefreshing ? 'spin' : ''}
-                    aria-hidden="true"
+              {/* STT Sources Accordion */}
+              <div className={styles.accordion} role="presentation">
+                {STT_SOURCES.map((source) => (
+                  <SttSourceItem
+                    key={source.id}
+                    source={source}
+                    isExpanded={expandedSources.has(source.id)}
+                    onToggle={() => toggleSource(source.id)}
+                    walletAddress={wallet.address}
+                    reducedMotion={reducedMotion}
                   />
-                  Check Balance
-                </button>
-              </div>
-
-              <div aria-live="polite" className="sr-only">
-                {copied ? 'Address copied to clipboard' : ''}
+                ))}
               </div>
             </div>
 
@@ -439,9 +596,11 @@ export default function FaucetPage() {
                     )}
                   </div>
 
-                  <p className={styles.successExplanation}>
-                    STT covers gas fees. Test USDC is the collateral you use to place trades.
-                    You need both.
+                  <p className={styles.usdcFramingText}>
+                    Unlike STT, test USDC only comes from one place: this button.
+                    Clicking it sends a real transaction that mints test USDC
+                    directly to your connected wallet -- you&apos;ll need a small amount
+                    of STT first to pay the gas for this transaction.
                   </p>
 
                   <div className={styles.balanceSection}>
@@ -458,20 +617,6 @@ export default function FaucetPage() {
                       <span className={styles.balanceUnit}>test USDC</span>
                     </div>
                   </div>
-
-                  {faucetStatus === 'error' && faucetError && (
-                    <div className={styles.errorBanner} role="alert">
-                      <AlertCircle size={16} className={styles.errorBannerIcon} aria-hidden="true" />
-                      <p className={styles.errorBannerText}>{faucetError}</p>
-                      <button
-                        type="button"
-                        className={styles.errorBannerRetry}
-                        onClick={handleRequestFaucet}
-                      >
-                        Try again
-                      </button>
-                    </div>
-                  )}
 
                   <div className={styles.btnGroup}>
                     <button
@@ -539,6 +684,36 @@ export default function FaucetPage() {
           </motion.div>
         )}
       </main>
+
+      {/* Faucet Error Popup */}
+      {faucetStatus === 'error' && faucetError && (
+        <div className={styles.errorOverlay} role="dialog" aria-label="Faucet error">
+          <div className={styles.errorPopup}>
+            <AlertCircle size={20} aria-hidden="true" className={styles.errorPopupIcon} />
+            <p className={styles.errorPopupTitle}>Claim Failed</p>
+            <p className={styles.errorPopupMessage}>{faucetError}</p>
+            <div className={styles.errorPopupActions}>
+              <button
+                type="button"
+                className={styles.errorPopupRetry}
+                onClick={handleRequestFaucet}
+              >
+                Try again
+              </button>
+              <button
+                type="button"
+                className={styles.errorPopupDismiss}
+                onClick={() => {
+                  setFaucetStatus('idle');
+                  setFaucetError(null);
+                }}
+              >
+                Dismiss
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

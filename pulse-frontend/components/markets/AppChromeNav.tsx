@@ -45,11 +45,6 @@ export default function AppChromeNav() {
               </div>
               <span className={styles.brandName}>PULSE</span>
             </Link>
-
-            <span className={styles.networkBadge}>
-              <span className={styles.networkDot} />
-              SHANNON TESTNET
-            </span>
           </div>
 
           {/* Center: Desktop Nav */}

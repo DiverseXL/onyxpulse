@@ -66,29 +66,6 @@
   line-height: 1;
 }
 
-.networkBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  padding: 0.2rem var(--space-2);
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 9999px;
-  font-family: var(--font-mono);
-  font-size: var(--text-micro);
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  color: rgba(242, 237, 225, var(--opacity-muted));
-}
-
-.networkDot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background-color: #4ade80;
-  box-shadow: 0 0 8px #4ade80;
-}
-
 /* ── Nav Links (Desktop) ──────────────────── */
 .nav {
   display: flex;
@@ -333,11 +310,6 @@
   .bottomNav {
     display: flex;
   }
-
-  .networkBadge {
-    display: none;
-  }
-
   .gasSponsoredChip {
     display: none;
   }
