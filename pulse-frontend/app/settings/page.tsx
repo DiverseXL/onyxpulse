@@ -513,6 +513,7 @@ export default function SettingsPage() {
             type="button"
             className={styles.saveButton}
             onClick={handleSave}
+            disabled={saved}
           >
             {saved ? (
               <>

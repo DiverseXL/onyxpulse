@@ -22,6 +22,7 @@ import { placeMarketOrder, placeLimitOrder } from '@/lib/engine/trading';
 import { PulseErrorCode, PulseEngineError } from '@/lib/engine/errors';
 import { checkRiskLimits } from '@/lib/engine/riskEngine';
 import { loadSettings } from '@/lib/settings';
+import { assertCorrectChain } from '@/lib/wallet/chainGuard';
 
 // -- Constants ---------------------------------------------------------------
 
@@ -155,6 +156,9 @@ export async function placeClientOrder(
       `Invalid amount: ${amount}. Must be greater than 0.`,
     );
   }
+
+  // Hard backstop: verify chain ID before doing anything else
+  assertCorrectChain(walletClient, 'placeClientOrder');
 
   // Create PulseClient and trader bound to the wallet
   const pulse = createPulseClient();
@@ -297,6 +301,9 @@ export async function placeClientLimitOrder(
       `Invalid amount: ${amount}. Must be greater than 0.`,
     );
   }
+
+  // Hard backstop: verify chain ID before doing anything else
+  assertCorrectChain(walletClient, 'placeClientLimitOrder');
 
   const pulse = createPulseClient();
   const trader = pulse.client.createTrader({ walletClient });

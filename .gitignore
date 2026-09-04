@@ -46,3 +46,7 @@ yarn-error.log*
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
+
+# Playwright
+test-results/
+playwright-report/

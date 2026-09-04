@@ -1,4 +1,5 @@
 import type { SomniaMarketsClient, TxResult } from "@somnia-chain/markets-sdk";
+import type { Hex } from "viem";
 import { SomniaMarkets, SOMNIA_TESTNET_ADDRESSES, SOMNIA_MAINNET_ADDRESSES, SOMNIA_TESTNET_PRICE_FEED } from "@somnia-chain/markets-sdk";
 import { somniaShannon, somniaMainnet } from "@somnia-chain/markets-sdk/chains";
 
@@ -60,7 +61,7 @@ export function createPulseMainnetClient(): PulseClient {
  */
 export function createTrader(
   pulseClient: PulseClient,
-  privateKey: string,
+  privateKey: Hex,
   decimals: number = 6,
 ) {
   return pulseClient.client.createTrader({ privateKey, decimals });
@@ -84,7 +85,7 @@ export function createTrader(
  * @returns The faucet transaction result.
  */
 export async function requestDemoFunds(
-  privateKey: string,
+  privateKey: Hex,
   amount?: bigint,
 ): Promise<TxResult> {
   const exchange = new SomniaMarkets({

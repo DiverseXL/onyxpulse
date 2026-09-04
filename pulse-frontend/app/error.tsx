@@ -35,11 +35,27 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
           textAlign: 'center',
         }}
       >
-        <AlertCircle
-          size={40}
-          style={{ color: 'var(--color-rust)', opacity: 0.8 }}
-          aria-hidden="true"
-        />
+        <div
+          style={{
+            width: '56px',
+            height: '56px',
+            borderRadius: '50%',
+            background: 'rgba(255, 255, 255, 0.06)',
+            backdropFilter: 'blur(16px) saturate(150%)',
+            WebkitBackdropFilter: 'blur(16px) saturate(150%)',
+            border: '1px solid rgba(255, 255, 255, 0.12)',
+            boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 4px 16px rgba(0, 0, 0, 0.3)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <AlertCircle
+            size={28}
+            style={{ color: 'var(--color-paper)', opacity: 0.7 }}
+            aria-hidden="true"
+          />
+        </div>
 
         <span
           style={{
@@ -61,6 +77,7 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
             fontWeight: 700,
             color: 'var(--color-paper)',
             lineHeight: 1.3,
+            margin: 0,
           }}
         >
           An unexpected error occurred
@@ -72,6 +89,7 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
             color: 'var(--color-paper)',
             opacity: 'var(--opacity-secondary)',
             lineHeight: 1.6,
+            margin: 0,
           }}
         >
           The application encountered an error while loading this page. You can
@@ -113,14 +131,17 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
               gap: '0.4rem',
               padding: '0.5rem 1rem',
               borderRadius: '9999px',
-              background: 'var(--color-rust)',
+              background: 'rgba(255, 255, 255, 0.1)',
+              backdropFilter: 'blur(16px) saturate(150%)',
+              WebkitBackdropFilter: 'blur(16px) saturate(150%)',
               color: 'var(--color-paper)',
               fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
               fontSize: 'var(--text-small)',
               fontWeight: 600,
-              border: 'none',
+              border: '1px solid rgba(255, 255, 255, 0.18)',
+              boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 2px 8px rgba(0, 0, 0, 0.2)',
               cursor: 'pointer',
-              transition: 'transform 150ms ease, filter 150ms ease',
+              transition: 'transform 150ms ease, background 150ms ease',
             }}
           >
             <RefreshCw size={14} aria-hidden="true" />
@@ -134,14 +155,16 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
               alignItems: 'center',
               padding: '0.5rem 1rem',
               borderRadius: '9999px',
-              background: 'rgba(255, 255, 255, 0.06)',
+              background: 'rgba(255, 255, 255, 0.04)',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
               color: 'var(--color-paper)',
               fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
               fontSize: 'var(--text-small)',
               fontWeight: 600,
-              border: '1px solid rgba(255, 255, 255, 0.15)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
               textDecoration: 'none',
-              transition: 'transform 150ms ease, filter 150ms ease',
+              transition: 'transform 150ms ease, background 150ms ease',
             }}
           >
             Home

@@ -6,8 +6,7 @@
  *
  * Convention: import from src/engine/index.ts, never from this file directly.
  */
-import type { SomniaMarketsClient } from "@somnia-chain/markets-sdk";
-import type { LivePrice } from "@somnia-chain/markets-sdk/priceFeed/types";
+import type { SomniaMarketsClient, LivePrice } from "@somnia-chain/markets-sdk";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 

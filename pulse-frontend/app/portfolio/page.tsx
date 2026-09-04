@@ -49,6 +49,7 @@ import { PulseEngineError } from '@/lib/engine/errors';
 import { fromBigintAmount } from '@/lib/engine/units';
 import { getWalletClient } from '@wagmi/core';
 import { wagmiConfig } from '@/lib/wallet/wagmiConfig';
+import { assertCorrectChain } from '@/lib/wallet/chainGuard';
 import {
   useReducedMotionSafe,
   safeVariants,
@@ -142,6 +143,7 @@ export default function PortfolioPage() {
     failures: Array<{ marketId: string; error: string }>;
   } | null>(null);
   const [claimOneBusy, setClaimOneBusy] = useState<string | null>(null);
+  const [showClaimAllConfirm, setShowClaimAllConfirm] = useState(false);
 
   useEffect(() => setMounted(true), []);
 
@@ -264,6 +266,8 @@ export default function PortfolioPage() {
         'Wallet client not available. Please reconnect your wallet.',
       );
     }
+    // Hard backstop: verify chain ID before constructing the trader
+    assertCorrectChain(walletClient, 'claim/redeem');
     const pulseClient = createPulseClient();
     return {
       trader: pulseClient.client.createTrader({ walletClient }),
@@ -670,7 +674,7 @@ export default function PortfolioPage() {
                 <button
                   type="button"
                   className={styles.claimAllButton}
-                  onClick={handleClaimAll}
+                  onClick={() => setShowClaimAllConfirm(true)}
                   aria-label={`Claim all ${claimableCount} redeemable positions`}
                 >
                   Claim All ({claimableCount})
@@ -1046,6 +1050,55 @@ export default function PortfolioPage() {
           </motion.div>
         )}
       </main>
+
+      {/* Claim All Confirmation Modal */}
+      {showClaimAllConfirm && (
+        <div
+          className={styles.rejectedOverlay}
+          role="dialog"
+          aria-label="Confirm Claim All"
+          aria-modal="true"
+        >
+          <motion.div
+            className={styles.claimConfirmPopup}
+            variants={safeVariants(reducedMotion, {
+              hidden: { opacity: 0, scale: 0.95, y: 8 },
+              visible: { opacity: 1, scale: 1, y: 0 },
+            })}
+            initial="hidden"
+            animate="visible"
+            transition={safeTransition(reducedMotion, {
+              duration: MOTION_FAST,
+              ease: EASE_OUT,
+            })}
+          >
+            <p className={styles.claimConfirmTitle}>Claim All Positions</p>
+            <p className={styles.claimConfirmMessage}>
+              Claim <strong>{claimableCount}</strong> position{claimableCount !== 1 ? 's' : ''}?
+              This will submit up to <strong>{claimableCount}</strong> separate transaction{claimableCount !== 1 ? 's' : ''}.
+            </p>
+            <div className={styles.claimConfirmActions}>
+              <button
+                type="button"
+                className={styles.claimConfirmPrimary}
+                onClick={() => {
+                  setShowClaimAllConfirm(false);
+                  handleClaimAll();
+                }}
+              >
+                Confirm
+              </button>
+              <button
+                type="button"
+                className={styles.claimConfirmDismiss}
+                onClick={() => setShowClaimAllConfirm(false)}
+              >
+                Cancel
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }

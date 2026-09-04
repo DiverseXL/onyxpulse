@@ -5,7 +5,7 @@
  *
  * Catches errors that crash the root layout itself (e.g. layout.tsx
  * throws, Providers fail to mount, fonts can't load). This is the
- * last-resort error boundary — it renders its own <html> and <body>
+ * last-resort error boundary -- it renders its own <html> and <body>
  * since the root layout is unavailable.
  *
  * MUST be a client component with its own html/body shell.
@@ -54,16 +54,19 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
           {/* Icon */}
           <div
             style={{
-              width: '48px',
-              height: '48px',
+              width: '56px',
+              height: '56px',
               borderRadius: '50%',
-              background: 'rgba(193, 80, 46, 0.15)',
-              border: '1px solid rgba(193, 80, 46, 0.3)',
+              background: 'rgba(255, 255, 255, 0.06)',
+              backdropFilter: 'blur(16px) saturate(150%)',
+              WebkitBackdropFilter: 'blur(16px) saturate(150%)',
+              border: '1px solid rgba(255, 255, 255, 0.12)',
+              boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 4px 16px rgba(0, 0, 0, 0.3)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               fontSize: '24px',
-              color: '#C1502E',
+              color: '#F2EDE1',
             }}
             aria-hidden="true"
           >
@@ -147,12 +150,15 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
                 gap: '6px',
                 padding: '10px 20px',
                 borderRadius: '9999px',
-                background: '#C1502E',
+                background: 'rgba(255, 255, 255, 0.1)',
+                backdropFilter: 'blur(16px) saturate(150%)',
+                WebkitBackdropFilter: 'blur(16px) saturate(150%)',
                 color: '#F2EDE1',
                 fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
                 fontSize: '13px',
                 fontWeight: 600,
-                border: 'none',
+                border: '1px solid rgba(255, 255, 255, 0.18)',
+                boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 2px 8px rgba(0, 0, 0, 0.2)',
                 cursor: 'pointer',
               }}
             >
@@ -169,12 +175,14 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
                 alignItems: 'center',
                 padding: '10px 20px',
                 borderRadius: '9999px',
-                background: 'rgba(255, 255, 255, 0.06)',
+                background: 'rgba(255, 255, 255, 0.04)',
+                backdropFilter: 'blur(12px)',
+                WebkitBackdropFilter: 'blur(12px)',
                 color: '#F2EDE1',
                 fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
                 fontSize: '13px',
                 fontWeight: 600,
-                border: '1px solid rgba(255, 255, 255, 0.15)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
                 cursor: 'pointer',
               }}
             >

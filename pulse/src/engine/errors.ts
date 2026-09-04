@@ -143,8 +143,9 @@ export function mapSdkError(err: unknown, context: string): PulseEngineError {
   // 1. Contract revert — the primary path for on-chain failures.
   if (err instanceof ContractRevertError) {
     const errorName = err.errorName;
-    const code =
-      (errorName && ERROR_NAME_TO_CODE[errorName]) ?? PulseErrorCode.UNKNOWN;
+    const code: PulseErrorCode = errorName
+      ? (ERROR_NAME_TO_CODE[errorName] ?? PulseErrorCode.UNKNOWN)
+      : PulseErrorCode.UNKNOWN;
 
     const reason = err.reason ?? errorName ?? "Contract reverted";
     return new PulseEngineError(

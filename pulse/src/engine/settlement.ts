@@ -192,7 +192,9 @@ export async function redeemMarket(
     }
 
     if (!isBinaryMarket(market)) {
-      throw new Error(`Market ${marketId} is not a binary market (type=${market.marketType}).`);
+      throw new Error(
+        `Market ${marketId} is not a binary market (type=${(market as { marketType?: string }).marketType ?? "unknown"}).`,
+      );
     }
 
     const status = redeemableStatus(market);
@@ -500,7 +502,9 @@ export async function buildReceiptData(
     }
 
     if (!isBinaryMarket(market)) {
-      throw new Error(`Market ${marketId} is not a binary market (type=${market.marketType}).`);
+      throw new Error(
+        `Market ${marketId} is not a binary market (type=${(market as { marketType?: string }).marketType ?? "unknown"}).`,
+      );
     }
 
     const resolution = await getResolution(client, marketId);

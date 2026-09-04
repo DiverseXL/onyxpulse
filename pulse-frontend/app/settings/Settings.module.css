@@ -425,6 +425,13 @@
   transform: translateY(0);
 }
 
+.saveButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  filter: none;
+}
+
 /* ── Responsive ─────────────────────────────── */
 @media (max-width: 640px) {
   .main {

@@ -17,6 +17,7 @@ import type {
   PortfolioOrder,
   PortfolioTrade,
   OpenPositionPnL,
+  BinaryPositionPnL,
   GetOutcomeBalanceParams,
 } from "@somnia-chain/markets-sdk";
 import type { ClaimablePosition } from "@somnia-chain/markets-sdk";
@@ -128,6 +129,11 @@ export async function getMyRedeemablePositions(
  * Returns cost basis, average cost, mark value, unrealized and realized PnL
  * — all in raw collateral units. Format with the market's quoteDecimals.
  *
+ * NOTE: the SDK returns the PnL WITHOUT the joined `market` context; the
+ * `OpenPositionPnL` shape (with `market`) comes from the batched
+ * `computeOpenPositionsPnL` flow instead. If you need the market row, fetch
+ * it separately via getMarketById.
+ *
  * @param client - SomniaMarketsClient instance.
  * @param traderAddress - The wallet address to query.
  * @param marketId - The bytes32 market id.
@@ -136,7 +142,7 @@ export async function getPositionPnL(
   client: SomniaMarketsClient,
   traderAddress: Address,
   marketId: string,
-): Promise<OpenPositionPnL> {
+): Promise<BinaryPositionPnL> {
   try {
     return await client.getBinaryPositionPnL(
       traderAddress.toLowerCase(),

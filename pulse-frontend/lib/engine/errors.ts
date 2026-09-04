@@ -37,6 +37,8 @@ export const PulseErrorCode = {
   ALREADY_REDEEMED: "ALREADY_REDEEMED",
   /** IOC market order could not fill due to insufficient opposing liquidity. */
   NO_LIQUIDITY: "NO_LIQUIDITY",
+  /** Wallet is connected to the wrong chain. */
+  WRONG_CHAIN: "WRONG_CHAIN",
   /** Unrecognised error — original message preserved. */
   UNKNOWN: "UNKNOWN",
 } as const;

@@ -149,7 +149,6 @@ export default function MarketCard({ market }: MarketCardProps) {
               <CheckCircle size={12} className={styles.winnerIcon} aria-hidden="true" />
             )}
           </div>
-          <span className={styles.priceValue}>{market.yesCents}¢</span>
         </div>
 
         <div
@@ -163,7 +162,6 @@ export default function MarketCard({ market }: MarketCardProps) {
               <CheckCircle size={12} className={styles.winnerIcon} aria-hidden="true" />
             )}
           </div>
-          <span className={styles.priceValue}>{market.noCents}¢</span>
         </div>
       </div>
 

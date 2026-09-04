@@ -9,7 +9,7 @@
  *
  * Convention: import from src/engine/index.ts, never from this file directly.
  */
-import type { SomniaMarketsClient } from "@somnia-chain/markets-sdk";
+import type { SomniaMarketsClient, TxResult } from "@somnia-chain/markets-sdk";
 import type { Hex } from "viem";
 
 import { getMyRedeemablePositions, type ClaimablePositionInfo } from "./portfolio.ts";
@@ -25,10 +25,10 @@ type Trader = {
     marketId: Hex;
     amount: bigint;
     outcomeIdx?: 0 | 1;
-  }): Promise<{ hash: string; receipt: unknown }>;
+  }): Promise<TxResult>;
   redeemMany(params: {
     entries: { marketId: Hex; outcomeIdx: 0 | 1; amount: bigint }[];
-  }): Promise<{ hash: string; receipt: unknown }>;
+  }): Promise<TxResult>;
 };
 
 // ─── Types ───────────────────────────────────────────────────────────────────

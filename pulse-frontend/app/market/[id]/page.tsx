@@ -1,18 +1,22 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback, Suspense } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ArrowLeft, TrendingUp, TrendingDown, AlertCircle, RefreshCw, CheckCircle, Loader2, FileText, Lock } from 'lucide-react';
+import { ArrowLeft, TrendingUp, TrendingDown, AlertCircle, RefreshCw, CheckCircle, Loader2, FileText, Lock, Sparkles } from 'lucide-react';
 import styles from './MarketDetail.module.css';
 import AppChromeNav from '@/components/markets/AppChromeNav';
 import ChainMismatchBanner from '@/components/markets/ChainMismatchBanner';
+import TradeTicketErrorBoundary from '@/components/markets/TradeTicketErrorBoundary';
 import type { TradePreviewData } from '@/app/api/trade-preview/route';
 import { usePulseWallet } from '@/lib/wallet/PulseWalletContext';
 import { placeClientOrder } from '@/lib/wallet/placeOrder';
 import { PulseEngineError, PulseErrorCode } from '@/lib/engine/errors';
+import { validateAmount } from '@/lib/validateAmount';
+import { parsePrefillParams } from '@/lib/prefill';
+import { loadSettings } from '@/lib/settings';
 import { placeClientLimitOrder } from '@/lib/wallet/placeOrder';
 import { createPulseClient } from '@/lib/engine/client';
 import { getOnChainMarketStatus } from '@/lib/engine/statusGate';
@@ -31,6 +35,26 @@ import {
 } from '@/lib/motion';
 
 type Timeframe = '1H' | '1D' | 'All';
+
+/* ── Trade Prefill Reader (draft_trade_link support) ── */
+// Reads prefillSide/prefillAmount from the URL once on mount and hands them to
+// the page. The page pre-fills the ticket but NEVER auto-submits — the user
+// must review and confirm. Wrapped in Suspense so useSearchParams is safe.
+function TradePrefillReader({
+  onPrefill,
+}: {
+  onPrefill: (side: 'yes' | 'no', amount: number | null) => void;
+}) {
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const values = parsePrefillParams(searchParams);
+    if (values) onPrefill(values.side, values.amount);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- apply exactly once on mount
+  }, []);
+
+  return null;
+}
 
 /* ── Resolved Receipt Link (small, context-matched) ── */
 
@@ -107,6 +131,21 @@ export default function MarketDetailPage() {
   const [orderError, setOrderError] = useState<string | null>(null);
   const [showLimitFallback, setShowLimitFallback] = useState(false);
   const [liveStatus, setLiveStatus] = useState<string | null>(null);
+  const [amountError, setAmountError] = useState<string>('');
+  const [amountWarning, setAmountWarning] = useState<string>('');
+  const [confirmTrade, setConfirmTrade] = useState(false);
+  const [prefillBanner, setPrefillBanner] = useState<{ side: 'yes' | 'no'; amount: number | null } | null>(null);
+  const prefillAppliedRef = useRef(false);
+
+  // Apply a prefill from a shared draft_trade_link exactly once. Never submits.
+  const applyPrefill = useCallback((side: 'yes' | 'no', amount: number | null) => {
+    if (prefillAppliedRef.current) return;
+    prefillAppliedRef.current = true;
+    setSelectedSide(side);
+    setOrderType('buy');
+    if (amount !== null) setAmount(amount);
+    setPrefillBanner({ side, amount });
+  }, []);
   const [hoverPoint, setHoverPoint] = useState<{
     x: number;
     y: number;
@@ -117,6 +156,11 @@ export default function MarketDetailPage() {
   } | null>(null);
 
   const chartRef = useRef<HTMLDivElement>(null);
+
+  // Reset confirm state when amount changes
+  useEffect(() => {
+    setConfirmTrade(false);
+  }, [amount]);
 
   // ── Proactive on-chain status polling (every 8s) ──────────────────────
   // Detects Trading → Locked transitions before the user tries to place an order.
@@ -181,6 +225,18 @@ export default function MarketDetailPage() {
       toWin: Number(toWin.toFixed(2)),
     };
   }, [activePriceCents, amount]);
+
+  // Trade confirmation threshold: use risk-limit maxPositionSize if enabled, else 100
+  const tradeThreshold = useMemo(() => {
+    if (wallet.address) {
+      const settings = loadSettings(wallet.address);
+      if (settings.riskLimitsEnabled) {
+        const limit = parseFloat(settings.riskLimits.maxPositionSizePerMarket);
+        if (!isNaN(limit) && limit > 0) return limit;
+      }
+    }
+    return 100;
+  }, [wallet.address]);
 
   // Chart SVG bounds and coordinate mapping
   const chartBounds = useMemo(() => {
@@ -303,10 +359,23 @@ export default function MarketDetailPage() {
       return;
     }
 
+    // Validate amount before submission
+    const amountValidation = validateAmount(String(amount), {
+      allowZero: false,
+      decimals: data?.quoteDecimals ?? 6,
+      fieldLabel: 'Amount',
+    });
+    if (!amountValidation.valid) {
+      setAmountError(amountValidation.error);
+      setOrderStatus('idle');
+      return;
+    }
+
     // Reset rejection state from any prior attempt
     setOrderStatus('submitting');
     setOrderError(null);
     setOrderResult(null);
+    setAmountError('');
 
     const side = orderType === 'buy'
       ? (selectedSide === 'yes' ? 'BUY_YES' : 'BUY_NO')
@@ -331,6 +400,7 @@ export default function MarketDetailPage() {
 
       setOrderResult({ hash: result.hash, explorerUrl: result.explorerUrl });
       setOrderStatus('success');
+      setConfirmTrade(false);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       const isRejected = msg.includes('rejected') || msg.includes('Rejected') || msg.includes('User rejected');
@@ -339,6 +409,7 @@ export default function MarketDetailPage() {
       } else {
         setOrderError(msg);
         setOrderStatus('error');
+        setConfirmTrade(false);
 
         // Check if this is a no-liquidity error — offer limit order fallback
         const isNoLiquidity =
@@ -380,10 +451,23 @@ export default function MarketDetailPage() {
       return;
     }
 
+    // Validate amount before submission
+    const amountValidation = validateAmount(String(amount), {
+      allowZero: false,
+      decimals: data?.quoteDecimals ?? 6,
+      fieldLabel: 'Amount',
+    });
+    if (!amountValidation.valid) {
+      setAmountError(amountValidation.error);
+      setOrderStatus('idle');
+      return;
+    }
+
     setOrderStatus('submitting');
     setOrderError(null);
     setOrderResult(null);
     setShowLimitFallback(false);
+    setAmountError('');
 
     const side = orderType === 'buy'
       ? (selectedSide === 'yes' ? 'BUY_YES' : 'BUY_NO')
@@ -550,6 +634,11 @@ export default function MarketDetailPage() {
     <div className={styles.page}>
       <AppChromeNav />
 
+      {/* Reads prefillSide/prefillAmount from the URL (draft_trade_link support). */}
+      <Suspense fallback={null}>
+        <TradePrefillReader onPrefill={applyPrefill} />
+      </Suspense>
+
       <main className={styles.main}>
         {/* Back link */}
         <motion.div
@@ -563,6 +652,18 @@ export default function MarketDetailPage() {
             Markets
           </Link>
         </motion.div>
+
+        {/* Trade pre-filled from a shared link — review before confirming */}
+        {prefillBanner && (
+          <div className={styles.prefillBanner} role="status" aria-live="polite">
+            <Sparkles size={14} aria-hidden="true" className={styles.prefillBannerIcon} />
+            <span>
+              Trade pre-filled from a shared link ({prefillBanner.side === 'yes' ? 'Yes' : 'No'}
+              {prefillBanner.amount !== null ? ` · ${prefillBanner.amount} test USDC` : ''}) — review and
+              confirm before submitting. Nothing has been submitted yet.
+            </span>
+          </div>
+        )}
 
         {/* Chain mismatch warning */}
         <ChainMismatchBanner />
@@ -741,6 +842,7 @@ export default function MarketDetailPage() {
             </div>
 
             {/* Right Column: Order Ticket */}
+            <TradeTicketErrorBoundary>
             <div className={styles.ticketColumn}>
               <div className={styles.sideToggle} role="group" aria-label="Select outcome side">
                 <button
@@ -776,6 +878,7 @@ export default function MarketDetailPage() {
                     orderType === 'buy' ? styles.orderTypeTabActive : ''
                   }`}
                   onClick={() => setOrderType('buy')}
+                  disabled={isLocked}
                 >
                   Buy
                 </button>
@@ -785,6 +888,7 @@ export default function MarketDetailPage() {
                     orderType === 'sell' ? styles.orderTypeTabActive : ''
                   }`}
                   onClick={() => setOrderType('sell')}
+                  disabled={isLocked}
                 >
                   Sell
                 </button>
@@ -797,17 +901,49 @@ export default function MarketDetailPage() {
                 <div className={styles.inputWrapper}>
                   <input
                     id="detail-amount"
-                    type="number"
-                    min="1"
-                    max="10000"
+                    type="text"
+                    inputMode="decimal"
                     value={amount}
-                    onChange={(e) => setAmount(Number(e.target.value) || 0)}
-                    className={styles.amountInput}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      // Allow empty, digits, and one decimal point
+                      if (val === '' || /^[0-9]*\.?[0-9]*$/.test(val)) {
+                        setAmount(val === '' ? 0 : Number(val));
+                        setAmountError('');
+                      }
+                    }}
+                    onBlur={() => {
+                      if (amount === 0) {
+                        setAmount(100);
+                        return;
+                      }
+                      const result = validateAmount(String(amount), {
+                        allowZero: false,
+                        decimals: data?.quoteDecimals ?? 6,
+                        walletBalance: undefined,
+                        fieldLabel: 'Amount',
+                      });
+                      setAmountError(result.error);
+                      setAmountWarning(result.warning);
+                    }}
+                    className={`${styles.amountInput} ${amountError ? styles.amountInputError : ''}`}
                     aria-label="Trade amount in test USDC"
+                    aria-invalid={!!amountError}
+                    aria-describedby={amountError ? 'amount-error' : undefined}
                     disabled={isLocked}
                   />
                   <span className={styles.unitTag}>test USDC</span>
                 </div>
+                {amountError && (
+                  <p id="amount-error" className={styles.amountErrorText} role="alert">
+                    {amountError}
+                  </p>
+                )}
+                {amountWarning && !amountError && (
+                  <p className={styles.amountWarningText} role="status">
+                    {amountWarning}
+                  </p>
+                )}
               </div>
 
               <div className={styles.quickChips} role="group" aria-label="Quick amount increments">
@@ -815,22 +951,24 @@ export default function MarketDetailPage() {
                   <button
                     key={val}
                     type="button"
-                    className={styles.chipButton}
+                    className={`${styles.chipButton} ${isLocked ? styles.chipButtonDisabled : ''}`}
                     onClick={() => setAmount((prev) => prev + val)}
+                    disabled={isLocked}
                   >
                     +{val}
                   </button>
                 ))}
                 <button
                   type="button"
-                  className={styles.chipButton}
+                  className={`${styles.chipButton} ${isLocked ? styles.chipButtonDisabled : ''}`}
                   onClick={() => setAmount(1000)}
+                  disabled={isLocked}
                 >
                   MAX
                 </button>
               </div>
 
-              <div key={selectedSide} className={`${styles.breakdown} ${styles.breakdownEnter}`}>
+              <div key={selectedSide} className={`${styles.breakdown} ${styles.breakdownEnter} ${isLocked ? styles.breakdownDisabled : ''}`}>
                 <div className={styles.breakdownRow}>
                   <span className={styles.breakdownLabel}>Quantity</span>
                   <span className={styles.breakdownValue}>{calculations.quantity}</span>
@@ -853,8 +991,19 @@ export default function MarketDetailPage() {
                 type="button"
                 className={`${styles.ticketCta} ${
                   selectedSide === 'yes' ? styles.ticketCtaYes : styles.ticketCtaNo
-                } ${orderStatus === 'submitting' || isLocked ? styles.ticketCtaDisabled : ''}`}
-                onClick={wallet.connectionStatus !== 'connected' ? wallet.connect : handlePlaceOrder}
+                } ${orderStatus === 'submitting' || isLocked ? styles.ticketCtaDisabled : ''} ${confirmTrade ? styles.ticketCtaConfirm : ''}`}
+                onClick={() => {
+                  if (wallet.connectionStatus !== 'connected') {
+                    wallet.connect();
+                    return;
+                  }
+                  // If amount exceeds threshold and not yet confirmed, show confirm state
+                  if (!confirmTrade && amount > tradeThreshold) {
+                    setConfirmTrade(true);
+                    return;
+                  }
+                  handlePlaceOrder();
+                }}
                 disabled={orderStatus === 'submitting' || isLocked}
               >
                 {isLocked ? (
@@ -879,31 +1028,14 @@ export default function MarketDetailPage() {
                   <span className={styles.ctaError}>
                     Retry
                   </span>
+                ) : confirmTrade ? (
+                  <span>Confirm {orderType === 'buy' ? 'Buy' : 'Sell'} {amount} USDC</span>
                 ) : (
                   <>{orderType === 'buy' ? 'Buy' : 'Sell'} {selectedSide === 'yes' ? 'Yes' : 'No'}</>
                 )}
               </button>
 
-              {orderStatus === 'error' && orderError && (
-                <div className={styles.orderErrorBlock}>
-                  {showLimitFallback ? (
-                    <>
-                      <p className={styles.orderErrorText}>
-                        Not enough liquidity to fill this trade immediately. Try a smaller amount, or place a limit order to rest on the book until it fills.
-                      </p>
-                      <button
-                        type="button"
-                        className={styles.limitFallbackButton}
-                        onClick={handlePlaceLimitOrder}
-                      >
-                        Place as Limit Order
-                      </button>
-                    </>
-                  ) : (
-                    <p className={styles.orderErrorText}>{orderError}</p>
-                  )}
-                </div>
-              )}
+
 
               {orderStatus === 'success' && orderResult && (
                 <p className={styles.orderSuccessText}>
@@ -922,6 +1054,7 @@ export default function MarketDetailPage() {
                 quoted from the live order book / winners redeem via on-chain settlement
               </p>
             </div>
+            </TradeTicketErrorBoundary>
           </div>
 
           {/* Outcome Footer Rows */}
@@ -974,6 +1107,68 @@ export default function MarketDetailPage() {
           </div>
         </motion.div>
       </main>
+
+      {/* ── Generic Order Error Popup ───────────────────────── */}
+      {orderStatus === 'error' && orderError && !showLimitFallback && (
+        <div className={styles.rejectedOverlay} role="dialog" aria-label="Order error">
+          <div className={styles.errorPopup}>
+            <p className={styles.errorPopupTitle}>Order Failed</p>
+            <p className={styles.errorPopupMessage}>{orderError}</p>
+            <button
+              type="button"
+              className={styles.errorPopupDismiss}
+              onClick={() => {
+                setOrderStatus('idle');
+                setOrderError(null);
+              }}
+            >
+              Dismiss
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── No Liquidity Popup ──────────────────────────────── */}
+      {showLimitFallback && (
+        <div className={styles.rejectedOverlay} role="dialog" aria-label="Insufficient liquidity">
+          <div className={styles.liquidityPopup}>
+            <div className={styles.liquidityPopupHeader}>
+              <p className={styles.liquidityPopupTitle}>Not enough liquidity</p>
+            </div>
+
+            <p className={styles.liquidityPopupMessage}>
+              This trade could not be filled immediately because the order book
+              doesn't have enough opposing liquidity at your price.
+            </p>
+
+            <p className={styles.liquidityPopupHint}>
+              Try a smaller amount, or place a limit order to rest on the book until it fills.
+            </p>
+
+            <div className={styles.liquidityPopupActions}>
+              <button
+                type="button"
+                className={styles.liquidityPopupPrimary}
+                onClick={handlePlaceLimitOrder}
+                disabled={orderStatus === 'submitting'}
+              >
+                Place as Limit Order
+              </button>
+              <button
+                type="button"
+                className={styles.liquidityPopupDismiss}
+                onClick={() => {
+                  setShowLimitFallback(false);
+                  setOrderStatus('idle');
+                  setOrderError(null);
+                }}
+              >
+                Dismiss
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Order Rejected Popup ──────────────────────────────── */}
       {orderStatus === 'rejected' && (

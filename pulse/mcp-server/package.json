@@ -1,0 +1,27 @@
+{
+  "name": "pulse-mcp-server",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Hosted, remote MCP server for Pulse (DreamDEX on Somnia Shannon testnet). Read-only + draft-only tools — never holds a private key and never executes a trade. Streamable HTTP transport.",
+  "type": "module",
+  "engines": {
+    "node": ">=22.6.0"
+  },
+  "scripts": {
+    "start": "node --experimental-strip-types --no-warnings src/index.ts",
+    "dev": "node --experimental-strip-types --no-warnings --watch src/index.ts",
+    "serve:vercel": "node --experimental-strip-types --no-warnings scripts/serve-vercel-mode.ts",
+    "test": "node --experimental-strip-types --no-warnings --test src/__tests__/*.test.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "@somnia-chain/markets-sdk": "0.28.1",
+    "viem": "2.55.19",
+    "zod": "^4.5.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.0",
+    "@types/node": "^20"
+  }
+}

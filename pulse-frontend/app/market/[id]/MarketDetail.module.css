@@ -71,6 +71,27 @@
   filter: brightness(1.1);
 }
 
+/* ── Prefilled Trade Banner (draft_trade_link) ─ */
+.prefillBanner {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: rgba(97, 128, 255, 0.08);
+  border: 1px solid rgba(97, 128, 255, 0.25);
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: var(--text-micro);
+  color: #b9c6ff;
+  width: fit-content;
+  min-height: 44px;
+}
+
+.prefillBannerIcon {
+  color: #7e97ff;
+  flex-shrink: 0;
+}
+
 /* ── Locked Market Banner ────────────────── */
 .lockedBanner {
   display: flex;
@@ -530,6 +551,12 @@
   font-weight: 600;
 }
 
+.orderTypeTab:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 /* ── Amount Input ─────────────────────────── */
 .amountContainer {
   margin-bottom: var(--space-3);
@@ -580,6 +607,29 @@
   cursor: not-allowed;
 }
 
+.amountInputError {
+  border-color: #f87171 !important;
+  outline: 1px solid #f87171 !important;
+}
+
+.amountErrorText {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  color: #f87171;
+  margin-top: var(--space-1);
+  line-height: 1.4;
+}
+
+.amountWarningText {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 400;
+  color: #fbbf24;
+  margin-top: var(--space-1);
+  line-height: 1.4;
+}
+
 .unitTag {
   font-family: var(--font-mono);
   font-size: var(--text-micro);
@@ -614,6 +664,12 @@
   background: rgba(255, 255, 255, 0.08);
   color: var(--color-paper);
   border-color: rgba(255, 255, 255, 0.15);
+}
+
+.chipButtonDisabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 /* ── Order Breakdown ──────────────────────── */
@@ -675,6 +731,10 @@
   font-weight: 500;
 }
 
+.breakdownDisabled {
+  opacity: 0.35;
+}
+
 /* ── Ticket CTA ──────────────────────────── */
 .ticketCta {
   width: 100%;
@@ -723,6 +783,11 @@
   filter: none;
 }
 
+.ticketCtaConfirm {
+  background: #d97706 !important;
+  box-shadow: 0 4px 16px rgba(217, 119, 6, 0.35) !important;
+}
+
 .ctaLoading {
   display: inline-flex;
   align-items: center;
@@ -757,23 +822,7 @@
   gap: var(--space-2);
 }
 
-.orderErrorBlock {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-2);
-  margin-top: calc(-1 * var(--space-2));
-  margin-bottom: var(--space-2);
-}
 
-.orderErrorText {
-  font-family: var(--font-mono);
-  font-size: var(--text-micro);
-  font-weight: 400;
-  color: #f87171;
-  text-align: center;
-  line-height: 1.4;
-}
 
 .limitFallbackButton {
   display: inline-flex;
@@ -815,6 +864,180 @@
   transform: none;
 }
 
+/* ── Generic Order Error Popup ──────────── */
+.errorPopup {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: var(--space-4) var(--space-4);
+  width: 340px;
+  max-width: 90vw;
+  text-align: center;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1),
+    0 8px 32px rgba(0, 0, 0, 0.5);
+  animation: rejectedPopupIn 0.25s ease-out;
+}
+
+.errorPopupTitle {
+  font-family: var(--font-mono);
+  font-size: var(--text-body);
+  font-weight: 600;
+  color: var(--color-paper);
+  margin: 0 0 var(--space-2);
+  line-height: 1.3;
+}
+
+.errorPopupMessage {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  color: rgba(242, 237, 225, 0.6);
+  line-height: 1.5;
+  margin: 0 0 var(--space-3);
+  word-break: break-word;
+}
+
+.errorPopupDismiss {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1.5rem;
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  font-weight: 600;
+  color: var(--color-paper);
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    0 2px 8px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: background 150ms ease;
+  min-height: 44px;
+}
+
+.errorPopupDismiss:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+/* ── No Liquidity Popup ──────────────────── */
+.liquidityPopup {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: var(--space-4) var(--space-4);
+  width: 340px;
+  max-width: 90vw;
+  text-align: center;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1),
+    0 8px 32px rgba(0, 0, 0, 0.5);
+  animation: rejectedPopupIn 0.25s ease-out;
+}
+
+.liquidityPopupHeader {
+  margin-bottom: var(--space-3);
+}
+
+.liquidityPopupTitle {
+  font-family: var(--font-mono);
+  font-size: var(--text-body);
+  font-weight: 600;
+  color: var(--color-paper);
+  margin: 0;
+  line-height: 1.3;
+}
+
+.liquidityPopupMessage {
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  color: rgba(242, 237, 225, 0.72);
+  line-height: 1.5;
+  margin: 0 0 var(--space-2);
+}
+
+.liquidityPopupHint {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  color: rgba(242, 237, 225, 0.6);
+  line-height: 1.4;
+  margin: 0 0 var(--space-3);
+}
+
+.liquidityPopupActions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.liquidityPopupPrimary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  font-weight: 600;
+  color: var(--color-paper);
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 2px 8px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: background 150ms ease, transform 150ms ease;
+  min-height: 44px;
+}
+
+.liquidityPopupPrimary:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.liquidityPopupPrimary:active {
+  transform: translateY(0);
+}
+
+.liquidityPopupPrimary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.liquidityPopupDismiss {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 500;
+  color: rgba(242, 237, 225, 0.5);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  transition: background 150ms ease;
+  min-height: 40px;
+}
+
+.liquidityPopupDismiss:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
 .orderSuccessText {
   font-family: var(--font-mono);
   font-size: var(--text-micro);
@@ -846,14 +1069,19 @@
 }
 
 .rejectedPopup {
-  background: rgba(28, 25, 23, 0.95);
-  border: 1px solid rgba(251, 191, 36, 0.25);
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 12px;
   padding: var(--space-4) var(--space-4);
   width: 320px;
   max-width: 90vw;
   text-align: center;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1),
+    0 8px 32px rgba(0, 0, 0, 0.5);
   animation: rejectedPopupIn 0.25s ease-out;
 }
 
@@ -866,7 +1094,7 @@
   font-family: var(--font-mono);
   font-size: var(--text-body);
   font-weight: 600;
-  color: #fbbf24;
+  color: var(--color-paper);
   margin: 0 0 4px;
   line-height: 1.3;
 }
@@ -910,7 +1138,7 @@
   font-family: var(--font-mono);
   font-size: var(--text-micro);
   font-weight: 400;
-  color: rgba(251, 191, 36, 0.6);
+  color: rgba(242, 237, 225, 0.45);
   margin: 0 0 var(--space-3);
   line-height: 1.3;
 }
@@ -921,8 +1149,13 @@
   font-size: var(--text-micro);
   font-weight: 500;
   color: rgba(242, 237, 225, 0.85);
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 1px 4px rgba(0, 0, 0, 0.15);
   border-radius: 6px;
   padding: 8px 24px;
   cursor: pointer;
@@ -931,7 +1164,7 @@
 }
 
 .rejectedDismiss:hover {
-  background: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.12);
 }
 
 /* ── Ticket Footnote ──────────────────────── */
