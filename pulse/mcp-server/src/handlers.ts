@@ -20,12 +20,12 @@ import type { Address } from "viem";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 
-import type { McpServerConfig } from "./config.ts";
-import type { TokenIssuer } from "./authStore.ts";
-import { normalizeAddress } from "./address.ts";
-import { registerTools } from "./tools.ts";
-import { mcpRequestContext } from "./requestContext.ts";
-import { connectFormPage, connectResultPage } from "./connectPage.ts";
+import type { McpServerConfig } from "./config.js";
+import type { TokenIssuer } from "./authStore.js";
+import { normalizeAddress } from "./address.js";
+import { registerTools } from "./tools.js";
+import { mcpRequestContext } from "./requestContext.js";
+import { connectFormPage, connectResultPage } from "./connectPage.js";
 
 export const SERVER_NAME = "pulse";
 export const SERVER_VERSION = "0.1.0";

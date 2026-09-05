@@ -14,7 +14,7 @@ import type {
 } from "@somnia-chain/markets-sdk";
 import type { BinaryOrderBook, BookLevel } from "@somnia-chain/markets-sdk";
 
-import { fromBigintAmount } from "./units.ts";
+import { fromBigintAmount } from "./units.js";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 

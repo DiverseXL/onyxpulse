@@ -2,7 +2,7 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { createHmac } from "node:crypto";
 
-import { HmacTokenIssuer } from "../hmacToken.ts";
+import { HmacTokenIssuer } from "../hmacToken.js";
 
 const ADDRESS = "0x1234567890AbcdEF1234567890aBcdef12345678";
 const SECRET = "test-secret-that-is-long-enough-0123456789";

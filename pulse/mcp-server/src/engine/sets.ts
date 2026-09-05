@@ -17,9 +17,9 @@ import type {
   TxResult,
 } from "@somnia-chain/markets-sdk";
 
-import { toBigintAmount } from "./units.ts";
-import { assertMarketWritable } from "./statusGate.ts";
-import { mapSdkError } from "./errors.ts";
+import { toBigintAmount } from "./units.js";
+import { assertMarketWritable } from "./statusGate.js";
+import { mapSdkError } from "./errors.js";
 
 // ─── Trader type (matches SDK's Trader interface) ────────────────────────────
 

@@ -7,7 +7,12 @@
  * resolve imports outside its root — zero-config api/* functions cannot load
  * out-of-root modules at runtime. Keep this copy in sync with
  * `pulse/src/engine/` (same commit); `demo.ts` is intentionally absent so it
- * can never ship in the serverless bundle.
+ * can never ship in the serverless bundle. Import specifiers here use the
+ * compiled `.js` extension (NodeNext ESM convention) — Vercel transpiles
+ * files to `.js` without rewriting literal `.ts` specifiers, so `.ts`
+ * specifiers break every serverless function at runtime
+ * (ERR_MODULE_NOT_FOUND). Local Node >= 22.13 resolves `.js` -> `.ts`,
+ * so the same files run under `node --experimental-strip-types`.
  *
  *
  * This is the single import boundary for all frontend and service code.
@@ -16,7 +21,7 @@
  *   - Individual engine files (`./client`, `./units`, `./markets`, etc.)
  *
  * Exception: `demo.ts` is intentionally NOT re-exported. It must be imported
- * explicitly by path (`import { ... } from "../engine/demo.ts"`) so it can
+ * explicitly by path (`import { ... } from "../engine/demo.js"`) so it can
  * never accidentally ship in a production build. Tree-shaking alone is not a
  * guarantee — a misconfigured bundler or a serverless function that resolves
  * at runtime can still pull it in. Explicit path imports make the intent
@@ -30,7 +35,7 @@
  *   placeMarketOrder,
  *   toBigintAmount,
  *   getLiveBinaryMarkets,
- * } from "../engine/index.ts";
+ * } from "../engine/index.js";
  * ```
  */
 
@@ -40,7 +45,7 @@ export {
   PulseErrorCode,
   PulseEngineError,
   mapSdkError,
-} from "./errors.ts";
+} from "./errors.js";
 
 // ─── Client ──────────────────────────────────────────────────────────────────
 
@@ -50,7 +55,7 @@ export {
   createPulseMainnetClient,
   createTrader,
   requestDemoFunds,
-} from "./client.ts";
+} from "./client.js";
 
 // ─── Units ───────────────────────────────────────────────────────────────────
 
@@ -59,14 +64,14 @@ export {
   fromBigintAmount,
   snapToTick,
   getPoolTickSize,
-} from "./units.ts";
+} from "./units.js";
 
 // ─── Status Gate ─────────────────────────────────────────────────────────────
 
 export {
   getOnChainMarketStatus,
   assertMarketWritable,
-} from "./statusGate.ts";
+} from "./statusGate.js";
 
 // ─── Markets ─────────────────────────────────────────────────────────────────
 
@@ -79,7 +84,7 @@ export {
   getUpcomingBinaryMarkets,
   getFinalizedBinaryMarkets,
   getMarketById,
-} from "./markets.ts";
+} from "./markets.js";
 
 // ─── Trading ─────────────────────────────────────────────────────────────────
 
@@ -88,7 +93,7 @@ export {
   placeLimitOrder,
   cancelOrder,
   getOpenOrdersForTrader,
-} from "./trading.ts";
+} from "./trading.js";
 
 // ─── Settlement ──────────────────────────────────────────────────────────────
 
@@ -99,7 +104,7 @@ export {
   redeemMultipleMarkets,
   getResolution,
   buildReceiptData,
-} from "./settlement.ts";
+} from "./settlement.js";
 
 // ─── Shareable Receipt ──────────────────────────────────────────────────────
 
@@ -109,7 +114,7 @@ export {
   buildShareableReceipt,
   receiptToShareableUrl,
   receiptToJson,
-} from "./receipt.ts";
+} from "./receipt.js";
 
 // ─── Claim All ──────────────────────────────────────────────────────────────
 
@@ -117,7 +122,7 @@ export {
   type ClaimAllResult,
   type ClaimAllProgressStatus,
   claimAllRedeemable,
-} from "./claimAll.ts";
+} from "./claimAll.js";
 
 // ─── Complete Sets ───────────────────────────────────────────────────────────
 
@@ -125,7 +130,7 @@ export {
   mintCompleteSet,
   burnCompleteSet,
   mintCompleteSetNative,
-} from "./sets.ts";
+} from "./sets.js";
 
 // ─── Operator ────────────────────────────────────────────────────────────────
 
@@ -142,7 +147,7 @@ export {
   placeOrderAsOperator,
   cancelOrderAsOperator,
   enableSessionTrading,
-} from "./operator.ts";
+} from "./operator.js";
 
 // ─── Portfolio ───────────────────────────────────────────────────────────────
 
@@ -159,7 +164,7 @@ export {
   getPositionPnL,
   getOutcomeTokenBalance,
   getOutcomeBalanceOnchain,
-} from "./portfolio.ts";
+} from "./portfolio.js";
 
 // ─── Order Book ──────────────────────────────────────────────────────────────
 
@@ -170,7 +175,7 @@ export {
   watchOrderBook,
   computeDefaultExpiry,
   DEFAULT_ORDER_EXPIRY_BUFFER_SECONDS,
-} from "./orderbook.ts";
+} from "./orderbook.js";
 
 // ─── Price Feed ─────────────────────────────────────────────────────────────
 
@@ -180,7 +185,7 @@ export {
   getSpotPrice,
   watchSpotPrice,
   getFairProbability,
-} from "./priceFeed.ts";
+} from "./priceFeed.js";
 
 // ─── Risk Engine ────────────────────────────────────────────────────────────
 
@@ -189,7 +194,7 @@ export {
   type RiskCheckResult,
   checkRiskLimits,
   flattenBeforeExpiry,
-} from "./riskEngine.ts";
+} from "./riskEngine.js";
 
 // ─── Candles ───────────────────────────────────────────────────────────────
 
@@ -198,7 +203,7 @@ export {
   getMarketCandles,
   listBinaryMarketsByVolume,
   getMarketVolume,
-} from "./candles.ts";
+} from "./candles.js";
 
 // ─── Ladder ─────────────────────────────────────────────────────────────────
 
@@ -208,7 +213,7 @@ export {
   placeLadderOrders,
   rollToNextWindow,
   rankMarketsByOpportunity,
-} from "./ladder.ts";
+} from "./ladder.js";
 
 // ─── Reactive Engine ────────────────────────────────────────────────────────
 
@@ -216,4 +221,4 @@ export {
   type ReactiveEngineHandlers,
   type ReactiveEngineHandle,
   createReactiveEngine,
-} from "./reactiveEngine.ts";
+} from "./reactiveEngine.js";

@@ -9,10 +9,10 @@ import type {
 } from "@somnia-chain/markets-sdk";
 import { ORDER_TYPE } from "@somnia-chain/markets-sdk";
 
-import { toBigintAmount } from "./units.ts";
-import { assertMarketWritable } from "./statusGate.ts";
-import { computeDefaultExpiry } from "./orderbook.ts";
-import { mapSdkError } from "./errors.ts";
+import { toBigintAmount } from "./units.js";
+import { assertMarketWritable } from "./statusGate.js";
+import { computeDefaultExpiry } from "./orderbook.js";
+import { mapSdkError } from "./errors.js";
 
 /**
  * A Trader instance bound to a signing key.

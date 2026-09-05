@@ -21,9 +21,9 @@
  * instead of the serverless `api/*` functions.
  */
 
-import { readConfig } from "./config.ts";
-import { createTokenIssuer, tokenModeLabel } from "./tokenIssuer.ts";
-import { createHttpServer } from "./httpServer.ts";
+import { readConfig } from "./config.js";
+import { createTokenIssuer, tokenModeLabel } from "./tokenIssuer.js";
+import { createHttpServer } from "./httpServer.js";
 
 const config = readConfig();
 const tokens = createTokenIssuer(config);

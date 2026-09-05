@@ -16,9 +16,9 @@ import type { SomniaMarketsClient } from "@somnia-chain/markets-sdk";
 import {
   getMyOpenPositions,
   type PortfolioPosition,
-} from "./portfolio.ts";
-import { toBigintAmount, fromBigintAmount } from "./units.ts";
-import { placeMarketOrder } from "./trading.ts";
+} from "./portfolio.js";
+import { toBigintAmount, fromBigintAmount } from "./units.js";
+import { placeMarketOrder } from "./trading.js";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 

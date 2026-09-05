@@ -1,7 +1,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 
-import { AuthStore } from "../authStore.ts";
+import { AuthStore } from "../authStore.js";
 
 describe("AuthStore", () => {
   it("issues unique tokens bound to lowercased addresses", () => {

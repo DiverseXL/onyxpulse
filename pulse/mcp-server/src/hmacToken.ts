@@ -13,7 +13,7 @@
  */
 
 import { createHmac, timingSafeEqual } from "node:crypto";
-import type { TokenIssuer } from "./authStore.ts";
+import type { TokenIssuer } from "./authStore.js";
 
 export interface HmacTokenOptions {
   secret: string;

@@ -12,9 +12,9 @@
 import type { SomniaMarketsClient, TxResult } from "@somnia-chain/markets-sdk";
 import type { Hex } from "viem";
 
-import { getMyRedeemablePositions, type ClaimablePositionInfo } from "./portfolio.ts";
-import { redeemMarket } from "./settlement.ts";
-import { PulseEngineError } from "./errors.ts";
+import { getMyRedeemablePositions, type ClaimablePositionInfo } from "./portfolio.js";
+import { redeemMarket } from "./settlement.js";
+import { PulseEngineError } from "./errors.js";
 
 // ─── Local Trader type (matches SDK's Trader interface) ──────────────────────
 // Defined locally here and in settlement.ts — the SDK does not export a

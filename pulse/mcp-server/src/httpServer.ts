@@ -19,10 +19,10 @@
 import http from "node:http";
 import type { IncomingMessage, ServerResponse } from "node:http";
 
-import type { McpServerConfig } from "./config.ts";
-import type { SessionRecord } from "./handlers.ts";
-import { createRequestHandlers } from "./handlers.ts";
-import type { TokenIssuer } from "./authStore.ts";
+import type { McpServerConfig } from "./config.js";
+import type { SessionRecord } from "./handlers.js";
+import { createRequestHandlers } from "./handlers.js";
+import type { TokenIssuer } from "./authStore.js";
 
 export interface McpHttpOptions {
   config: McpServerConfig;

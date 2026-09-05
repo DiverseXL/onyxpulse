@@ -10,12 +10,12 @@
  *    would randomly reject valid tokens on cold-start / instance switches.
  */
 
-import { readConfig } from "../src/config.ts";
-import type { McpServerConfig } from "../src/config.ts";
-import { createRequestHandlers } from "../src/handlers.ts";
-import type { PulseRequestHandlers } from "../src/handlers.ts";
-import { HmacTokenIssuer } from "../src/hmacToken.ts";
-import { TokenIssuerError } from "../src/serverlessErrors.ts";
+import { readConfig } from "../src/config.js";
+import type { McpServerConfig } from "../src/config.js";
+import { createRequestHandlers } from "../src/handlers.js";
+import type { PulseRequestHandlers } from "../src/handlers.js";
+import { HmacTokenIssuer } from "../src/hmacToken.js";
+import { TokenIssuerError } from "../src/serverlessErrors.js";
 
 export function vercelSetup(): { config: McpServerConfig; handlers: PulseRequestHandlers } {
   const config = readConfig();

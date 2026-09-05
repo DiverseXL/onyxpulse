@@ -6,7 +6,7 @@
 
 import type { IncomingMessage, ServerResponse } from "node:http";
 
-import { vercelSetup } from "./_shared.ts";
+import { vercelSetup } from "./_shared.js";
 
 export default async function handler(req: IncomingMessage, res: ServerResponse): Promise<void> {
   try {

@@ -17,8 +17,8 @@ import type {
   SomniaMarketsClient,
 } from "@somnia-chain/markets-sdk";
 
-import { watchOrderBook, type OrderBookSnapshot } from "./orderbook.ts";
-import { getOnChainMarketStatus } from "./statusGate.ts";
+import { watchOrderBook, type OrderBookSnapshot } from "./orderbook.js";
+import { getOnChainMarketStatus } from "./statusGate.js";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 

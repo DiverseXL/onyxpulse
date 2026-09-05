@@ -7,10 +7,10 @@
  * instance and tokens must verify without a shared store.
  */
 
-import type { McpServerConfig } from "./config.ts";
-import { AuthStore } from "./authStore.ts";
-import type { TokenIssuer } from "./authStore.ts";
-import { HmacTokenIssuer } from "./hmacToken.ts";
+import type { McpServerConfig } from "./config.js";
+import { AuthStore } from "./authStore.js";
+import type { TokenIssuer } from "./authStore.js";
+import { HmacTokenIssuer } from "./hmacToken.js";
 
 export function createTokenIssuer(config: McpServerConfig): TokenIssuer {
   if (config.signingSecret) {

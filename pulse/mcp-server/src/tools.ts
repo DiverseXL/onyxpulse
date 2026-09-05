@@ -25,7 +25,7 @@ import {
   getMyPortfolio,
   getMyOpenPositions,
   getMyRedeemablePositions,
-} from "./engine/index.ts";
+} from "./engine/index.js";
 
 import {
   formatMarket,
@@ -35,14 +35,14 @@ import {
   formatPortfolio,
   formatPositions,
   formatClaimables,
-} from "./format.ts";
-import { validateDraftTrade } from "./draft.ts";
+} from "./format.js";
+import { validateDraftTrade } from "./draft.js";
 
 /**
  * The bound address of the current request (resolved from the bearer token by
  * the HTTP layer). Read inside tool handlers via requireRequestAddress().
  */
-import { requireRequestAddress } from "./requestContext.ts";
+import { requireRequestAddress } from "./requestContext.js";
 
 const ADDRESSED_TOOLS_NOTE =
   "Portfolio data comes from the public chain via the address bound to your access token.";

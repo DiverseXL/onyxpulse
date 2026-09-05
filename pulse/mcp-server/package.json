@@ -8,20 +8,21 @@
     "node": ">=22.6.0"
   },
   "scripts": {
-    "railway-start": "node --experimental-strip-types --no-warnings src/railway.ts",
-    "dev": "node --experimental-strip-types --no-warnings --watch src/railway.ts",
-    "serve:vercel": "node --experimental-strip-types --no-warnings scripts/serve-vercel-mode.ts",
-    "test": "node --experimental-strip-types --no-warnings --test src/__tests__/*.test.ts",
+    "railway-start": "tsx src/railway.ts",
+    "dev": "tsx watch src/railway.ts",
+    "serve:vercel": "tsx scripts/serve-vercel-mode.ts",
+    "test": "tsx --test src/__tests__/*.test.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.30.0",
     "@somnia-chain/markets-sdk": "0.28.1",
+    "tsx": "^4.23.13",
     "viem": "2.55.19",
     "zod": "^4.5.0"
   },
   "devDependencies": {
-    "typescript": "^5.9.0",
-    "@types/node": "^20"
+    "@types/node": "^20",
+    "typescript": "^5.9.0"
   }
 }

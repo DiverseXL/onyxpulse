@@ -6,7 +6,7 @@ import {
   validateHumanAmount,
   buildDraftTradeUrl,
   validateDraftTrade,
-} from "../draft.ts";
+} from "../draft.js";
 
 const MARKET_ID = "0x1111111111111111111111111111111111111111111111111111111111111111";
 const APP_URL = "https://pulse.example.com";

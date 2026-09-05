@@ -10,7 +10,7 @@
  */
 import type { SomniaMarketsClient } from "@somnia-chain/markets-sdk";
 
-import { buildReceiptData, type ReceiptData } from "./settlement.ts";
+import { buildReceiptData, type ReceiptData } from "./settlement.js";
 
 // ─── Schema versioning ──────────────────────────────────────────────────────
 //

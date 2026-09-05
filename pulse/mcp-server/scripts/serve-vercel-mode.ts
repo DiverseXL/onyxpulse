@@ -12,9 +12,9 @@
  */
 
 import http from "node:http";
-import mcpFn from "../api/mcp.ts";
-import connectFn from "../api/connect.ts";
-import indexFn from "../api/index.ts";
+import mcpFn from "../api/mcp.js";
+import connectFn from "../api/connect.js";
+import indexFn from "../api/index.js";
 
 const port = Number(process.env.PORT ?? 4790);
 

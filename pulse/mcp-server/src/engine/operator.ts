@@ -31,7 +31,7 @@ import {
   CANCEL_ORDER_FOR_SELECTOR,
 } from "@somnia-chain/markets-sdk";
 
-import { PulseEngineError, PulseErrorCode, mapSdkError } from "./errors.ts";
+import { PulseEngineError, PulseErrorCode, mapSdkError } from "./errors.js";
 
 // ─── Selector constants ──────────────────────────────────────────────────────
 

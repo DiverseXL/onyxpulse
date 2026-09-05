@@ -14,11 +14,11 @@ import type {
   SomniaMarketsClient,
 } from "@somnia-chain/markets-sdk";
 
-import { placeLimitOrder } from "./trading.ts";
-import { computeDefaultExpiry } from "./orderbook.ts";
-import { getLiveBinaryMarkets, getUpcomingBinaryMarkets } from "./markets.ts";
-import { getMarketVolume } from "./candles.ts";
-import { PulseEngineError, mapSdkError } from "./errors.ts";
+import { placeLimitOrder } from "./trading.js";
+import { computeDefaultExpiry } from "./orderbook.js";
+import { getLiveBinaryMarkets, getUpcomingBinaryMarkets } from "./markets.js";
+import { getMarketVolume } from "./candles.js";
+import { PulseEngineError, mapSdkError } from "./errors.js";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 

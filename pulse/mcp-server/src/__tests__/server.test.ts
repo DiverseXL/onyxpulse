@@ -12,9 +12,9 @@ import type { AddressInfo } from "node:net";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 
-import { readConfig } from "../config.ts";
-import { AuthStore } from "../authStore.ts";
-import { createHttpServer } from "../httpServer.ts";
+import { readConfig } from "../config.js";
+import { AuthStore } from "../authStore.js";
+import { createHttpServer } from "../httpServer.js";
 
 const VALID_ADDRESS = "0x1234567890AbcdEF1234567890aBcdef12345678";
 

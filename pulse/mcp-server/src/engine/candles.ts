@@ -8,7 +8,7 @@
 import type { Address } from "viem";
 import type { BinaryMarket, SomniaMarketsClient } from "@somnia-chain/markets-sdk";
 
-import { fromBigintAmount } from "./units.ts";
+import { fromBigintAmount } from "./units.js";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 

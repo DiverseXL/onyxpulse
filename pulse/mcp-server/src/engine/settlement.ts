@@ -5,11 +5,11 @@ import type {
   TxResult,
 } from "@somnia-chain/markets-sdk";
 
-import { isBinaryMarket } from "./markets.ts";
-import { assertMarketWritable } from "./statusGate.ts";
-import { getOutcomeTokenBalance, getOutcomeBalanceOnchain } from "./portfolio.ts";
-import { toBigintAmount } from "./units.ts";
-import { PulseEngineError, mapSdkError } from "./errors.ts";
+import { isBinaryMarket } from "./markets.js";
+import { assertMarketWritable } from "./statusGate.js";
+import { getOutcomeTokenBalance, getOutcomeBalanceOnchain } from "./portfolio.js";
+import { toBigintAmount } from "./units.js";
+import { PulseEngineError, mapSdkError } from "./errors.js";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 

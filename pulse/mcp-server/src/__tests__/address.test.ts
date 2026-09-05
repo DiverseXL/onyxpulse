@@ -1,7 +1,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 
-import { normalizeAddress } from "../address.ts";
+import { normalizeAddress } from "../address.js";
 
 // A checksummed Somnia/ETH-style address (generated via viem getAddress).
 const VALID = "0x1234567890AbcdEF1234567890aBcdef12345678";
