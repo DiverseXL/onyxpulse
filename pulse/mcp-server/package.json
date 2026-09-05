@@ -4,7 +4,6 @@
   "private": true,
   "description": "Hosted, remote MCP server for Pulse (DreamDEX on Somnia Shannon testnet). Read-only + draft-only tools — never holds a private key and never executes a trade. Streamable HTTP transport.",
   "type": "module",
-  "main": "api/index.ts",
   "engines": {
     "node": ">=22.6.0"
   },
