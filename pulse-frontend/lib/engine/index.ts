@@ -146,6 +146,7 @@ export {
   type ClaimablePositionInfo,
   getMyPortfolio,
   getMyOpenPositions,
+  getMyPositionsWithPnL,
   getMyRedeemablePositions,
   getPositionPnL,
   getOutcomeTokenBalance,

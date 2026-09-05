@@ -93,6 +93,37 @@ export async function getMyOpenPositions(
 }
 
 /**
+ * Fetch a trader's positions joined with reliable avg-cost PnL — the batched,
+ * positions-list companion to {@link getPositionPnL}.
+ *
+ * Returns ONE entry per market (not per outcome): the market row joined with
+ * cost basis, average cost, mark value, and realized/unrealized PnL — all RAW
+ * collateral units (format with the market's `quoteDecimals`).
+ *
+ * `markValue` is computed by the SDK's canonical PnL engine and is correct for
+ * every lifecycle stage: while Trading/Locked it marks the balance to the
+ * book-clamped live price; once Resolved/Finalized it uses the actual
+ * settlement payout (1.0 for the winning outcome, 0 for the losing outcome);
+ * for Voided markets it uses the 0.5 refund. Do not reimplement this value
+ * math in the UI — consume `markValue` from here.
+ *
+ * @param client - SomniaMarketsClient instance.
+ * @param traderAddress - The wallet address to query.
+ */
+export async function getMyPositionsWithPnL(
+  client: SomniaMarketsClient,
+  traderAddress: Address,
+): Promise<OpenPositionPnL[]> {
+  try {
+    return await client.getOpenPositionsWithPnL(traderAddress.toLowerCase());
+  } catch (error) {
+    throw new Error(
+      `getMyPositionsWithPnL failed for ${traderAddress}: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
+}
+
+/**
  * Fetch a trader's positions that are ready to redeem (auto-redeem prompt).
  *
  * Uses the SDK's `getClaimable` which cross-references open positions against

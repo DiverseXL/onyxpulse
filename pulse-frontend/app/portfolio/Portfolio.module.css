@@ -482,6 +482,242 @@
   background: rgba(239, 68, 68, 0.12);
 }
 
+.sideChipBoth {
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.12);
+}
+
+/* ── Section Headers (Open / Settled) ────── */
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.sectionTitle {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  font-weight: 600;
+  color: var(--color-paper);
+  margin: 0;
+}
+
+/* ── LIVE Badge (matches liveIndicator treatment) ── */
+.liveBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.15rem 0.55rem;
+  border-radius: 9999px;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: #4ade80;
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.25);
+}
+
+.liveDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #4ade80;
+  animation: livePulse 1.5s infinite;
+}
+
+@keyframes livePulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.6);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(74, 222, 128, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(74, 222, 128, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .liveDot {
+    animation: none;
+  }
+}
+
+/* ── Open Positions Section ───────────────── */
+.openSection {
+  display: flex;
+  flex-direction: column;
+}
+
+.openGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: var(--space-3);
+}
+
+.openCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: rgba(14, 18, 26, 0.5);
+  border: 1px solid rgba(74, 222, 128, 0.18);
+  border-radius: 12px;
+  transition: border-color var(--transition-fast);
+}
+
+.openCard:hover {
+  border-color: rgba(74, 222, 128, 0.35);
+}
+
+.openCardTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.openCardTitle {
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  font-weight: 600;
+  color: var(--color-paper);
+  line-height: 1.35;
+  flex: 1;
+  min-width: 0;
+  text-decoration: none;
+}
+
+.openCardTitle:hover {
+  opacity: 0.8;
+}
+
+.openCardMetrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+}
+
+.openCardMetric {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.openCardMetricLabel {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(242, 237, 225, var(--opacity-muted));
+}
+
+.openCardMetaValue {
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  font-weight: 500;
+  color: var(--color-paper);
+  font-variant-numeric: tabular-nums;
+}
+
+.livePrice {
+  color: #4ade80;
+}
+
+.countdownUrgent {
+  color: #f87171;
+  font-weight: 600;
+}
+
+.openCardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: var(--space-2);
+}
+
+.openCardCountdown {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: rgba(242, 237, 225, var(--opacity-secondary));
+}
+
+.openCardLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--color-rust);
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.openCardLink:hover {
+  color: #e06040;
+}
+
+.openEmpty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-6) var(--space-4);
+  background: rgba(14, 18, 26, 0.35);
+  border: 1px dashed rgba(74, 222, 128, 0.15);
+  border-radius: 12px;
+  text-align: center;
+}
+
+.openEmptyIcon {
+  color: rgba(74, 222, 128, 0.6);
+}
+
+.openEmptyText {
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  color: rgba(242, 237, 225, var(--opacity-secondary));
+  max-width: 28rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.openEmptyLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border-radius: 8px;
+  background: var(--color-rust);
+  color: var(--color-paper);
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform var(--transition-fast), filter var(--transition-fast);
+  margin-top: var(--space-2);
+  min-height: 44px;
+}
+
+.openEmptyLink:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.1);
+}
+
+/* ── Settled Positions Section ────────────── */
+.settledSection {
+  display: flex;
+  flex-direction: column;
+}
+
 /* ── Status Pills ─────────────────────────── */
 .statusPill {
   display: inline-flex;

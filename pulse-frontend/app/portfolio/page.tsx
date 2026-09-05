@@ -27,6 +27,7 @@ import {
   ArrowRight,
   Inbox,
   FileText,
+  Activity,
 } from 'lucide-react';
 import styles from './Portfolio.module.css';
 import AppChromeNav from '@/components/markets/AppChromeNav';
@@ -35,9 +36,9 @@ import ChainMismatchBanner from '@/components/markets/ChainMismatchBanner';
 import { usePulseWallet } from '@/lib/wallet/PulseWalletContext';
 import { createPulseClient } from '@/lib/engine/client';
 import {
-  getMyOpenPositions,
+  getMyPositionsWithPnL,
   getMyRedeemablePositions,
-  type PortfolioPosition,
+  type OpenPositionPnL,
   type ClaimablePositionInfo,
 } from '@/lib/engine/portfolio';
 import {
@@ -67,29 +68,42 @@ const EXPLORER_TX_URL = 'https://shannon-explorer.somnia.network/tx/' as const;
 // ── Combined position type ──────────────────────────────────────────────────
 
 interface EnrichedPosition {
-  raw: PortfolioPosition;
-  /** 0 = YES, 1 = NO. */
-  outcomeIndex: 0 | 1;
-  /** Human-readable balance (formatted with quoteDecimals). */
-  humanBalance: string;
-  /** Raw balance as bigint. */
-  rawBalance: bigint;
+  /** The SDK's per-market PnL entry (one per market, both outcomes combined). */
+  raw: OpenPositionPnL;
+  /** Market ID (bytes32, lowercased hex). */
+  marketId: string;
   /** Market question text. */
   question: string;
   /** Market status string. */
   status: string;
-  /** Raw last price (YES terms). */
-  lastPrice: string;
   /** Token decimals for this market. */
   decimals: number;
-  /** Approximate mark value (balance * lastPrice / oneCollateral). */
+  /** Unix-seconds expiry (trading end). */
+  expiry: string;
+  /** Raw last price (YES terms, scaled by quoteDecimals); null before first fill. */
+  lastPrice: string | null;
+  /** Raw YES outcome-token balance. */
+  balanceYes: bigint;
+  /** Raw NO outcome-token balance. */
+  balanceNo: bigint;
+  /** Human-readable YES balance (quoteDecimals). */
+  humanYes: string;
+  /** Human-readable NO balance (quoteDecimals). */
+  humanNo: string;
+  /** Which outcome side(s) this market position holds. */
+  side: 'YES' | 'NO' | 'BOTH';
+  /** Blended average cost per whole outcome token (raw collateral). */
+  avgCost: bigint;
+  /**
+   * Mark value in human collateral units, from the SDK's canonical PnL engine:
+   * live book-clamped price while Trading/Locked, actual settlement payout
+   * (1 / 0) once Resolved/Finalized, 0.5 refund when Voided.
+   */
   markValue: number;
   /** Whether this position is claimable (cross-referenced with redeemable list). */
   isClaimable: boolean;
   /** Corresponding redeemable entry, if claimable. */
   claimableInfo: ClaimablePositionInfo | null;
-  /** Market ID. */
-  marketId: string;
 }
 
 // ── Claim progress tracking ─────────────────────────────────────────────────
@@ -123,6 +137,93 @@ function getStatusInfo(position: EnrichedPosition): {
   return { label: position.status, className: styles.statusPillOpen };
 }
 
+// ── Helper: human entry price (avg cost per token, in collateral) ───────────
+
+function getEntryPrice(position: EnrichedPosition): string {
+  if (position.avgCost <= 0n) return '--';
+  return fromBigintAmount(position.avgCost, position.decimals);
+}
+
+// ── Helper: quantity label (per-side when both outcomes are held) ───────────
+
+function getQuantityLabel(position: EnrichedPosition): string {
+  if (position.side === 'BOTH') {
+    return `${position.humanYes} + ${position.humanNo}`;
+  }
+  return position.side === 'YES' ? position.humanYes : position.humanNo;
+}
+
+// ── Helper: current price / settlement label for the held side ──────────────
+
+function getCurrentPriceLabel(position: EnrichedPosition): string {
+  const oneCollateral = 10 ** position.decimals;
+
+  // Settled: reflect the ACTUAL resolution, not a stale live price.
+  if (position.status === 'Voided') {
+    return 'Refund (50%)';
+  }
+  if (position.raw.market.winningOutcome != null) {
+    const winning = position.raw.market.winningOutcome as 0 | 1;
+    if (position.side === 'BOTH') {
+      return 'Won (100%)';
+    }
+    const held: 0 | 1 = position.side === 'YES' ? 0 : 1;
+    return held === winning ? 'Won (100%)' : 'Lost (0%)';
+  }
+
+  // Still trading: live book-clamped price of the held side.
+  const lastPriceRaw = position.lastPrice;
+  if (!lastPriceRaw || Number(lastPriceRaw) <= 0) return '--';
+  const yesPrice = Number(lastPriceRaw) / oneCollateral;
+  if (position.side === 'BOTH') {
+    return `${(yesPrice * 100).toFixed(0)}% / ${((1 - yesPrice) * 100).toFixed(0)}%`;
+  }
+  if (position.side === 'NO') {
+    return `${((1 - yesPrice) * 100).toFixed(0)}%`;
+  }
+  return `${(yesPrice * 100).toFixed(0)}%`;
+}
+
+// ── Countdown (same pattern as /markets MarketCard) ─────────────────────────
+
+function PositionCountdown({ expiry }: { expiry: string }) {
+  const [timeLeft, setTimeLeft] = useState<number>(0);
+
+  useEffect(() => {
+    const updateCountdown = () => {
+      const now = Math.floor(Date.now() / 1000);
+      const remaining = Math.max(0, Number(expiry) - now);
+      setTimeLeft(remaining);
+    };
+
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+    return () => clearInterval(interval);
+  }, [expiry]);
+
+  if (timeLeft <= 0) {
+    return <span className={styles.openCardMetaValue}>Ended</span>;
+  }
+
+  const mins = Math.floor(timeLeft / 60);
+  const secs = timeLeft % 60;
+  const label =
+    mins >= 60
+      ? `${Math.floor(mins / 60)}h ${mins % 60}m`
+      : mins > 0
+        ? `${mins}m ${secs.toString().padStart(2, '0')}s`
+        : `${secs}s`;
+  const urgent = timeLeft < 60;
+
+  return (
+    <span
+      className={`${styles.openCardMetaValue} ${urgent ? styles.countdownUrgent : ''}`}
+    >
+      {label}
+    </span>
+  );
+}
+
 // ── Page Component ──────────────────────────────────────────────────────────
 
 export default function PortfolioPage() {
@@ -153,17 +254,17 @@ export default function PortfolioPage() {
 
   const pulse = useMemo(() => (isConnected ? createPulseClient() : null), [isConnected]);
 
-  // Open positions
+  // Positions with PnL (one entry per market, both outcomes combined)
   const {
     data: openPositions,
     isLoading: isLoadingPositions,
     isError: isErrorPositions,
     refetch: refetchPositions,
-  } = useQuery<PortfolioPosition[]>({
+  } = useQuery<OpenPositionPnL[]>({
     queryKey: ['portfolio-positions', wallet.address],
     queryFn: async () => {
       if (!pulse || !wallet.address) return [];
-      return getMyOpenPositions(pulse.client, wallet.address as `0x${string}`);
+      return getMyPositionsWithPnL(pulse.client, wallet.address as `0x${string}`);
     },
     enabled: !!isConnected && !!pulse,
     refetchInterval: 25000,
@@ -186,7 +287,7 @@ export default function PortfolioPage() {
     placeholderData: (prev) => prev,
   });
 
-  // ── Enrich positions with claimable cross-reference + mark value ──────────
+  // ── Enrich positions with claimable cross-reference + SDK-computed value ───
 
   const enrichedPositions = useMemo<EnrichedPosition[]>(() => {
     if (!openPositions) return [];
@@ -199,37 +300,42 @@ export default function PortfolioPage() {
     }
 
     return openPositions
-      .filter((p) => BigInt(p.balance) > 0n)
+      .filter((p) => BigInt(p.balanceYes) + BigInt(p.balanceNo) > 0n)
       .map((p) => {
-        const outcomeIndex = p.outcomeIndex as 0 | 1;
-        const decimals = p.market?.quoteDecimals ?? 6;
-        const rawBalance = BigInt(p.balance);
-        const humanBalance = fromBigintAmount(rawBalance, decimals);
-        const marketId = p.market?.id ?? '';
+        const decimals = p.market.quoteDecimals ?? 6;
+        const balanceYes = BigInt(p.balanceYes);
+        const balanceNo = BigInt(p.balanceNo);
+        const marketId = p.market.id;
+        const side: 'YES' | 'NO' | 'BOTH' =
+          balanceYes > 0n && balanceNo > 0n
+            ? 'BOTH'
+            : balanceYes > 0n
+              ? 'YES'
+              : 'NO';
 
-        // Approximate mark value: balance * lastPrice / oneCollateral
-        const lastPriceRaw = p.market?.lastPrice ?? '0';
-        const oneCollateral = 10 ** decimals;
-        const markValue =
-          rawBalance > 0n
-            ? (Number(rawBalance) * Number(lastPriceRaw)) / oneCollateral
-            : 0;
-
+        // markValue comes from the SDK's canonical PnL engine (getPositionPnL
+        // family): live mark while trading, actual payout once settled.
+        // No reimplementation of value math here.
+        const markValue = Number(fromBigintAmount(p.markValue, decimals));
         const isClaimable = claimableMap.has(marketId.toLowerCase());
 
         return {
           raw: p,
-          outcomeIndex,
-          humanBalance,
-          rawBalance,
-          question: p.market?.question ?? 'Unknown market',
-          status: p.market?.status ?? 'Unknown',
-          lastPrice: lastPriceRaw,
+          marketId,
+          question: p.market.question ?? 'Unknown market',
+          status: p.market.status ?? 'Unknown',
           decimals,
+          expiry: p.market.expiry,
+          lastPrice: p.market.lastPrice,
+          balanceYes,
+          balanceNo,
+          humanYes: fromBigintAmount(balanceYes, decimals),
+          humanNo: fromBigintAmount(balanceNo, decimals),
+          side,
+          avgCost: p.avgCost,
           markValue,
           isClaimable,
           claimableInfo: claimableMap.get(marketId.toLowerCase()) ?? null,
-          marketId,
         };
       });
   }, [openPositions, redeemablePositions]);
@@ -241,9 +347,16 @@ export default function PortfolioPage() {
     [enrichedPositions],
   );
 
-  const openCount = enrichedPositions.filter(
-    (p) => !p.isClaimable && p.status !== 'Voided',
-  ).length;
+  // Open = actively unresolved (Trading or Locked). Settled positions
+  // (Resolved / Finalized / Voided) are history, not open trades.
+  const openPositionsList = enrichedPositions.filter(
+    (p) => p.status === 'Trading' || p.status === 'Locked',
+  );
+  const openCount = openPositionsList.length;
+
+  const settledPositions = enrichedPositions.filter(
+    (p) => p.status !== 'Trading' && p.status !== 'Locked',
+  );
 
   const claimableCount = enrichedPositions.filter((p) => p.isClaimable).length;
 
@@ -811,9 +924,10 @@ export default function PortfolioPage() {
           </motion.div>
         )}
 
-        {/* Positions table */}
+        {/* Open Positions — active, unresolved trades */}
         {hasAnyPositions && (
-          <motion.div
+          <motion.section
+            className={styles.openSection}
             variants={safeVariants(reducedMotion, fadeSlideUp)}
             initial="hidden"
             animate="visible"
@@ -821,7 +935,123 @@ export default function PortfolioPage() {
               duration: MOTION_MEDIUM,
               ease: EASE_OUT,
             })}
+            aria-label="Open Positions"
           >
+            <div className={styles.sectionHeader}>
+              <h2 className={styles.sectionTitle}>Open Positions</h2>
+              <span className={styles.liveBadge}>
+                <span className={styles.liveDot} aria-hidden="true" />
+                LIVE
+              </span>
+            </div>
+
+            {openPositionsList.length > 0 ? (
+              <div className={styles.openGrid}>
+                {openPositionsList.map((position) => {
+                  const statusInfo = getStatusInfo(position);
+                  const sideChipClass =
+                    position.side === 'YES'
+                      ? styles.sideChipYes
+                      : position.side === 'NO'
+                        ? styles.sideChipNo
+                        : styles.sideChipBoth;
+
+                  return (
+                    <div key={position.marketId} className={styles.openCard}>
+                      <div className={styles.openCardTop}>
+                        <Link
+                          href={`/market/${position.marketId}`}
+                          className={styles.openCardTitle}
+                        >
+                          {position.question}
+                        </Link>
+                        <span className={`${styles.statusPill} ${statusInfo.className}`}>
+                          {statusInfo.label}
+                        </span>
+                      </div>
+
+                      <div className={styles.openCardMetrics}>
+                        <div className={styles.openCardMetric}>
+                          <span className={styles.openCardMetricLabel}>Side</span>
+                          <span className={`${styles.sideChip} ${sideChipClass}`}>
+                            {position.side === 'BOTH' ? 'YES + NO' : position.side}
+                          </span>
+                        </div>
+                        <div className={styles.openCardMetric}>
+                          <span className={styles.openCardMetricLabel}>Quantity</span>
+                          <span className={styles.openCardMetaValue}>
+                            {getQuantityLabel(position)}
+                          </span>
+                        </div>
+                        <div className={styles.openCardMetric}>
+                          <span className={styles.openCardMetricLabel}>Entry</span>
+                          <span className={styles.openCardMetaValue}>
+                            {getEntryPrice(position)}
+                          </span>
+                        </div>
+                        <div className={styles.openCardMetric}>
+                          <span className={styles.openCardMetricLabel}>Live Price</span>
+                          <span className={`${styles.openCardMetaValue} ${styles.livePrice}`}>
+                            {getCurrentPriceLabel(position)}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className={styles.openCardFooter}>
+                        {position.status === 'Trading' ? (
+                          <span className={styles.openCardCountdown}>
+                            <Clock size={12} aria-hidden="true" />
+                            <PositionCountdown expiry={position.expiry} />
+                          </span>
+                        ) : (
+                          <span className={styles.openCardMetaValue}>
+                            Locked until resolution
+                          </span>
+                        )}
+                        <Link
+                          href={`/market/${position.marketId}`}
+                          className={styles.openCardLink}
+                        >
+                          View market
+                          <ArrowRight size={12} aria-hidden="true" />
+                        </Link>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className={styles.openEmpty}>
+                <Activity size={24} className={styles.openEmptyIcon} aria-hidden="true" />
+                <p className={styles.openEmptyText}>
+                  No open positions right now — place a trade to see it here.
+                </p>
+                <Link href="/markets" className={styles.openEmptyLink}>
+                  Browse Markets
+                  <ArrowRight size={13} aria-hidden="true" />
+                </Link>
+              </div>
+            )}
+          </motion.section>
+        )}
+
+        {/* Settled Positions — finalized / resolved / voided history */}
+        {settledPositions.length > 0 && (
+          <motion.section
+            className={styles.settledSection}
+            variants={safeVariants(reducedMotion, fadeSlideUp)}
+            initial="hidden"
+            animate="visible"
+            transition={safeTransition(reducedMotion, {
+              duration: MOTION_MEDIUM,
+              ease: EASE_OUT,
+            })}
+            aria-label="Settled Positions"
+          >
+            <div className={styles.sectionHeader}>
+              <h2 className={styles.sectionTitle}>Settled Positions</h2>
+            </div>
+
             <div className={styles.tableContainer}>
               <table className={styles.positionsTable} role="table">
                 <thead className={styles.tableHead}>
@@ -846,24 +1076,22 @@ export default function PortfolioPage() {
                     },
                   })}
                 >
-                  {enrichedPositions.map((position) => {
+                  {settledPositions.map((position) => {
                     const statusInfo = getStatusInfo(position);
-                    const decimals = position.decimals;
-                    const currentPriceRaw = position.lastPrice;
-                    const currentPrice = currentPriceRaw
-                      ? (Number(currentPriceRaw) / 10 ** decimals) * 100
-                      : 0;
-                    const oneCollateral = 10 ** decimals;
-                    const valueFormatted =
-                      position.markValue > 0
-                        ? `$${position.markValue.toFixed(2)}`
-                        : position.status === 'Voided'
-                          ? `$${(Number(position.rawBalance) / oneCollateral * 0.5).toFixed(2)}`
-                          : '--';
+                    const sideChipClass =
+                      position.side === 'YES'
+                        ? styles.sideChipYes
+                        : position.side === 'NO'
+                          ? styles.sideChipNo
+                          : styles.sideChipBoth;
+                    // Value comes from the SDK PnL engine: actual settlement
+                    // payout (full for the winner, 0 for the loser, 0.5 refund
+                    // when voided) — never a stale live price.
+                    const valueFormatted = `$${position.markValue.toFixed(2)}`;
 
                     return (
                       <motion.tr
-                        key={`${position.marketId}-${position.outcomeIndex}`}
+                        key={position.marketId}
                         variants={safeVariants(reducedMotion, {
                           hidden: { opacity: 0, y: 8 },
                           visible: {
@@ -895,21 +1123,15 @@ export default function PortfolioPage() {
                           </Link>
                         </td>
                         <td className={styles.tableCell}>
-                          <span
-                            className={`${styles.sideChip} ${
-                              position.outcomeIndex === 0
-                                ? styles.sideChipYes
-                                : styles.sideChipNo
-                            }`}
-                          >
-                            {position.outcomeIndex === 0 ? 'YES' : 'NO'}
+                          <span className={`${styles.sideChip} ${sideChipClass}`}>
+                            {position.side === 'BOTH' ? 'YES + NO' : position.side}
                           </span>
                         </td>
                         <td className={`${styles.tableCell} ${styles.tableCellMono} ${styles.hideOnMobile}`}>
-                          {position.humanBalance}
+                          {getQuantityLabel(position)}
                         </td>
                         <td className={`${styles.tableCell} ${styles.tableCellMono} ${styles.hideOnMobile}`}>
-                          {currentPrice > 0 ? `${currentPrice.toFixed(0)}%` : '--'}
+                          {getCurrentPriceLabel(position)}
                         </td>
                         <td className={styles.tableCell}>
                           <span className={`${styles.statusPill} ${statusInfo.className}`}>
@@ -962,24 +1184,19 @@ export default function PortfolioPage() {
 
             {/* Mobile Position Cards (hidden on desktop) */}
             <div className={styles.mobileCards}>
-              {enrichedPositions.map((position) => {
+              {settledPositions.map((position) => {
                 const statusInfo = getStatusInfo(position);
-                const decimals = position.decimals;
-                const currentPriceRaw = position.lastPrice;
-                const currentPrice = currentPriceRaw
-                  ? (Number(currentPriceRaw) / 10 ** decimals) * 100
-                  : 0;
-                const oneCollateral = 10 ** decimals;
-                const valueFormatted =
-                  position.markValue > 0
-                    ? `$${position.markValue.toFixed(2)}`
-                    : position.status === 'Voided'
-                      ? `$${(Number(position.rawBalance) / oneCollateral * 0.5).toFixed(2)}`
-                      : '--';
+                const sideChipClass =
+                  position.side === 'YES'
+                    ? styles.sideChipYes
+                    : position.side === 'NO'
+                      ? styles.sideChipNo
+                      : styles.sideChipBoth;
+                const valueFormatted = `$${position.markValue.toFixed(2)}`;
 
                 return (
                   <div
-                    key={`card-${position.marketId}-${position.outcomeIndex}`}
+                    key={`card-${position.marketId}`}
                     className={styles.positionCard}
                   >
                     <div className={styles.positionCardHeader}>
@@ -997,17 +1214,17 @@ export default function PortfolioPage() {
                     <div className={styles.positionCardMetrics}>
                       <div className={styles.positionCardMetric}>
                         <span className={styles.positionCardMetricLabel}>Side</span>
-                        <span className={`${styles.sideChip} ${position.outcomeIndex === 0 ? styles.sideChipYes : styles.sideChipNo}`}>
-                          {position.outcomeIndex === 0 ? 'YES' : 'NO'}
+                        <span className={`${styles.sideChip} ${sideChipClass}`}>
+                          {position.side === 'BOTH' ? 'YES + NO' : position.side}
                         </span>
                       </div>
                       <div className={styles.positionCardMetric}>
                         <span className={styles.positionCardMetricLabel}>Quantity</span>
-                        <span className={styles.positionCardMetricValue}>{position.humanBalance}</span>
+                        <span className={styles.positionCardMetricValue}>{getQuantityLabel(position)}</span>
                       </div>
                       <div className={styles.positionCardMetric}>
                         <span className={styles.positionCardMetricLabel}>Current</span>
-                        <span className={styles.positionCardMetricValue}>{currentPrice > 0 ? `${currentPrice.toFixed(0)}%` : '--'}</span>
+                        <span className={styles.positionCardMetricValue}>{getCurrentPriceLabel(position)}</span>
                       </div>
                       <div className={styles.positionCardMetric}>
                         <span className={styles.positionCardMetricLabel}>Value</span>
@@ -1047,7 +1264,7 @@ export default function PortfolioPage() {
                 );
               })}
             </div>
-          </motion.div>
+          </motion.section>
         )}
       </main>
 
