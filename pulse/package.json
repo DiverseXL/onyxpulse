@@ -16,5 +16,8 @@
     "@modelcontextprotocol/sdk": "^1.30.0",
     "@somnia-chain/markets-sdk": "^0.28.1",
     "viem": "^2.55.19"
-  }
+  },
+  "workspaces": [
+    "mcp-server"
+  ]
 }
