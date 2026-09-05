@@ -1,10 +1,10 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "builds": [
-    { "src": "api/index.ts", "use": "@vercel/node" },
-    { "src": "api/connect.ts", "use": "@vercel/node" },
-    { "src": "api/mcp.ts", "use": "@vercel/node" }
-  ],
+  "functions": {
+    "api/*.ts": {
+      "maxDuration": 60
+    }
+  },
   "rewrites": [
     { "source": "/mcp", "destination": "/api/mcp" },
     { "source": "/connect", "destination": "/api/connect" },
