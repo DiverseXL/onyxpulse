@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useState, useEffect, useCallback } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import styles from './HeroV2.module.css';
 import type { ActiveTab } from './PulseLanding';
@@ -14,15 +14,6 @@ import {
   MOTION_SLOW,
   EASE_OUT,
 } from '@/lib/motion';
-
-type TabDef = { key: ActiveTab; label: string };
-
-const TABS: TabDef[] = [
-  { key: 'trade', label: 'Trade' },
-  { key: 'markets', label: 'Markets' },
-  { key: 'portfolio', label: 'Portfolio' },
-  { key: 'receipt', label: 'Receipt' },
-];
 
 /* ─────────────────────────────────────────────
    HeroV2 — Centered Glass Hero
@@ -71,73 +62,12 @@ function DreamDexIcon({ className, ...props }: React.SVGProps<SVGSVGElement>) {
 }
 
 interface HeroV2Props {
-  activeTab: ActiveTab;
-  onTabChange: (tab: ActiveTab) => void;
+  activeTab?: ActiveTab;
+  onTabChange?: (tab: ActiveTab) => void;
 }
 
-export default function HeroV2({ activeTab, onTabChange }: HeroV2Props) {
-  const tabRefs = useRef<Map<ActiveTab, HTMLButtonElement | null>>(new Map());
-  const [pillStyle, setPillStyle] = useState<{ left: number; width: number } | null>(null);
-  const [initialMeasure, setInitialMeasure] = useState(true);
+export default function HeroV2({ activeTab, onTabChange }: HeroV2Props = {}) {
   const reducedMotion = useReducedMotionSafe();
-
-  /* Measure the active tab button and position the sliding pill */
-  const measurePill = useCallback(() => {
-    const btn = tabRefs.current.get(activeTab);
-    if (!btn) return;
-    const rect = btn.getBoundingClientRect();
-    const container = btn.parentElement;
-    if (!container) return;
-    const containerRect = container.getBoundingClientRect();
-    setPillStyle({
-      left: rect.left - containerRect.left,
-      width: rect.width,
-    });
-  }, [activeTab]);
-
-  /* On mount and when activeTab changes, measure pill position */
-  useEffect(() => {
-    if (initialMeasure) {
-      measurePill();
-      const t = setTimeout(() => setInitialMeasure(false), 50);
-      return () => clearTimeout(t);
-    }
-    measurePill();
-  }, [activeTab, initialMeasure, measurePill]);
-
-  /* Re-measure on window resize */
-  useEffect(() => {
-    const onResize = () => measurePill();
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
-  }, [measurePill]);
-
-  /* Keyboard arrow-key navigation between tabs */
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent, tab: ActiveTab) => {
-      const idx = TABS.findIndex((t) => t.key === tab);
-      if (idx === -1) return;
-
-      let nextIdx = -1;
-      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-        nextIdx = (idx + 1) % TABS.length;
-      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-        nextIdx = (idx - 1 + TABS.length) % TABS.length;
-      } else if (e.key === 'Home') {
-        nextIdx = 0;
-      } else if (e.key === 'End') {
-        nextIdx = TABS.length - 1;
-      }
-
-      if (nextIdx !== -1) {
-        e.preventDefault();
-        const nextTab = TABS[nextIdx];
-        onTabChange(nextTab.key);
-        tabRefs.current.get(nextTab.key)?.focus();
-      }
-    },
-    [onTabChange]
-  );
 
   /* ── Staggered entrance variants ────────── */
   const containerVariants = safeVariants(reducedMotion, {
@@ -294,43 +224,6 @@ export default function HeroV2({ activeTab, onTabChange }: HeroV2Props) {
           >
             <span>Enter App</span>
           </motion.a>
-        </motion.div>
-
-        {/* 8. Tab-Bar with Sliding Pill */}
-        <motion.div className={styles.tabBarContainer} variants={itemVariants}>
-          {pillStyle && (
-            <span
-              className={`${styles.tabPill} ${initialMeasure ? styles.tabPillSnap : ''}`}
-              style={{
-                transform: `translateX(${pillStyle.left}px)`,
-                width: pillStyle.width,
-              }}
-              aria-hidden="true"
-            />
-          )}
-          <div
-            className={styles.tabBarInner}
-            role="tablist"
-            aria-label="Panel navigation"
-          >
-            {TABS.map((tab) => (
-              <button
-                key={tab.key}
-                ref={(el) => {
-                  tabRefs.current.set(tab.key, el);
-                }}
-                role="tab"
-                id={`hero-tab-${tab.key}`}
-                aria-selected={activeTab === tab.key}
-                tabIndex={activeTab === tab.key ? 0 : -1}
-                className={`${styles.tabItem} ${activeTab === tab.key ? styles.tabItemActive : ''}`}
-                onClick={() => onTabChange(tab.key)}
-                onKeyDown={(e) => handleKeyDown(e, tab.key)}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
         </motion.div>
 
       </motion.div>

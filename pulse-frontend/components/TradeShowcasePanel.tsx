@@ -118,6 +118,64 @@ export default function TradeShowcasePanel({ activeTab, onTabChange }: TradeShow
   } | null>(null);
 
   const chartRef = useRef<HTMLDivElement>(null);
+  const tabRefs = useRef<Map<ActiveTab, HTMLButtonElement | null>>(new Map());
+  const [pillStyle, setPillStyle] = useState<{ left: number; width: number } | null>(null);
+  const [initialMeasure, setInitialMeasure] = useState(true);
+
+  /* Measure the active tab button and position the sliding pill */
+  const measurePill = useCallback(() => {
+    const btn = tabRefs.current.get(activeTab);
+    if (!btn) return;
+    const rect = btn.getBoundingClientRect();
+    const container = btn.parentElement;
+    if (!container) return;
+    const containerRect = container.getBoundingClientRect();
+    setPillStyle({
+      left: rect.left - containerRect.left,
+      width: rect.width,
+    });
+  }, [activeTab]);
+
+  useEffect(() => {
+    if (initialMeasure) {
+      measurePill();
+      const t = setTimeout(() => setInitialMeasure(false), 50);
+      return () => clearTimeout(t);
+    }
+    measurePill();
+  }, [activeTab, initialMeasure, measurePill]);
+
+  useEffect(() => {
+    const onResize = () => measurePill();
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, [measurePill]);
+
+  const handleTabKeyDown = useCallback(
+    (e: React.KeyboardEvent, tab: ActiveTab) => {
+      const idx = NAV_ITEMS.findIndex((t) => t.key === tab);
+      if (idx === -1) return;
+
+      let nextIdx = -1;
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        nextIdx = (idx + 1) % NAV_ITEMS.length;
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        nextIdx = (idx - 1 + NAV_ITEMS.length) % NAV_ITEMS.length;
+      } else if (e.key === 'Home') {
+        nextIdx = 0;
+      } else if (e.key === 'End') {
+        nextIdx = NAV_ITEMS.length - 1;
+      }
+
+      if (nextIdx !== -1) {
+        e.preventDefault();
+        const nextTab = NAV_ITEMS[nextIdx];
+        onTabChange(nextTab.key);
+        tabRefs.current.get(nextTab.key)?.focus();
+      }
+    },
+    [onTabChange]
+  );
 
   /** Switch to Trade tab with a specific market loaded. */
   const handleTradeMarket = useCallback((marketId: string) => {
@@ -303,16 +361,41 @@ export default function TradeShowcasePanel({ activeTab, onTabChange }: TradeShow
             <span className={styles.brandName}>PULSE</span>
           </div>
 
-          {/* Decorative / informational nav labels -- not interactive controls */}
-          <div className={styles.navLabels} aria-hidden="true">
-            {NAV_ITEMS.map((item) => (
+          {/* Interactive Navigation Tab Bar */}
+          <div className={styles.tabBarContainer}>
+            {pillStyle && (
               <span
-                key={item.key}
-                className={`${styles.navLabel} ${activeTab === item.key ? styles.navLabelActive : ''}`}
-              >
-                {item.label}
-              </span>
-            ))}
+                className={`${styles.tabPill} ${initialMeasure ? styles.tabPillSnap : ''}`}
+                style={{
+                  transform: `translateX(${pillStyle.left}px)`,
+                  width: pillStyle.width,
+                }}
+                aria-hidden="true"
+              />
+            )}
+            <div
+              className={styles.tabBarInner}
+              role="tablist"
+              aria-label="Panel navigation"
+            >
+              {NAV_ITEMS.map((tab) => (
+                <button
+                  key={tab.key}
+                  ref={(el) => {
+                    tabRefs.current.set(tab.key, el);
+                  }}
+                  role="tab"
+                  id={`panel-tab-${tab.key}`}
+                  aria-selected={activeTab === tab.key}
+                  tabIndex={activeTab === tab.key ? 0 : -1}
+                  className={`${styles.tabItem} ${activeTab === tab.key ? styles.tabItemActive : ''}`}
+                  onClick={() => onTabChange(tab.key)}
+                  onKeyDown={(e) => handleTabKeyDown(e, tab.key)}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className={styles.appBarRight}>
