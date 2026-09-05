@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ExternalLink, Menu, X, TrendingUp, Briefcase, BookOpen, Settings, Globe } from 'lucide-react';
+import { ExternalLink, Menu, X, TrendingUp, Briefcase, BookOpen, Settings, Globe, Bot } from 'lucide-react';
 import styles from './AppChromeNav.module.css';
 import ConnectButton from './ConnectButton';
 
@@ -71,6 +71,13 @@ export default function AppChromeNav() {
               How to Trade
             </Link>
             <Link
+              href="/connect-agent"
+              className={`${styles.navLink} ${isActive('/connect-agent') ? styles.navLinkActive : ''}`}
+              aria-current={isActive('/connect-agent') ? 'page' : undefined}
+            >
+              Connect to Agent
+            </Link>
+            <Link
               href="/settings"
               className={`${styles.navLink} ${isActive('/settings') ? styles.navLinkActive : ''}`}
               aria-current={isActive('/settings') ? 'page' : undefined}
@@ -132,6 +139,14 @@ export default function AppChromeNav() {
                 How to Trade
               </Link>
               <Link
+                href="/connect-agent"
+                className={`${styles.mobileMenuLink} ${isActive('/connect-agent') ? styles.mobileMenuLinkActive : ''}`}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <Bot size={18} aria-hidden="true" />
+                Connect to Agent
+              </Link>
+              <Link
                 href="/settings"
                 className={`${styles.mobileMenuLink} ${isActive('/settings') ? styles.mobileMenuLinkActive : ''}`}
                 onClick={() => setMobileMenuOpen(false)}
@@ -172,6 +187,14 @@ export default function AppChromeNav() {
         >
           <Briefcase size={20} aria-hidden="true" />
           <span className={styles.bottomNavLabel}>Portfolio</span>
+        </Link>
+        <Link
+          href="/connect-agent"
+          className={`${styles.bottomNavLink} ${isActive('/connect-agent') ? styles.bottomNavLinkActive : ''}`}
+          aria-current={isActive('/connect-agent') ? 'page' : undefined}
+        >
+          <Bot size={20} aria-hidden="true" />
+          <span className={styles.bottomNavLabel}>Agent</span>
         </Link>
         <Link
           href="/settings"

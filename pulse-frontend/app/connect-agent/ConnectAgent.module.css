@@ -1,0 +1,352 @@
+/* ─────────────────────────────────────────────
+   ConnectAgent.module.css
+   /connect-agent -- AI-assistant (MCP) connection page
+   Typography and spacing mapped to design tokens.
+   NO EMOJI in code, comments, or styling.
+───────────────────────────────────────────── */
+
+.page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background-color: var(--color-shadow-mountain);
+  color: var(--color-paper);
+  display: flex;
+  flex-direction: column;
+}
+
+.main {
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: var(--space-7) var(--space-5) var(--space-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* ── Header ────────────────────────────────── */
+.headerSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.h1 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.85rem, 3.5vw, 2.6rem);
+  letter-spacing: -0.01em;
+  color: var(--color-paper);
+  line-height: 1.15;
+  margin: 0;
+}
+
+.subcopy {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  font-weight: 400;
+  color: rgba(242, 237, 225, var(--opacity-secondary));
+  max-width: 36rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ── Glass Card ─────────────────────────────── */
+.card {
+  background: rgba(14, 18, 26, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.cardIcon {
+  color: rgba(242, 237, 225, var(--opacity-muted));
+  flex-shrink: 0;
+}
+
+.cardTitle {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  font-weight: 600;
+  color: var(--color-paper);
+  margin: 0;
+}
+
+/* ── Explainer ──────────────────────────────── */
+.explainerText {
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  color: rgba(242, 237, 225, var(--opacity-secondary));
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ── Honesty Callout ───────────────────────── */
+.honestyCallout {
+  display: flex;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  background: rgba(251, 191, 36, 0.06);
+  border: 1px solid rgba(251, 191, 36, 0.15);
+  border-radius: 8px;
+}
+
+.honestyIcon {
+  color: #fbbf24;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.honestyText {
+  font-family: var(--font-body);
+  font-size: var(--text-micro);
+  color: rgba(242, 237, 225, var(--opacity-secondary));
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ── Field Group ────────────────────────────── */
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.fieldLabel {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(242, 237, 225, var(--opacity-secondary));
+}
+
+.fieldHint {
+  font-family: var(--font-body);
+  font-size: var(--text-micro);
+  color: rgba(242, 237, 225, var(--opacity-muted));
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* ── Address Input ──────────────────────────── */
+.addressInput {
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  color: var(--color-paper);
+  outline: none;
+  transition: border-color var(--transition-fast);
+  min-height: 44px;
+}
+
+.addressInput:focus {
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.addressInput::placeholder {
+  color: rgba(242, 237, 225, var(--opacity-muted));
+}
+
+/* ── Error Box ──────────────────────────────── */
+.errorBox {
+  display: flex;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: 8px;
+}
+
+.errorIcon {
+  color: #f87171;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.errorText {
+  font-family: var(--font-body);
+  font-size: var(--text-micro);
+  color: rgba(242, 237, 225, var(--opacity-secondary));
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ── Buttons ────────────────────────────────── */
+.primaryButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: 0.6rem 1.4rem;
+  border-radius: 8px;
+  background: var(--color-paper);
+  color: #0c150c;
+  border: none;
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform var(--transition-fast), filter var(--transition-fast);
+  min-height: 44px;
+  width: fit-content;
+}
+
+.primaryButton:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+.primaryButton:active {
+  transform: translateY(0);
+}
+
+.buttonDisabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  filter: none;
+}
+
+/* ── Success Section ────────────────────────── */
+.successSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding-top: var(--space-2);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.codeRow {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-2);
+}
+
+.codeBlock {
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  padding: var(--space-3);
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  line-height: 1.5;
+  color: #cfe0ff;
+  white-space: pre-wrap;
+  word-break: break-all;
+  margin: 0;
+}
+
+.copyRow {
+  display: flex;
+}
+
+.copyButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0.45rem 0.9rem;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-family: var(--font-body);
+  font-size: var(--text-micro);
+  font-weight: 500;
+  color: var(--color-paper);
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+  min-height: 44px;
+  white-space: nowrap;
+}
+
+.copyButton:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.copyButtonText {
+  font-weight: 500;
+}
+
+/* ── Steps List ─────────────────────────────── */
+.stepsList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding-left: var(--space-5);
+}
+
+.stepsList li {
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  color: rgba(242, 237, 225, var(--opacity-secondary));
+  line-height: 1.5;
+}
+
+/* ── Info Callout (ChatGPT note) ────────────── */
+.infoCallout {
+  display: flex;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  background: rgba(13, 43, 82, 0.25);
+  border: 1px solid rgba(93, 155, 233, 0.2);
+  border-radius: 8px;
+}
+
+.infoIcon {
+  color: #7fb3e8;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.infoText {
+  font-family: var(--font-body);
+  font-size: var(--text-micro);
+  color: rgba(242, 237, 225, var(--opacity-secondary));
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ── Responsive ─────────────────────────────── */
+@media (max-width: 640px) {
+  .main {
+    padding: var(--space-6) var(--space-4) calc(var(--space-7) + 64px);
+  }
+
+  .h1 {
+    font-size: clamp(1.5rem, 5vw, 2rem);
+  }
+
+  .subcopy {
+    font-size: var(--text-small);
+  }
+
+  .card {
+    padding: var(--space-4);
+  }
+
+  .codeRow {
+    flex-direction: column;
+  }
+
+  .copyButton {
+    justify-content: center;
+  }
+}
