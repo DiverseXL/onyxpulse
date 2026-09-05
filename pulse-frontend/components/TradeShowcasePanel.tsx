@@ -750,7 +750,6 @@ export default function TradeShowcasePanel({ activeTab, onTabChange }: TradeShow
           <div className={styles.outcomeRow}>
             <div className={styles.outcomeInfo}>
               <span className={styles.outcomeTagYes}>Yes</span>
-              <span className={styles.outcomePrice}>{data.yesAskCents}¢</span>
               <span
                 className={`${styles.outcomeDelta} ${
                   data.deltaPositive ? styles.deltaPositiveText : styles.deltaNegativeText
@@ -771,7 +770,6 @@ export default function TradeShowcasePanel({ activeTab, onTabChange }: TradeShow
           <div className={styles.outcomeRow}>
             <div className={styles.outcomeInfo}>
               <span className={styles.outcomeTagNo}>No</span>
-              <span className={styles.outcomePrice}>{data.noAskCents}¢</span>
               <span
                 className={`${styles.outcomeDelta} ${
                   data.deltaPositive ? styles.deltaNegativeText : styles.deltaPositiveText
