@@ -593,8 +593,7 @@ export default function TradeShowcasePanel({ activeTab, onTabChange }: TradeShow
                 }`}
                 onClick={() => setSelectedSide('yes')}
               >
-                <span>Yes</span>
-                <span>{data.yesAskCents}¢</span>
+                Yes
               </button>
               <button
                 type="button"
@@ -604,8 +603,7 @@ export default function TradeShowcasePanel({ activeTab, onTabChange }: TradeShow
                 }`}
                 onClick={() => setSelectedSide('no')}
               >
-                <span>No</span>
-                <span>{data.noAskCents}¢</span>
+                No
               </button>
             </div>
 
