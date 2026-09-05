@@ -14,8 +14,11 @@
  * read-only or draft-only; the server never holds a private key and can
  * never move funds.
  *
- * Deploy as a long-running Node process (Railway / Render / Fly / a VPS).
- * Node >= 22.6 is required (native TypeScript type stripping).
+ * Deploy as a long-running Node process (Railway / Render / Fly / a VPS):
+ * `npm run railway-start`. Node >= 22.6 is required (native TypeScript type
+ * stripping). There is deliberately NO `npm start` script — Vercel treats a
+ * `start` script as a Node.js server entrypoint and would deploy this host
+ * instead of the serverless `api/*` functions.
  */
 
 import { readConfig } from "./config.ts";

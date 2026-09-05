@@ -91,7 +91,11 @@ the user provides their own **public** address during the connection flow
 ```bash
 cd pulse/mcp-server
 npm install
-npm start          # Node >= 22.6 (native TS type stripping)
+npm run railway-start   # Node >= 22.6 (native TS type stripping)
+
+# (No `npm start` script exists on purpose — a `start` script makes Vercel
+# treat the project as a Node.js server and route everything to it instead of
+# the serverless `api/*` functions.)
 ```
 
 Then:
@@ -133,11 +137,13 @@ Two deployment surfaces exist, sharing one code path (`src/handlers.ts`):
 ### Option A — long-running Node host (Railway / Render / Fly / VPS)
 
 Point the host at the `pulse/mcp-server` directory and run
-`npm install && npm start`. Railway injects `PORT` automatically. Sessions are
-stateful (in-memory, idle-swept) and tokens live in the in-memory store unless
-`PULSE_MCP_SIGNING_SECRET` is set.
+`npm install && npm run railway-start`. Railway injects `PORT` automatically.
+Sessions are stateful (in-memory, idle-swept) and tokens live in the
+in-memory store unless `PULSE_MCP_SIGNING_SECRET` is set.
 
-`npm start` runs this mode directly.
+`npm run railway-start` runs this mode directly. (There is intentionally NO
+`start` script: Vercel treats a `start` script as a Node.js server entrypoint
+and would deploy that instead of the serverless `api/*` functions.)
 
 ### Option B — Vercel (serverless)
 
@@ -185,10 +191,11 @@ environment so `draft_trade_link` returns URLs users can actually open.
 
 - `src/handlers.ts` — ALL request handling lives here, shared by both hosts:
   `createRequestHandlers` returns the `/`, `/connect`, and `/mcp` handlers.
-- `src/httpServer.ts` + `src/railway.ts` — long-running host only (`npm start`
-  → Railway / Render / Fly / a VPS): `httpServer.ts` routes paths to the
-  handlers and owns the stateful session map + idle sweeper; `railway.ts` is
-  the entrypoint. Neither is named `index.ts`/`server.ts` because Vercel
+- `src/httpServer.ts` + `src/railway.ts` — long-running host only
+  (`npm run railway-start` → Railway / Render / Fly / a VPS): `httpServer.ts`
+  routes paths to the handlers and owns the stateful session map + idle
+  sweeper; `railway.ts` is the entrypoint. Neither is named
+  `index.ts`/`server.ts` and there is no `start` script, because Vercel
   auto-detects those as a Node server entrypoint and would route every
   request to it, shadowing the serverless functions below.
 - `api/*.ts` — Vercel serverless functions: thin adapters that call the same
