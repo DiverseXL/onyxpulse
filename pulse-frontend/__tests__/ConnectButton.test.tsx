@@ -25,7 +25,18 @@ vi.mock('@/lib/wallet/PulseWalletContext', () => ({
     connect: vi.fn(),
     disconnect: vi.fn(),
     sttBalance: '0.0',
+    usdcBalance: '0.00',
     error: null,
+  }),
+}));
+
+// Mock useTestUsdcBalance
+vi.mock('@/lib/wallet/useTestUsdcBalance', () => ({
+  useTestUsdcBalance: () => ({
+    balance: '1,250.00',
+    rawBalance: 1250,
+    isLoading: false,
+    refetch: vi.fn(),
   }),
 }));
 
@@ -42,4 +53,19 @@ describe('ConnectButton', () => {
     render(<ConnectButton />);
     expect(screen.getByText('Connect')).toBeInTheDocument();
   });
+
+  it('renders test USDC balance and address pill when connected', async () => {
+    const wagmi = await import('wagmi');
+    vi.spyOn(wagmi, 'useAccount').mockReturnValue({
+      isConnected: true,
+      address: '0x1234567890abcdef1234567890abcdef12345678',
+    } as any);
+
+    render(<ConnectButton />);
+    expect(screen.getByText('1,250.00')).toBeInTheDocument();
+    expect(screen.getByText('test USDC')).toBeInTheDocument();
+    expect(screen.getByText('0x1234...5678')).toBeInTheDocument();
+  });
 });
+
+

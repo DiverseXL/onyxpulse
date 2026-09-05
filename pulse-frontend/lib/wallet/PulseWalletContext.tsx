@@ -14,6 +14,7 @@ import {
 } from 'react';
 import { useAccount, useBalance, useDisconnect } from 'wagmi';
 import { formatEther } from 'viem';
+import { useTestUsdcBalance } from './useTestUsdcBalance';
 
 /* -------------------------------------------------------------------------- */
 /*  Types                                                                      */
@@ -32,6 +33,8 @@ export interface PulseWalletValue {
   disconnect: () => void;
   /** Live STT balance in human-readable format (e.g. "0.0"). */
   sttBalance: string;
+  /** Live test USDC balance in human-readable format (e.g. "10,000.00"). */
+  usdcBalance?: string;
   /** Last connection error, if any. */
   error: string | null;
 }
@@ -63,6 +66,9 @@ export function PulseWalletProvider({ children }: { children: React.ReactNode })
     return formatEther(sttData.value);
   }, [sttData]);
 
+  /* -- Test USDC ERC20 balance -------------------------------------------- */
+  const { balance: usdcBalance } = useTestUsdcBalance();
+
   /* -- Connection status --------------------------------------------------- */
   const connectionStatus: ConnectionStatus = useMemo(() => {
     if (isConnecting) return 'connecting';
@@ -84,9 +90,10 @@ export function PulseWalletProvider({ children }: { children: React.ReactNode })
       connect,
       disconnect,
       sttBalance,
+      usdcBalance,
       error: null,
     }),
-    [connectionStatus, address, connect, disconnect, sttBalance],
+    [connectionStatus, address, connect, disconnect, sttBalance, usdcBalance],
   );
 
   return (

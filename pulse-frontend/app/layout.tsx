@@ -40,6 +40,14 @@ export const metadata: Metadata = {
       'BTC/ETH direction trading on DreamDEX Event Contracts. Capped risk, verifiable on-chain settlement.',
     type: 'website',
   },
+  icons: {
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon.ico' },
+    ],
+    shortcut: '/favicon.svg',
+    apple: '/favicon.svg',
+  },
 };
 
 export default function RootLayout({

@@ -11,27 +11,10 @@
  */
 
 import { http, createConfig } from 'wagmi';
-import { defineChain } from 'viem';
 import { injected } from 'wagmi/connectors';
+import { somniaTestnet } from './chain';
 
-/* -------------------------------------------------------------------------- */
-/*  Chain definition                                                           */
-/* -------------------------------------------------------------------------- */
-
-export const somniaTestnet = defineChain({
-  id: 50312,
-  name: 'Somnia Testnet',
-  nativeCurrency: { name: 'Somnia Test Token', symbol: 'STT', decimals: 18 },
-  rpcUrls: {
-    default: { http: ['https://api.infra.testnet.somnia.network/http'] },
-  },
-  blockExplorers: {
-    default: {
-      name: 'Somnia Explorer',
-      url: 'https://shannon-explorer.somnia.network',
-    },
-  },
-});
+export { somniaTestnet };
 
 /* -------------------------------------------------------------------------- */
 /*  wagmi config                                                               */

@@ -10,9 +10,12 @@
  */
 
 import { useCallback, useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useConnect, useAccount, useBalance } from 'wagmi';
 import { formatEther } from 'viem';
-import { Loader2, Wallet } from 'lucide-react';
+import { Loader2, Wallet, Coins } from 'lucide-react';
+import { useTestUsdcBalance } from '@/lib/wallet/useTestUsdcBalance';
+import styles from './ConnectButton.module.css';
 
 export default function ConnectButton() {
   const [mounted, setMounted] = useState(false);
@@ -26,6 +29,7 @@ export default function ConnectButton() {
   });
 
   const sttBalance = balanceData ? formatEther(balanceData.value) : '0.0';
+  const { balance: usdcBalance } = useTestUsdcBalance();
 
   const handleConnect = useCallback(() => {
     setError(null);
@@ -41,63 +45,37 @@ export default function ConnectButton() {
   /* -- Waiting for client hydration --------------------------------------- */
   if (!mounted) {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.25rem' }}>
-        <div
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.4rem',
-            padding: '0.4rem 0.9rem',
-            borderRadius: '9999px',
-            background: 'var(--color-rust)',
-            color: 'var(--color-paper)',
-            fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
-            fontSize: 'var(--text-small)',
-            fontWeight: 600,
-            border: 'none',
-            visibility: 'hidden',
-            height: '100%',
-          }}
-        />
+      <div className={styles.container}>
+        <div className={styles.skeletonPlaceholder} />
       </div>
     );
   }
 
-  /* -- Connected state: truncated address pill + STT balance ---------------- */
+  /* -- Connected state: test USDC balance + truncated address pill + STT balance */
   if (isConnected && address) {
     const truncated = `${address.slice(0, 6)}...${address.slice(-4)}`;
     return (
-      <div
-        style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '0.5rem',
-        }}
-      >
+      <div className={styles.connectedWrapper}>
+        {/* Test USDC balance chip beside the wallet button */}
+        <Link
+          href="/faucet"
+          className={styles.usdcChip}
+          title="Test USDC Balance (click to get more from Faucet)"
+          aria-label={`Test USDC Balance: ${usdcBalance}`}
+        >
+          <Coins size={13} className={styles.usdcIcon} aria-hidden="true" />
+          <span className={styles.usdcAmount}>{usdcBalance}</span>
+          <span className={styles.usdcLabel}>test USDC</span>
+        </Link>
+
+        {/* Truncated address + STT pill */}
         <div
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.4rem',
-            padding: '0.4rem 0.75rem',
-            borderRadius: '9999px',
-            background: 'rgba(255, 255, 255, 0.06)',
-            border: '1px solid rgba(255, 255, 255, 0.15)',
-            fontFamily: 'var(--font-mono)',
-            fontSize: 'var(--text-small)',
-            fontWeight: 500,
-            color: 'var(--color-paper)',
-          }}
+          className={styles.addressPill}
           title={`STT Balance: ${parseFloat(sttBalance).toFixed(4)}`}
         >
-          <Wallet size={13} aria-hidden="true" style={{ opacity: 0.6 }} />
-          <span>{truncated}</span>
-          <span
-            style={{
-              opacity: 0.48,
-              fontSize: 'var(--text-micro)',
-            }}
-          >
+          <Wallet size={13} className={styles.walletIcon} aria-hidden="true" />
+          <span className={styles.addressText}>{truncated}</span>
+          <span className={styles.sttAmount}>
             {parseFloat(sttBalance).toFixed(2)} STT
           </span>
         </div>
@@ -107,36 +85,12 @@ export default function ConnectButton() {
 
   /* -- Disconnected state: connect button ----------------------------------- */
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.25rem' }}>
+    <div className={styles.container}>
       <button
         type="button"
         onClick={handleConnect}
         disabled={isPending}
-        style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '0.4rem',
-          padding: '0.4rem 0.9rem',
-          borderRadius: '9999px',
-          background: isPending ? 'rgba(193, 80, 46, 0.5)' : 'var(--color-rust)',
-          color: 'var(--color-paper)',
-          fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
-          fontSize: 'var(--text-small)',
-          fontWeight: 600,
-          border: 'none',
-          cursor: isPending ? 'wait' : 'pointer',
-          transition: 'transform 150ms ease, filter 150ms ease',
-        }}
-        onMouseEnter={(e) => {
-          if (!isPending) {
-            e.currentTarget.style.transform = 'translateY(-1px)';
-            e.currentTarget.style.filter = 'brightness(1.05)';
-          }
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.transform = '';
-          e.currentTarget.style.filter = '';
-        }}
+        className={styles.connectButton}
         aria-label="Connect MetaMask wallet"
       >
         {isPending ? (
@@ -149,17 +103,7 @@ export default function ConnectButton() {
         )}
       </button>
       {error && (
-        <span
-          role="alert"
-          style={{
-            fontFamily: 'var(--font-body)',
-            fontSize: 'var(--text-micro)',
-            color: '#f87171',
-            maxWidth: '200px',
-            textAlign: 'right',
-            lineHeight: 1.3,
-          }}
-        >
+        <span role="alert" className={styles.errorMessage}>
           {error}
         </span>
       )}
