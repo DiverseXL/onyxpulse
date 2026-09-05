@@ -1062,7 +1062,6 @@ export default function MarketDetailPage() {
             <div className={styles.outcomeRow}>
               <div className={styles.outcomeInfo}>
                 <span className={styles.outcomeTagYes}>Yes</span>
-                <span className={styles.outcomePrice}>{data.yesAskCents}¢</span>
                 <span
                   className={`${styles.outcomeDelta} ${
                     data.deltaPositive ? styles.deltaPositiveText : styles.deltaNegativeText
@@ -1083,7 +1082,6 @@ export default function MarketDetailPage() {
             <div className={styles.outcomeRow}>
               <div className={styles.outcomeInfo}>
                 <span className={styles.outcomeTagNo}>No</span>
-                <span className={styles.outcomePrice}>{data.noAskCents}¢</span>
                 <span
                   className={`${styles.outcomeDelta} ${
                     data.deltaPositive ? styles.deltaNegativeText : styles.deltaPositiveText
@@ -1185,12 +1183,7 @@ export default function MarketDetailPage() {
                     {orderType === 'buy' ? 'Buy' : 'Sell'} {selectedSide === 'yes' ? 'Yes' : 'No'}
                   </td>
                 </tr>
-                <tr>
-                  <td className={styles.rejectedLabel}>Price</td>
-                  <td className={styles.rejectedValue}>
-                    {selectedSide === 'yes' ? data?.yesAskCents : data?.noAskCents}&cent;
-                  </td>
-                </tr>
+
                 <tr>
                   <td className={styles.rejectedLabel}>Amount</td>
                   <td className={styles.rejectedValue}>{amount} test USDC</td>
