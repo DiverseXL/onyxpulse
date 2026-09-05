@@ -1,10 +1,10 @@
 /**
  * Request handlers shared by every deployment surface.
  *
- * Both the long-running Node http server (`server.ts`) and the Vercel
- * serverless functions (`api/*.ts`) dispatch through these — one code path,
- * so behavior (auth gate, session semantics, tool registration) cannot drift
- * between hosts.
+ * Both the long-running Node http server (`httpServer.ts`, started by
+ * `railway.ts`) and the Vercel serverless functions (`api/*.ts`) dispatch
+ * through these — one code path, so behavior (auth gate, session semantics,
+ * tool registration) cannot drift between hosts.
  *
  * Auth (V1): every /mcp request must carry `Authorization: Bearer <token>`
  * where the token came from POST /connect. Tokens bind a public wallet

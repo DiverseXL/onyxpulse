@@ -1,6 +1,10 @@
 /**
  * Long-running Node http server for the Pulse MCP service.
  *
+ * NOTE: deliberately NOT named `server.ts` — Vercel auto-detects `server.ts`
+ * (root or src/) as a Node.js server entrypoint and would deploy this
+ * long-running host instead of the serverless `api/*` functions.
+ *
  * Suitable for Railway / Render / Fly / a VPS. Stateful MCP sessions are kept
  * in memory and swept after an idle TTL. Serverless hosts (Vercel) do NOT use
  * this module — they use the handlers in `handlers.ts` directly via `api/*`.

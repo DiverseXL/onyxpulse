@@ -1,5 +1,13 @@
 /**
- * Pulse MCP server entrypoint.
+ * Pulse MCP server entrypoint (long-running host only — Railway / Render /
+ * Fly / a VPS).
+ *
+ * NOTE: this file is intentionally NOT named `index.ts` or `server.ts` and
+ * `httpServer.ts` is intentionally NOT named `server.ts`: Vercel auto-detects
+ * those filenames as a Node.js server entrypoint and routes every request to
+ * it, which would shadow the serverless `api/*` functions. The Vercel
+ * deployment uses ONLY `api/*.ts` (see vercel.json rewrites); this entrypoint
+ * is for platforms that run `npm start` as a long-lived process.
  *
  * A hosted, remote MCP server (Streamable HTTP transport) for Pulse —
  * DreamDEX binary markets on the Somnia Shannon testnet. All tools are
@@ -12,7 +20,7 @@
 
 import { readConfig } from "./config.ts";
 import { createTokenIssuer, tokenModeLabel } from "./tokenIssuer.ts";
-import { createHttpServer } from "./server.ts";
+import { createHttpServer } from "./httpServer.ts";
 
 const config = readConfig();
 const tokens = createTokenIssuer(config);

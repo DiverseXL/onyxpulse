@@ -185,8 +185,12 @@ environment so `draft_trade_link` returns URLs users can actually open.
 
 - `src/handlers.ts` — ALL request handling lives here, shared by both hosts:
   `createRequestHandlers` returns the `/`, `/connect`, and `/mcp` handlers.
-- `src/server.ts` — long-running host only: routes paths to the handlers and
-  owns the stateful session map + idle sweeper.
+- `src/httpServer.ts` + `src/railway.ts` — long-running host only (`npm start`
+  → Railway / Render / Fly / a VPS): `httpServer.ts` routes paths to the
+  handlers and owns the stateful session map + idle sweeper; `railway.ts` is
+  the entrypoint. Neither is named `index.ts`/`server.ts` because Vercel
+  auto-detects those as a Node server entrypoint and would route every
+  request to it, shadowing the serverless functions below.
 - `api/*.ts` — Vercel serverless functions: thin adapters that call the same
   handlers in stateless mode. `vercel.json` rewrites clean `/mcp`, `/connect`,
   `/` paths onto them.

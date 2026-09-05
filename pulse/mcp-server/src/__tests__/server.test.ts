@@ -14,7 +14,7 @@ import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/
 
 import { readConfig } from "../config.ts";
 import { AuthStore } from "../authStore.ts";
-import { createHttpServer } from "../server.ts";
+import { createHttpServer } from "../httpServer.ts";
 
 const VALID_ADDRESS = "0x1234567890AbcdEF1234567890aBcdef12345678";
 
