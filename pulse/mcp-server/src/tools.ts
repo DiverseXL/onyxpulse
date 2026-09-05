@@ -25,7 +25,7 @@ import {
   getMyPortfolio,
   getMyOpenPositions,
   getMyRedeemablePositions,
-} from "../../src/engine/index.ts";
+} from "./engine/index.ts";
 
 import {
   formatMarket,

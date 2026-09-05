@@ -6,15 +6,15 @@
  * before being embedded in JSON-RPC tool results.
  */
 
-import type { BinaryMarket } from "../../src/engine/index.ts";
+import type { BinaryMarket } from "./engine/index.ts";
 import type {
   OrderBookSnapshot,
   Portfolio,
   PortfolioPosition,
   SpotPrice,
   ClaimablePositionInfo,
-} from "../../src/engine/index.ts";
-import { fromBigintAmount } from "../../src/engine/index.ts";
+} from "./engine/index.ts";
+import { fromBigintAmount } from "./engine/index.ts";
 
 /** Convert a raw scaled integer (bigint or decimal string) to human units. */
 function humanUnits(raw: bigint | string, decimals: number): string {
