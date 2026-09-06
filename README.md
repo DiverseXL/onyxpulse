@@ -214,7 +214,6 @@ Pulse's lifecycle demo therefore waits for natural market resolution. The docume
 DreamDEX's operator/session-key implementation is source-verified and live-tested for spot markets. Binary Event Contract pools do not expose the same operator gate. A permission grant can succeed while the corresponding binary-pool authorization check reverts.
 
 This is a protocol limitation, not a Pulse implementation bug. Pulse's Event Contract trading path therefore uses direct owner-signed transactions.
-
 ### Gasless trading was attempted and rolled back
 
 Pulse previously built a Thirdweb smart-wallet sponsorship path:
@@ -436,18 +435,6 @@ onyxpulse/
 
 The two spike directories contain historical account-abstraction experiments. They are not part of the active Pulse trading path.
 
-## Submission Checklist
-
-The following assessment uses the stated Somnia and DreamDEX hackathon criteria.
-
-| Criterion | Weight | Status | Evidence and honest assessment |
-|---|---:|---|---|
-| Innovation and Originality | 20% | Built and demonstrated | Pulse combines a consumer Event Contract terminal, verifiable settlement receipts, live order-book interaction, complete-set mechanics, and an MCP read/draft interface. The MCP path is intentionally non-custodial and does not autonomously execute trades. |
-| Technical Implementation | 25% | Built and verified | The engine has `315` passing tests. The frontend uses Next.js, wagmi, viem, WebSocket-backed SDK subscriptions, on-chain status gates, direct balance reads, receipts, and DreamDEX contract integration. The production trading path uses direct owner signing rather than the rolled-back sponsored-wallet experiment. |
-| User Experience and Design | 20% | Built and live-tested | The frontend includes market discovery, market detail, order-book trading, portfolio, faucet onboarding, settings, locked-market handling, error states, receipt pages, QR receipts, responsive layouts, and an agent connection flow. |
-| Business and Ecosystem Impact | 20% | Partially demonstrated | Pulse is built specifically for DreamDEX Event Contracts on Somnia and exposes reusable engine and MCP integration surfaces. It remains testnet-only, uses test USDC, and does not yet claim production custody, OAuth, or mainnet readiness. |
-| Presentation and Demo | 15% | Reproducible, with testnet timing constraint | `npm run demo` provides the full real lifecycle and waits for natural oracle resolution. `npm run demo:session` documents the operator path and its binary-market limitation. A complete lifecycle can take several minutes because the testnet FakeOracle address is unavailable. |
-
 ## Current Verification Boundary
 
 Pulse is real where the repository and live testnet evidence say it is real:
@@ -461,13 +448,3 @@ Pulse is real where the repository and live testnet evidence say it is real:
 - Real public receipt routes
 - Real deployed MCP read and draft tools
 - Real automated engine coverage
-
-Pulse does not claim:
-
-- Production or mainnet readiness
-- Gasless trading in the active frontend
-- Autonomous agent execution
-- Full OAuth 2.1 authorization
-- Binary Event Contract execution through operator/session-key delegation
-- Instant demo settlement through an accessible FakeOracle
-- Use of real funds
