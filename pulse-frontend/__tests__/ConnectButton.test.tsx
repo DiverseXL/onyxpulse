@@ -15,6 +15,9 @@ vi.mock('wagmi', () => ({
   useBalance: () => ({
     data: undefined,
   }),
+  useDisconnect: () => ({
+    disconnect: vi.fn(),
+  }),
 }));
 
 // Mock the PulseWalletContext
@@ -67,5 +70,4 @@ describe('ConnectButton', () => {
     expect(screen.getByText('0x1234...5678')).toBeInTheDocument();
   });
 });
-
 

@@ -9,7 +9,7 @@
   top: 0;
   z-index: 100;
   width: 100%;
-  background: rgba(8, 10, 14, 0.85);
+  background: color-mix(in srgb, var(--color-shadow-mountain) 78%, transparent);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
@@ -66,8 +66,21 @@
   line-height: 1;
 }
 
+.networkBadge {
+  padding: 0.2rem 0.45rem;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 999px;
+  background: rgba(56, 189, 248, 0.12);
+  color: #8edcff;
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+}
+
 /* ── Nav Links (Desktop) ──────────────────── */
 .nav {
+  position: relative;
   display: flex;
   align-items: center;
   gap: var(--space-4);
@@ -87,6 +100,15 @@
   gap: 0.25rem;
 }
 
+.navLink:focus-visible,
+.faucetLink:focus-visible,
+.mobileMenuToggle:focus-visible,
+.mobileMenuLink:focus-visible,
+.mobileFaucetLink:focus-visible {
+  outline: 2px solid #8edcff;
+  outline-offset: 3px;
+}
+
 .navLink:hover {
   color: var(--color-paper);
   background: rgba(255, 255, 255, 0.04);
@@ -95,7 +117,37 @@
 .navLinkActive {
   color: var(--color-paper);
   font-weight: 600;
-  background: rgba(255, 255, 255, 0.08);
+}
+
+.activeIndicator {
+  position: absolute;
+  bottom: -0.55rem;
+  left: 0;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--color-rust);
+  pointer-events: none;
+}
+
+.faucetLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(193, 80, 46, 0.18);
+  border: 1px solid rgba(193, 80, 46, 0.4);
+  color: var(--color-paper);
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.faucetLink:hover {
+  background: rgba(193, 80, 46, 0.3);
+  transform: translateY(-1px);
 }
 
 .externalIcon {
@@ -248,6 +300,12 @@
   background: rgba(255, 255, 255, 0.08);
 }
 
+.mobileFaucetLink {
+  composes: mobileMenuLink;
+  background: rgba(193, 80, 46, 0.18);
+  border: 1px solid rgba(193, 80, 46, 0.35);
+}
+
 /* ── Bottom Navigation (Mobile Only) ──────── */
 .bottomNav {
   display: none;
@@ -320,6 +378,20 @@
 
   .brandName {
     font-size: var(--text-small);
+  }
+}
+
+@media (max-width: 640px) {
+  .headerInner {
+    padding-inline: var(--space-3);
+  }
+
+  .brandName {
+    font-size: var(--text-micro);
+  }
+
+  .networkBadge {
+    display: none;
   }
 }
 

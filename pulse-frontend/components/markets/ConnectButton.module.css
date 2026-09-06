@@ -32,6 +32,10 @@
   gap: 0.5rem;
 }
 
+.walletMenu {
+  position: relative;
+}
+
 /* ── Test USDC balance chip ── */
 .usdcChip {
   display: inline-flex;
@@ -94,6 +98,63 @@
   font-weight: 500;
   color: var(--color-paper);
   white-space: nowrap;
+  font: inherit;
+  transition: background 150ms ease, border-color 150ms ease;
+}
+
+.addressPill:hover,
+.addressPill:focus-visible {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.25);
+  outline: 2px solid #8edcff;
+  outline-offset: 2px;
+}
+
+.walletDropdown {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  z-index: 110;
+  display: grid;
+  gap: 0.35rem;
+  min-width: 220px;
+  padding: 0.65rem;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  background: rgba(8, 10, 14, 0.96);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.fullAddress {
+  padding: 0.35rem 0.45rem 0.55rem;
+  color: rgba(242, 237, 225, 0.65);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  overflow-wrap: anywhere;
+}
+
+.walletAction {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.55rem;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--color-paper);
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  text-align: left;
+  cursor: pointer;
+}
+
+.walletAction:hover,
+.walletAction:focus-visible {
+  background: rgba(255, 255, 255, 0.08);
+  outline: none;
 }
 
 .walletIcon {

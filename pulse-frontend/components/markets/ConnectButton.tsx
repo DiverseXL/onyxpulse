@@ -11,9 +11,9 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useConnect, useAccount, useBalance } from 'wagmi';
+import { useConnect, useAccount, useBalance, useDisconnect } from 'wagmi';
 import { formatEther } from 'viem';
-import { Loader2, Wallet, Coins } from 'lucide-react';
+import { Loader2, Wallet, Coins, Copy, LogOut } from 'lucide-react';
 import { useTestUsdcBalance } from '@/lib/wallet/useTestUsdcBalance';
 import styles from './ConnectButton.module.css';
 
@@ -22,6 +22,9 @@ export default function ConnectButton() {
   useEffect(() => setMounted(true), []);
   const { isConnected, address } = useAccount();
   const { connect, connectors, isPending } = useConnect();
+  const { disconnect } = useDisconnect();
+  const [walletOpen, setWalletOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const { data: balanceData } = useBalance({
@@ -54,6 +57,11 @@ export default function ConnectButton() {
   /* -- Connected state: test USDC balance + truncated address pill + STT balance */
   if (isConnected && address) {
     const truncated = `${address.slice(0, 6)}...${address.slice(-4)}`;
+    const copyAddress = async () => {
+      await navigator.clipboard.writeText(address);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1200);
+    };
     return (
       <div className={styles.connectedWrapper}>
         {/* Test USDC balance chip beside the wallet button */}
@@ -69,15 +77,34 @@ export default function ConnectButton() {
         </Link>
 
         {/* Truncated address + STT pill */}
-        <div
-          className={styles.addressPill}
-          title={`STT Balance: ${parseFloat(sttBalance).toFixed(4)}`}
-        >
-          <Wallet size={13} className={styles.walletIcon} aria-hidden="true" />
-          <span className={styles.addressText}>{truncated}</span>
-          <span className={styles.sttAmount}>
-            {parseFloat(sttBalance).toFixed(2)} STT
-          </span>
+        <div className={styles.walletMenu}>
+          <button
+            type="button"
+            className={styles.addressPill}
+            onClick={() => setWalletOpen((open) => !open)}
+            aria-expanded={walletOpen}
+            aria-haspopup="menu"
+            title={`STT Balance: ${parseFloat(sttBalance).toFixed(4)}`}
+          >
+            <Wallet size={13} className={styles.walletIcon} aria-hidden="true" />
+            <span className={styles.addressText}>{truncated}</span>
+            <span className={styles.sttAmount}>
+              {parseFloat(sttBalance).toFixed(2)} STT
+            </span>
+          </button>
+          {walletOpen && (
+            <div className={styles.walletDropdown} role="menu">
+              <span className={styles.fullAddress}>{address}</span>
+              <button type="button" role="menuitem" onClick={copyAddress} className={styles.walletAction}>
+                <Copy size={14} aria-hidden="true" />
+                {copied ? 'Copied' : 'Copy address'}
+              </button>
+              <button type="button" role="menuitem" onClick={() => disconnect()} className={styles.walletAction}>
+                <LogOut size={14} aria-hidden="true" />
+                Disconnect
+              </button>
+            </div>
+          )}
         </div>
       </div>
     );
