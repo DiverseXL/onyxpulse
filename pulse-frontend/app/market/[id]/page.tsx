@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo, useCallback, Suspense } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -19,10 +19,11 @@ import { parsePrefillParams } from '@/lib/prefill';
 import { loadSettings } from '@/lib/settings';
 import { placeClientLimitOrder } from '@/lib/wallet/placeOrder';
 import { createPulseClient } from '@/lib/engine/client';
-import { getOnChainMarketStatus } from '@/lib/engine/statusGate';
+import { createReactiveEngine } from '@/lib/engine';
 import { getWalletClient } from '@wagmi/core';
 import { wagmiConfig } from '@/lib/wallet/wagmiConfig';
 import { useAccount } from 'wagmi';
+import type { Address } from 'viem';
 import {
   useReducedMotionSafe,
   safeVariants,
@@ -93,6 +94,7 @@ export default function MarketDetailPage() {
   const reducedMotion = useReducedMotionSafe();
   const wallet = usePulseWallet();
   const { address: wagmiAddress } = useAccount();
+  const queryClient = useQueryClient();
 
   const [data, setData] = useState<TradePreviewData | null>(null);
 
@@ -102,6 +104,7 @@ export default function MarketDetailPage() {
     isLoading,
     isError,
     isFetching,
+    refetch,
   } = useQuery<TradePreviewData>({
     queryKey: ['trade-preview', marketId],
     queryFn: async () => {
@@ -129,6 +132,7 @@ export default function MarketDetailPage() {
   const [orderStatus, setOrderStatus] = useState<'idle' | 'submitting' | 'success' | 'error' | 'rejected'>('idle');
   const [orderResult, setOrderResult] = useState<{ hash: string; explorerUrl: string } | null>(null);
   const [orderError, setOrderError] = useState<string | null>(null);
+  const [fillNotice, setFillNotice] = useState<string | null>(null);
   const [showLimitFallback, setShowLimitFallback] = useState(false);
   const [liveStatus, setLiveStatus] = useState<string | null>(null);
   const [amountError, setAmountError] = useState<string>('');
@@ -136,6 +140,7 @@ export default function MarketDetailPage() {
   const [confirmTrade, setConfirmTrade] = useState(false);
   const [prefillBanner, setPrefillBanner] = useState<{ side: 'yes' | 'no'; amount: number | null } | null>(null);
   const prefillAppliedRef = useRef(false);
+  const pendingOrderHashRef = useRef<string | null>(null);
 
   // Apply a prefill from a shared draft_trade_link exactly once. Never submits.
   const applyPrefill = useCallback((side: 'yes' | 'no', amount: number | null) => {
@@ -162,35 +167,55 @@ export default function MarketDetailPage() {
     setConfirmTrade(false);
   }, [amount]);
 
-  // ── Proactive on-chain status polling (every 8s) ──────────────────────
-  // Detects Trading → Locked transitions before the user tries to place an order.
+  // ── Reactive status and fill engine ───────────────────────────────────
+  // The engine owns status transitions and fill detection. Order-book and
+  // chart subscriptions remain separate and continue to drive their displays.
   useEffect(() => {
-    if (!data?.marketId || !data?.poolAddress) return;
+    const connectedAddress = wallet.address ?? wagmiAddress;
+    if (!data?.marketId || !data.poolAddress || !connectedAddress) return;
 
-    let stopped = false;
-
-    async function pollStatus() {
-      if (stopped) return;
-      try {
-        const pulse = createPulseClient();
-        const status = await getOnChainMarketStatus(pulse.client, data!.marketId);
-        if (!stopped) {
+    const pulse = createPulseClient();
+    const address = connectedAddress.toLowerCase();
+    const engine = createReactiveEngine(
+      pulse.client,
+      data.poolAddress as Address,
+      data.marketId,
+      connectedAddress as Address,
+      {
+        onStatusChange: (status) => {
           setLiveStatus(status);
-        }
-      } catch {
-        // Non-fatal: next poll will retry.
-      }
-    }
+        },
+        onResolved: (market) => {
+          setLiveStatus(market.status);
+          void refetch();
+          void queryClient.invalidateQueries({ queryKey: ['receipt-status', marketId] });
+        },
+        onFill: (fill) => {
+          const isOwnFill =
+            fill.taker?.toLowerCase() === address ||
+            fill.maker?.toLowerCase() === address;
+          const matchesSubmittedOrder =
+            pendingOrderHashRef.current?.toLowerCase() === fill.txHash.toLowerCase();
 
-    // Initial check
-    void pollStatus();
-    const timer = setInterval(() => void pollStatus(), 8_000);
+          if (isOwnFill && matchesSubmittedOrder) {
+            setOrderResult({
+              hash: fill.txHash,
+              explorerUrl: `https://shannon-explorer.somnia.network/tx/${fill.txHash}`,
+            });
+            setOrderStatus('success');
+            setFillNotice('Your order filled.');
+          } else {
+            void refetch();
+            setFillNotice(isOwnFill ? 'Your order filled.' : 'Order book updated.');
+          }
+        },
+      },
+    );
 
     return () => {
-      stopped = true;
-      clearInterval(timer);
+      engine.stop();
     };
-  }, [data?.marketId, data?.poolAddress]);
+  }, [data?.marketId, data?.poolAddress, marketId, queryClient, refetch, wagmiAddress, wallet.address]);
 
 
 
@@ -375,6 +400,8 @@ export default function MarketDetailPage() {
     setOrderStatus('submitting');
     setOrderError(null);
     setOrderResult(null);
+    setFillNotice(null);
+    pendingOrderHashRef.current = null;
     setAmountError('');
 
     const side = orderType === 'buy'
@@ -399,6 +426,7 @@ export default function MarketDetailPage() {
       });
 
       setOrderResult({ hash: result.hash, explorerUrl: result.explorerUrl });
+      pendingOrderHashRef.current = result.hash;
       setOrderStatus('success');
       setConfirmTrade(false);
     } catch (err: unknown) {
@@ -435,6 +463,7 @@ export default function MarketDetailPage() {
         setOrderStatus('idle');
         setOrderResult(null);
         setOrderError(null);
+        setFillNotice(null);
         setShowLimitFallback(false);
       }, 8000);
     }
@@ -466,6 +495,8 @@ export default function MarketDetailPage() {
     setOrderStatus('submitting');
     setOrderError(null);
     setOrderResult(null);
+    setFillNotice(null);
+    pendingOrderHashRef.current = null;
     setShowLimitFallback(false);
     setAmountError('');
 
@@ -491,6 +522,7 @@ export default function MarketDetailPage() {
       });
 
       setOrderResult({ hash: result.hash, explorerUrl: result.explorerUrl });
+      pendingOrderHashRef.current = result.hash;
       setOrderStatus('success');
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
@@ -515,6 +547,7 @@ export default function MarketDetailPage() {
         setOrderStatus('idle');
         setOrderResult(null);
         setOrderError(null);
+        setFillNotice(null);
         setShowLimitFallback(false);
       }, 5000);
     }
@@ -628,7 +661,8 @@ export default function MarketDetailPage() {
   /* ── Main content ── */
   if (!data) return null;
 
-  const isLocked = liveStatus !== null && liveStatus !== 'Trading' && liveStatus !== 'Listed';
+  const effectiveStatus = liveStatus ?? data.status;
+  const isLocked = effectiveStatus !== 'Trading' && effectiveStatus !== 'Listed';
 
   return (
     <div className={styles.page}>
@@ -1047,6 +1081,11 @@ export default function MarketDetailPage() {
                   >
                     Transaction submitted -- view on explorer
                   </a>
+                </p>
+              )}
+              {fillNotice && (
+                <p className={styles.orderSuccessText} role="status" aria-live="polite">
+                  {fillNotice}
                 </p>
               )}
 
