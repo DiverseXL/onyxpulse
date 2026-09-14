@@ -51,6 +51,8 @@ test.describe('Connect Agent Page', () => {
     const configText = (await configCode.textContent()) ?? '';
     expect(configText).toContain('mcpServers');
     expect(configText).toContain('https://onyxpulsemcp-lyart.vercel.app/mcp');
+    expect(configText).toContain('mcp-remote');
+    expect(configText).toContain('npx');
     expect(configText).toContain(token);
 
     // Copy token button puts the real token on the clipboard and confirms

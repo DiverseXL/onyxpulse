@@ -114,17 +114,21 @@ node scripts/smoke.mjs http://localhost:4000 0xYourPublicAddress   # live read t
 
 ## Connecting Claude Desktop (or another header-capable MCP client)
 
+Claude Desktop currently requires local stdio-style servers in its config file. To connect to a remote HTTP MCP server like Pulse with a bearer token, use the `mcp-remote` bridge package (which requires `npx` / Node.js available on your machine).
+
 Add to `claude_desktop_config.json`:
 
 ```json
 {
   "mcpServers": {
     "pulse": {
-      "type": "http",
-      "url": "https://your-deployment.example.com/mcp",
-      "headers": {
-        "Authorization": "Bearer <token-from-connect>"
-      }
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "https://your-deployment.example.com/mcp",
+        "--header",
+        "Authorization: Bearer <token-from-connect>"
+      ]
     }
   }
 }

@@ -112,10 +112,13 @@ export default function ConnectAgentPage() {
       {
         mcpServers: {
           pulse: {
-            url: MCP_ENDPOINT,
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+            command: 'npx',
+            args: [
+              'mcp-remote',
+              MCP_ENDPOINT,
+              '--header',
+              `Authorization: Bearer ${token}`,
+            ],
           },
         },
       },
@@ -406,6 +409,9 @@ export default function ConnectAgentPage() {
                 <div aria-live="polite" className="sr-only">
                   {copiedConfig ? 'Claude Desktop config copied to clipboard' : ''}
                 </div>
+                <p className={styles.fieldHint}>
+                  Requires Node.js and <code>npx</code> available on your machine. Claude Desktop runs <code>mcp-remote</code> as a local bridge process to connect to Pulse&apos;s remote MCP endpoint with your token.
+                </p>
               </div>
             </div>
           )}
@@ -428,13 +434,18 @@ export default function ConnectAgentPage() {
             <h2 className={styles.cardTitle}>How to use this</h2>
           </div>
           <ol className={styles.stepsList}>
-            <li>Copy the config above.</li>
             <li>
-              Open Claude Desktop&apos;s settings and paste it into your MCP
-              server configuration.
+              Enter your public wallet address above and click <strong>Get Access Token</strong> (issued by the Pulse MCP <code>/connect</code> endpoint).
+            </li>
+            <li>
+              Ensure Node.js and <code>npx</code> are installed on your machine (<code>mcp-remote</code> runs locally to bridge Claude Desktop to the remote server).
+            </li>
+            <li>Copy the generated configuration JSON above.</li>
+            <li>
+              Open Claude Desktop&apos;s settings (or edit <code>claude_desktop_config.json</code>) and paste it into your <code>mcpServers</code> section.
             </li>
             <li>Restart Claude Desktop.</li>
-            <li>Ask Claude about your Pulse portfolio.</li>
+            <li>Ask Claude about your Pulse portfolio or live markets.</li>
           </ol>
         </motion.div>
 

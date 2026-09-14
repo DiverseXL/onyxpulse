@@ -119,11 +119,13 @@ export function connectResultPage(opts: {
     <pre>{
   "mcpServers": {
     "pulse": {
-      "type": "http",
-      "url": "${escapeHtml(opts.mcpUrl)}",
-      "headers": {
-        "Authorization": "Bearer &lt;paste-token-here&gt;"
-      }
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "${escapeHtml(opts.mcpUrl)}",
+        "--header",
+        "Authorization: Bearer ${escapeHtml(opts.token)}"
+      ]
     }
   }
 }</pre>
