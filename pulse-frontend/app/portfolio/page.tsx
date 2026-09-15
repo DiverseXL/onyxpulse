@@ -355,7 +355,16 @@ export default function PortfolioPage() {
   const openCount = openPositionsList.length;
 
   const settledPositions = enrichedPositions.filter(
-    (p) => p.status !== 'Trading' && p.status !== 'Locked',
+    (p) =>
+      p.status !== 'Trading' &&
+      p.status !== 'Locked' &&
+      // Exclude settled positions with zero value: these are either genuine
+      // losses (showing $0.00 adds no value) or already-claimed wins where
+      // the winning tokens were burned and only worthless losing tokens remain
+      // — the latter incorrectly showed as "Lost (0%)" because the win/loss
+      // check re-evaluated against the post-claim remaining balances instead
+      // of the original resolution outcome.
+      p.markValue > 0,
   );
 
   const claimableCount = enrichedPositions.filter((p) => p.isClaimable).length;
