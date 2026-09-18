@@ -162,13 +162,17 @@ function getCurrentPriceLabel(position: EnrichedPosition): string {
   if (position.status === 'Voided') {
     return 'Refund (50%)';
   }
-  if (position.raw.market.winningOutcome != null) {
-    const winning = position.raw.market.winningOutcome as 0 | 1;
-    if (position.side === 'BOTH') {
+  // Defensive: market data may be absent on a fallback entry.
+  const market = position.raw?.market;
+  if (market?.winningOutcome != null) {
+    // For settled positions, determine win/loss from the markValue payout
+    // rather than comparing side to winningOutcome. After a user claims,
+    // the winning tokens are burned and only worthless losing tokens remain,
+    // which would flip the side and incorrectly show a win as a loss.
+    if (position.markValue > 0) {
       return 'Won (100%)';
     }
-    const held: 0 | 1 = position.side === 'YES' ? 0 : 1;
-    return held === winning ? 'Won (100%)' : 'Lost (0%)';
+    return 'Lost (0%)';
   }
 
   // Still trading: live book-clamped price of the held side.
@@ -299,45 +303,96 @@ export default function PortfolioPage() {
       }
     }
 
-    return openPositions
-      .filter((p) => BigInt(p.balanceYes) + BigInt(p.balanceNo) > 0n)
-      .map((p) => {
-        const decimals = p.market.quoteDecimals ?? 6;
-        const balanceYes = BigInt(p.balanceYes);
-        const balanceNo = BigInt(p.balanceNo);
-        const marketId = p.market.id;
-        const side: 'YES' | 'NO' | 'BOTH' =
-          balanceYes > 0n && balanceNo > 0n
-            ? 'BOTH'
-            : balanceYes > 0n
-              ? 'YES'
-              : 'NO';
+    try {
+      return openPositions
+        .filter((p) => {
+          try {
+            return BigInt(p.balanceYes) + BigInt(p.balanceNo) > 0n;
+          } catch {
+            // Defensive: if balance parsing fails, keep the position so it
+            // doesn't silently vanish — the UI will show fallback values.
+            console.error(
+              '[portfolio] failed to parse balance for position',
+              p.market?.id,
+              p.balanceYes,
+              p.balanceNo,
+            );
+            return true;
+          }
+        })
+        .map((p) => {
+          try {
+            const decimals = p.market.quoteDecimals ?? 6;
+            const balanceYes = BigInt(p.balanceYes);
+            const balanceNo = BigInt(p.balanceNo);
+            const marketId = p.market.id;
+            const side: 'YES' | 'NO' | 'BOTH' =
+              balanceYes > 0n && balanceNo > 0n
+                ? 'BOTH'
+                : balanceYes > 0n
+                  ? 'YES'
+                  : 'NO';
 
-        // markValue comes from the SDK's canonical PnL engine (getPositionPnL
-        // family): live mark while trading, actual payout once settled.
-        // No reimplementation of value math here.
-        const markValue = Number(fromBigintAmount(p.markValue, decimals));
-        const isClaimable = claimableMap.has(marketId.toLowerCase());
+            // markValue comes from the SDK's canonical PnL engine (getPositionPnL
+            // family): live mark while trading, actual payout once settled.
+            // No reimplementation of value math here.
+            const markValue = Number(fromBigintAmount(p.markValue, decimals));
+            const isClaimable = claimableMap.has(marketId.toLowerCase());
 
-        return {
-          raw: p,
-          marketId,
-          question: p.market.question ?? 'Unknown market',
-          status: p.market.status ?? 'Unknown',
-          decimals,
-          expiry: p.market.expiry,
-          lastPrice: p.market.lastPrice,
-          balanceYes,
-          balanceNo,
-          humanYes: fromBigintAmount(balanceYes, decimals),
-          humanNo: fromBigintAmount(balanceNo, decimals),
-          side,
-          avgCost: p.avgCost,
-          markValue,
-          isClaimable,
-          claimableInfo: claimableMap.get(marketId.toLowerCase()) ?? null,
-        };
-      });
+            return {
+              raw: p,
+              marketId,
+              question: p.market.question ?? 'Unknown market',
+              status: p.market.status ?? 'Unknown',
+              decimals,
+              expiry: p.market.expiry,
+              lastPrice: p.market.lastPrice,
+              balanceYes,
+              balanceNo,
+              humanYes: fromBigintAmount(balanceYes, decimals),
+              humanNo: fromBigintAmount(balanceNo, decimals),
+              side,
+              avgCost: p.avgCost,
+              markValue,
+              isClaimable,
+              claimableInfo: claimableMap.get(marketId.toLowerCase()) ?? null,
+            };
+          } catch (err) {
+            // Defensive: if a single position's data shape is unexpected,
+            // log the error and produce a minimal fallback entry so the rest
+            // of the portfolio still renders.  This prevents a single bad
+            // position from silently nuking the entire Settled section.
+            console.error(
+              '[portfolio] failed to enrich position',
+              p.market?.id ?? '(unknown)',
+              err,
+            );
+            return {
+              raw: p,
+              marketId: p.market?.id ?? 'unknown',
+              question: p.market?.question ?? 'Unknown market',
+              status: p.market?.status ?? 'Unknown',
+              decimals: p.market?.quoteDecimals ?? 6,
+              expiry: p.market?.expiry ?? '0',
+              lastPrice: null,
+              balanceYes: 0n,
+              balanceNo: 0n,
+              humanYes: '0',
+              humanNo: '0',
+              side: 'YES' as const,
+              avgCost: 0n,
+              markValue: 0,
+              isClaimable: false,
+              claimableInfo: null,
+            } satisfies EnrichedPosition;
+          }
+        });
+    } catch (err) {
+      // Last-resort: if the entire pipeline throws (e.g. SDK shape change),
+      // log and return empty so at least the page doesn't crash.
+      console.error('[portfolio] enrichedPositions pipeline failed:', err);
+      return [];
+    }
   }, [openPositions, redeemablePositions]);
 
   // ── Aggregate stats ───────────────────────────────────────────────────────
@@ -357,14 +412,7 @@ export default function PortfolioPage() {
   const settledPositions = enrichedPositions.filter(
     (p) =>
       p.status !== 'Trading' &&
-      p.status !== 'Locked' &&
-      // Exclude settled positions with zero value: these are either genuine
-      // losses (showing $0.00 adds no value) or already-claimed wins where
-      // the winning tokens were burned and only worthless losing tokens remain
-      // — the latter incorrectly showed as "Lost (0%)" because the win/loss
-      // check re-evaluated against the post-claim remaining balances instead
-      // of the original resolution outcome.
-      p.markValue > 0,
+      p.status !== 'Locked',
   );
 
   const claimableCount = enrichedPositions.filter((p) => p.isClaimable).length;
